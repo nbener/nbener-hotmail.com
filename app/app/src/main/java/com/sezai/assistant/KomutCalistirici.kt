@@ -1,0 +1,63 @@
+package com.sezai.assistant
+
+import android.content.Context
+import android.content.Intent
+import android.provider.AlarmClock
+import android.util.Log
+import java.time.LocalDateTime
+import java.time.format.TextStyle
+import java.util.Locale
+
+// Komutu gerçekten yapar ve Sezai'nin söyleyeceği cevabı döndürür
+class KomutCalistirici(private val context: Context) {
+    private val tr = Locale("tr", "TR")
+
+    fun calistir(komut: Komut): String = when (komut) {
+        is Komut.SaatSor -> LocalDateTime.now().let { "Saat ${it.hour} ${if (it.minute == 0) "tam" else it.minute.toString().padStart(2, '0')}" }
+        is Komut.TarihSor -> LocalDateTime.now().let {
+            "Bugün ${it.dayOfMonth} ${it.month.getDisplayName(TextStyle.FULL, tr)} ${it.year}, ${it.dayOfWeek.getDisplayName(TextStyle.FULL, tr)}"
+        }
+        is Komut.AlarmKur -> alarmKur(komut.saat, komut.dakika)
+        is Komut.AlarmIptal -> alarmIptal()
+        is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)
+        is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
+    }
+
+    private fun baslat(i: Intent): Boolean = try {
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(i); true
+    } catch (e: Exception) { Log.w("Sezai", "Intent hata: $e"); false }
+
+    private fun alarmKur(saat: Int, dakika: Int): String {
+        val ok = baslat(Intent(AlarmClock.ACTION_SET_ALARM).apply {
+            putExtra(AlarmClock.EXTRA_HOUR, saat)
+            putExtra(AlarmClock.EXTRA_MINUTES, dakika)
+            putExtra(AlarmClock.EXTRA_MESSAGE, "Sezai")
+            putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+        })
+        Log.i("Sezai", "ALARM kur $saat:$dakika ok=$ok")
+        val d = dakika.toString().padStart(2, '0')
+        return if (ok) "Tamam, alarmı $saat $d için kurdum." else "Alarmı kuramadım."
+    }
+
+    private fun alarmIptal(): String {
+        val ok = baslat(Intent(AlarmClock.ACTION_DISMISS_ALARM).apply {
+            putExtra(AlarmClock.EXTRA_ALARM_SEARCH_MODE, AlarmClock.ALARM_SEARCH_MODE_LABEL)
+            putExtra(AlarmClock.EXTRA_MESSAGE, "Sezai")
+        })
+        Log.i("Sezai", "ALARM iptal ok=$ok")
+        return if (ok) "Sezai alarmlarını iptal ettim." else "Alarmı iptal edemedim."
+    }
+
+    private fun zamanlayiciKur(saniye: Int): String {
+        val ok = baslat(Intent(AlarmClock.ACTION_SET_TIMER).apply {
+            putExtra(AlarmClock.EXTRA_LENGTH, saniye)
+            putExtra(AlarmClock.EXTRA_MESSAGE, "Sezai")
+            putExtra(AlarmClock.EXTRA_SKIP_UI, true)
+        })
+        Log.i("Sezai", "ZAMANLAYICI $saniye sn ok=$ok")
+        val dk = saniye / 60; val sn = saniye % 60
+        val metin = if (dk > 0 && sn == 0) "$dk dakika" else if (dk > 0) "$dk dakika $sn saniye" else "$sn saniye"
+        return if (ok) "Tamam, $metin için zamanlayıcı kurdum." else "Zamanlayıcıyı kuramadım."
+    }
+}

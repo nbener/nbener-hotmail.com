@@ -1,0 +1,13 @@
+# derleme çıktıları ve önbellek
+app/.gradle/
+app/build/
+app/app/build/
+*.apk
+*.aab
+# gizli ve yerel dosyalar: anahtar, şifre, yerel yol
+*.jks
+*.keystore
+local.properties
+yedek/
+# geçici
+*.log

@@ -1,0 +1,1 @@
+Bu projenin kurallarını CLAUDE.md dosyasından oku ve aynen uygula
