@@ -38,11 +38,12 @@ class MainActivity : Activity() {
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
                 intent.getStringExtra("oto")?.let { konusma.konus(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
-                intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
                 intent.getStringExtra("komut")?.let { komutVer(it) }
             }
         }
         dinleme = AndroidDinleme(this)
+        // test için: yalnızca yorumla, komutu çalıştırma (TTS'i beklemez)
+        intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
         calistirici = KomutCalistirici(this)
 
         dugme("Konuş") { konusma.konus("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }

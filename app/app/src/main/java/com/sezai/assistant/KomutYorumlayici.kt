@@ -39,6 +39,10 @@ object KomutYorumlayici {
     private fun sayiOku(t: List<String>, i: Int): Pair<Int, Int>? {
         val ilk = sayiDeger(t[i]) ?: return null
         if (t[i].toIntOrNull() != null) return ilk to 1
+        if (ilk == 10 && i + 1 < t.size) {
+            val ikinci = sayilar.keys.firstOrNull { t[i + 1].startsWith(it) && t[i + 1].removePrefix(it) in ekler }?.let { sayilar[it] }
+            if (ikinci != null && ikinci in 1..9) return (10 + ikinci) to 2
+        }
         if (ilk in listOf(20, 30, 40, 50) && i + 1 < t.size) {
             val ikinci = sayilar[t[i + 1].takeWhile { it.isLetter() }.let { s -> sayilar.keys.firstOrNull { s.startsWith(it) && s.removePrefix(it) in ekler } ?: "" }]
             if (ikinci != null && ikinci in 1..9) return (ilk + ikinci) to 2
@@ -81,8 +85,8 @@ object KomutYorumlayici {
                     if (oku.first in 0..24 && t[i] != "saat") {
                         saat = oku.first
                         val j = i + oku.second
-                        if (j < t.size && t[j] == "buçuk") dakika = 30
-                        else if (j < t.size) sayiOku(t, j)?.let { if (it.first in 1..59 && t[j].toIntOrNull() != null || it.first in 1..59 && t[j] in sayilar) dakika = it.first }
+                        if (j < t.size && (t[j].startsWith("buçuk") || t[j].startsWith("buçuğ"))) dakika = 30
+                        else if (j < t.size) sayiOku(t, j)?.let { if (it.first in 1..59) dakika = it.first }
                         break
                     }
                     i += oku.second
@@ -110,7 +114,7 @@ object KomutYorumlayici {
                 val j = i + oku.second
                 var deger = oku.first.toDouble()
                 var k = j
-                if (k < t.size && t[k] == "buçuk") { deger += 0.5; k++ }
+                if (k < t.size && (t[k].startsWith("buçuk") || t[k].startsWith("buçuğ"))) { deger += 0.5; k++ }
                 if (k < t.size) {
                     val birim = t[k]
                     val carpan = when {
