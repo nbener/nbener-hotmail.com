@@ -23,11 +23,19 @@ Son güncelleme: 2026-10-29
 - İmza: şu an debug anahtarı. Release için Sezai'nin KENDİ anahtarı oluşturulacak (şifreyi kullanıcı belirler), apksigner verify zorunlu, yedek ~/sezai/yedek (git'e girmez).
 
 ## Sıradaki adım
-1. TAMAMLANDI: Yorumlayıcı cihazda 20/20 yan etkisiz testten geçti. Test: Termux içinde `python3 test/cihaz_yorumla_test.py`.
-2. Gerçek alarm/zamanlayıcı testi (sistem saati uygulamasında göründüğünü doğrula, test alarmlarını iptal et).
-3. Kullanıcıdan: Google ses numaralarının kadın/erkek eşlemesi, "Dinle" gerçek konuşma testi, internetsiz çalışma şart mı sorusu.
-4. Sonra Aşama 1: sesli arama (rehber araması, aramadan önce onay, test sırasında gerçek arama YAPMA), müzik/radyo, YouTube.
-5. Sezai imza anahtarı + release derleme.
+1. ÖNCELİK: Karşılıklı sesli sohbet. Sohbet et -> Türkçe konuşma tanıma -> OpenAI Responses -> Türkçe seslendirme -> yeniden dinleme. Diğer özellikler sonraya bırakıldı.
+2. Canlı API anahtarı henüz yok. Uygulamadaki Sohbet bağlantısı ekranından kullanıcının kendi anahtarı girilecek; anahtarı sohbetten isteme, APK'ya/repo veya günlüklere koyma. Gerçek API ve kullanıcının sesiyle uçtan uca deneme henüz yapılmadı.
+3. TAMAMLANDI: Son debug APK derlendi, zipalign/apksigner doğrulandı ve pm install -r ile kuruldu. Altı sessiz sohbet testi, 20 yorumlama testi ve anahtar ekranı kontrolleri geçti. Canlı sesli görüşme anahtar ve kullanıcının gerçek konuşmasıyla henüz denenmedi.
+4. Kullanıcı uyuyor: ses çıkaran test, gerçek arama, yeni alarm veya zamanlayıcı başlatma. Gereksiz soru sormadan bağımsız işleri sürdür.
+5. Sohbet doğrulandıktan sonra ses eşlemesi, arama, müzik/radyo, YouTube ve diğer hedef özellikler ele alınacak.
+6. Sezai'ye özel release imza anahtarı ve ticari dağıtım mimarisi sonra. Mevcut sohbet prototipi kişisel API anahtarıyla çalışır; geliştiricinin ortak API anahtarını mobil uygulamaya gömme.
+
+## Bu geceki çalışma sınırları ve kullanıcı tercihleri
+- 29 Ekim 2026 İstanbul saatiyle 06.00'da dur. Kota kullanımı herhangi bir pencerede %80'e ulaşırsa daha erken dur. `python3 scripts/calisma_kontrol.py` mevcut oturumun yalnızca rate_limits alanlarını kontrol eder; her ana adımdan önce çalıştır.
+- Kota her ana adımda scripts/calisma_kontrol.py ile kontrol edildi; son kayıtta %40 / %6 idi, güncel olarak tekrar okunmalı.
+- Kullanıcı gerekli becerileri kullanmaya izin verdi; şu aşamada OpenAI Docs kullanıldı, yeni paket veya beceri kurulmadı.
+- Ekranı kapatan komut çalıştırma. Bu, uygulamanın ekranını kalıcı açık tutma talebi değil; FLAG_KEEP_SCREEN_ON kaldırıldı, son APK'da bulunmamalı.
+- Kullanıcı açıkça Termux'un uyurken çalışması için önlem istedi: `termux-wake-lock` etkin, dumpsys power içinde termux:service-wakelock doğrulandı. com.termux deviceidle beyaz listesine eklendi (önceden yoktu). Standby bucket 10, RUN_ANY_IN_BACKGROUND varsayılan allow; bunlar değiştirilmedi. CPU kilidi pil tüketir; çalışma sonunda `termux-wake-unlock` ile bırakılmalı, geçici deviceidle istisnası kaldırılmalı. Android'in süreci hiç öldürmeyeceği garanti edilemez.
 
 ## Bilinen sorunlar
 - Tıklayarak APK kurulumu başlamıyor (neden belirsiz); Shizuku gerekli, telefon yeniden başlayınca Shizuku durabilir.
@@ -46,3 +54,28 @@ Son güncelleme: 2026-10-29
 - Shizuku/rish shell bağlantısı çalışıyor. Samsung Saat SET_ALARM ve SET_TIMER intentlerini karşılıyor. Gerçek alarm/zamanlayıcı testi henüz yapılmadı.
 - Pil: yeni arka plan servisi veya sürekli dinleme eklenmedi; uyandırma kilidi alınmadı.
 - Kullanıcı kalan işleri sırayla uygulayıp test ederek sürdürmemi istedi. Android Termux sürecini durdurursa kesintisiz çalışma garantisi yok.
+
+## Sesli sohbet ve durum kutusu (29 Ekim 2026)
+- Yedekler: yedek/durum-kutusu-oncesi-20261029.tar.gz, yedek/sesli-sohbet-oncesi-20261029.tar.gz.
+- MainActivity: üstte zaman damgalı son çalışma bildirimi (debug), Sohbet et/Sohbeti bitir ve Sohbet bağlantısı ekranı. Sohbet sırasında telefon komutları kendiliğinden çalıştırılmaz. Uygulamadan çıkınca mikrofon, seslendirme ve API isteği durdurulur.
+- AnahtarKasasi: Android Keystore AES-GCM; anahtar giriş ekranı FLAG_SECURE; APK'da/repoda açık anahtar yok. SohbetMotoru: HTTPS Responses API, gpt-4.1-mini, store=false, bellekte sınırlı sohbet bağlamı, süre sınırları ve iptal desteği. Ek kütüphane kurulmadı.
+- AndroidDinleme artık kullanıcının konuşma metnini günlüğe yazmıyor. AndroidKonusma seslendirme hatasını sohbet ekranına bildirebiliyor.
+- Debug test alıcıları android.permission.DUMP ile korunur; release manifestine girmez. test/sohbet_test.py gerçek API/mikrofon kullanmadan test eder; ayrı test anahtarı kullanır, kullanıcının anahtarına dokunmaz.
+- Altı cihaz testi geçti: anahtar yokken ağ çağrısı yapılmaması; Android Keystore şifreleme/geri okuma; ikinci tur sohbet bağlamı; 401 ve 429 hataları; iptal edilen yanıtın gösterilmemesi.
+- rish'i Ubuntu proot içinde çağırmak aralıklı Failed transaction (2147483646) ve çıktı kaybı üretti. Doğrudan Termux'tan rootfs/root/rish/rish çağrısı başarılı; cihaz testleri ve durum bildirme betiği bu yönteme geçirildi. Derleme hâlâ Ubuntu proot içinde yapılır.
+- Gerçek alarm testi: 23:58 Sezai alarmının açık oluştuğu doğrulandı. Son kontrolde Sezai alarm anahtarı false (kapalı); kişisel alarmlara dokunulmadı. Uygulamanın iptal komutu soğuk TTS başlangıcı ve rish hataları nedeniyle tek başına güvenilir doğrulanmadı; şimdilik tamamlandı sayma. Yeni alarm oluşturma.
+- Üst durum kutusu ve yeni sohbet düğmeleri cihaz arayüzünde görüldü. Android düğme yazılarını büyük harf gösterir; UI testleri harf büyüklüğünü dikkate almamalı.
+
+## Son doğrulama ve devam bilgisi
+- Son APK: /sdcard/Download/Sezai-debug.apk. Ubuntu proot ./build.sh başarılı, zipalign -c 4 ve apksigner verify başarılı, telefona kurulum Success. Yeni parola maskeleme ve sesli sohbet bitirme kodlarının DEX içinde bulunduğu da kontrol edildi.
+- `python3 test/sohbet_test.py`: son cihaz turu 6/6 PASS. Her çalışmanın benzersiz kimliği kontrol edilir; eski rapor başarılı sayılmaz. `python3 test/cihaz_yorumla_test.py`: 20/20 PASS. Bu testler gerçek API çağrısı, alarm veya mikrofon başlatmaz.
+- UI: Sohbet et, Sohbet bağlantısı ve üst durum alanı görüldü. Parola alanının password=true olduğu doğrulandı; boş Kaydet sonrası anahtarın saklanmadığı ayrıca kontrol edildi ve diyalog kapatıldı. Gerçek API anahtarı girilmedi.
+- Bulunup düzeltilen UI hatası: setSingleLine çağrısı parola dönüşümünü bozuyordu. Sıra düzeltildi ve PasswordTransformationMethod açıkça ayarlandı. Anahtar ekranı ayrıca FLAG_SECURE kullanır.
+- Sohbet içindeyken "sohbeti bitir/kapat", "görüşmeyi bitir", "konuşmayı bitir" cümleleri API'ye gitmeden oturumu bitirecek şekilde eklendi. Gerçek sesli deneme henüz yapılmadı.
+- Cihaz test raporu aktarımı: run-as çıktısını doğrudan Download'a yönlendirmek boş dosya üretebiliyor. `run-as ... cat ... | /system/bin/cat > ...` yöntemi son turda başarılı oldu; test/sohbet_test.py bunu kullanır. Boş/eksik çıktı başarılı kabul edilmez.
+- `scripts/gece_siniri.py` ayrı yerel süreçte çalışıyor; yalnızca bu gece 06.00 / %80 sınırını izler, geliştirme yapmaz. Sınırda calisma_durdu.json oluşturur, termux-wake-unlock çalıştırır ve geçici com.termux deviceidle istisnasını kaldırmayı dener; sonra durur. Android süreci öldürürse zamanlama garanti edilemez. Günlük: /data/data/com.termux/files/usr/tmp/sezai-gece-siniri.log; süreç kimliği /data/data/com.termux/files/usr/tmp/sezai-gece-siniri.lock içinde. Uygulama ekranını açık tutma ayarı eklenmedi.
+- Gerçek konuşmayı doğrulamanın sonraki adımı: kullanıcı uyanınca uygulamadaki Sohbet bağlantısı alanına kendi OpenAI API anahtarını girer, Sohbet et ile mikrofon iznini verip konuşur. Anahtarı sohbete veya git'e yazma. Anahtar olmadığı için canlı bağlantı kurulmuş gibi rapor verme.
+
+- Son ekran görsel olarak da kontrol edildi: başlık, üst durum kutusu, Sohbet et, Sohbet bağlantısı ve mevcut düğmeler okunuyor; son ekran /sdcard/Download/sezai-son-test.png.
+- Kullanıcının ilk verdiği /sdcard/Download/ekran_son.png dosyası değiştirilmedi. Başlangıçtaki test/yorumla_test.sh ve test/yorumla_cumleler.txt dosyaları değiştirilmedi ve bu değişikliklerin commitine eklenmedi.
+- OpenAI bağlantısının dayanağı: https://developers.openai.com/api/docs/guides/conversation-state ve https://developers.openai.com/api/docs/models/gpt-4.1-mini (bu oturumda açılıp kontrol edildi).

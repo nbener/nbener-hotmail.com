@@ -11,3 +11,6 @@ local.properties
 yedek/
 # geçici
 *.log
+
+# Gece çalışmasının geçici durma işareti
+calisma_durdu.json

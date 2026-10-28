@@ -26,15 +26,16 @@ class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -
 
     override fun hazirMi() = hazirlandi
 
-    override fun konus(metin: String, bitince: (() -> Unit)?) {
-        val t = tts ?: return
+    override fun konus(metin: String, bitince: (() -> Unit)?, hata: (() -> Unit)?) {
+        val t = tts
+        if (t == null || !hazirlandi) { hata?.invoke(); return }
         t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             override fun onStart(id: String?) {}
             override fun onDone(id: String?) { bitince?.invoke() }
             @Deprecated("Deprecated in Java")
-            override fun onError(id: String?) { Log.w("Sezai", "TTS hata id=$id") }
+            override fun onError(id: String?) { Log.w("Sezai", "TTS hata"); hata?.invoke() }
         })
-        t.speak(metin, TextToSpeech.QUEUE_FLUSH, null, "sezai-konus")
+        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, null, "sezai-konus") == TextToSpeech.ERROR) hata?.invoke()
     }
 
     override fun durdur() { tts?.stop() }

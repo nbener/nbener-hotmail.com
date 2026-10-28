@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Termux'tan çalıştırılır. Yalnızca yorumlar; alarm veya arama başlatmaz.
 import pathlib
+import os
 import re
 import shlex
 import subprocess
@@ -23,9 +24,10 @@ for cumle, _ in cumleler:
 # rish uzun çıktılarda karakter kaybedebiliyor; sonuç dosyasını doğrudan oku.
 cikti = pathlib.Path('/sdcard/Download/' + isaret + '.txt')
 komutlar += ["logcat -d -v raw -s Sezai:I SezaiTest:I '*:S' | grep -E '^YORUM |^SEZAI_TEST_' > " + shlex.quote(str(cikti))]
-uzak = 'cd /root/rish && export RISH_APPLICATION_ID=com.termux && sh ./rish -c ' + shlex.quote('; '.join(komutlar))
-sonuc = subprocess.run(['proot-distro', 'login', 'ubuntu', '--', 'bash', '-c', uzak],
-                       text=True, capture_output=True, timeout=300)
+rish = kok.parent.parent / 'rish' / 'rish'
+sonuc = subprocess.run(['sh', str(rish), '-c', '; '.join(komutlar)],
+                       text=True, capture_output=True, timeout=300,
+                       env=dict(os.environ, RISH_APPLICATION_ID='com.termux'))
 if sonuc.returncode:
     raise SystemExit('Cihaz bağlantısı başarısız: ' + sonuc.stderr)
 try:

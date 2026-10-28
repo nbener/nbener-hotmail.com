@@ -21,13 +21,13 @@ class AndroidDinleme(private val context: Context) : DinlemeMotoru {
         r.setRecognitionListener(object : RecognitionListener {
             override fun onResults(b: Bundle?) {
                 val metin = b?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()
-                Log.i("Sezai", "STT sonuc=$metin")
-                if (metin.isNullOrBlank()) hata("Anlayamadım") else sonuc(metin)
+                Log.i("Sezai", "STT sonucu alındı")
                 kapat()
+                if (metin.isNullOrBlank()) hata("Anlayamadım") else sonuc(metin)
             }
             override fun onError(kod: Int) {
                 Log.w("Sezai", "STT hata kodu=$kod")
-                hata(hataMetni(kod)); kapat()
+                kapat(); hata(hataMetni(kod))
             }
             override fun onReadyForSpeech(p: Bundle?) { Log.i("Sezai", "STT hazir") }
             override fun onBeginningOfSpeech() {}
