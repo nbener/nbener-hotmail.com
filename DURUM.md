@@ -1,6 +1,6 @@
 # SEZAI - DURUM (her adımdan sonra güncelle, her oturumda ilk bunu oku)
 
-Son güncelleme: 2026-10-28
+Son güncelleme: 2026-10-29
 
 ## Ne yapıldı
 - Sezai bağımsız projedir (Zeki ile ilişkisi yok). Paket adı: com.sezai.assistant. Kurallar: CLAUDE.md
@@ -10,6 +10,8 @@ Son güncelleme: 2026-10-28
 - Ses altyapısı kararı: Android TTS/STT + KonusmaMotoru/DinlemeMotoru arayüzleri. Piper/espeak-ng GPL lisans riski nedeniyle ertelendi (satış öncesi lisans kontrolü şart). Google TTS varsayılan: 5 yerel Türkçe ses (ama, cfs, efu, mfm, tmc), cinsiyet API'de yok, kullanıcı kulakla belirleyecek. Samsung TTS: 1 kadın ses.
 - Kod (app/app/src/main/java/com/sezai/assistant): SesArayuzleri, AndroidKonusma, AndroidDinleme, MainActivity (test ekranı: Konuş/Dinle/Sesi değiştir), KomutYorumlayici (Türkçe cümle -> komut), KomutCalistirici (saat, tarih, alarm kur/iptal, zamanlayıcı).
 - Git deposu başlatıldı (yerel, uzak depo yok).
+
+- `9b481a2` commitindeki saat ifadesi yorumlama iyileştirmesi ve test günlüğü düzeltmesi için derleme Ubuntu proot komutuyla doğrulandı; debug APK üretildi (çıkış kodu 0). Bu değişiklikler cihazda henüz denenmedi.
 
 ## Derleme nasıl yapılır
 - Derleme araçları Termux içindeki Ubuntu proot ortamında kuruludur (bu ortam Termux'un içinde çalışır, başka platform değildir).
@@ -29,7 +31,8 @@ Son güncelleme: 2026-10-28
 
 ## Bilinen sorunlar
 - Tıklayarak APK kurulumu başlamıyor (neden belirsiz); Shizuku gerekli, telefon yeniden başlayınca Shizuku durabilir.
-- Yorumlayıcı henüz test edilmedi; ilk parse testi boş çıktı (YORUM günlüğü TTS hazır olana kadar bekliyordu, düzeltilecek).
+- İlk parse testinde YORUM günlüğü TTS hazır olana kadar beklediği için çıktı boştu. `9b481a2` ile yorumlama günlüğü TTS hazırlığını beklemeyecek şekilde düzeltildi; cihazda henüz doğrulanmadı.
+- Bilinen risk: "buçuk" kontrolü geniş önek eşleşmesi kullandığından geçersiz kelimeleri de kabul edebilir.
 - Android konuşma tanıma çoğu durumda internet ister; çevrimdışı ihtiyacı belirsiz.
 - Disk dar (~3-4 GB boş). Derleme önbelleği ~1,1 GB.
 - Pil: sürekli dinleme yok (mikrofon yalnızca butonla). WakeService gibi arka plan servisi eklenmedi; eklenirse pil ölçülmeli.
