@@ -21,6 +21,8 @@ object KomutYorumlayici {
         "kırk" to 40, "elli" to 50, "altmış" to 60
     )
     private val ekler = setOf("", "a", "e", "ya", "ye", "da", "de", "ta", "te", "dan", "den", "tan", "ten", "ı", "i", "yı", "yi", "u", "ü", "lık", "lik", "luk", "lük")
+    // Önek eşleşmesi "buçukluk" gibi başka sözcükleri yarım saat saymamalı.
+    private val bucukBicimleri = setOf("buçuk", "buçukta", "buçuktan", "buçuğa", "buçuğu")
 
     fun normalize(metin: String): List<String> =
         metin.lowercase(trLocale).replace(Regex("[^0-9a-zçğıöşü: .]"), " ").replace(Regex("\\s+"), " ").trim()
@@ -85,7 +87,7 @@ object KomutYorumlayici {
                     if (oku.first in 0..24 && t[i] != "saat") {
                         saat = oku.first
                         val j = i + oku.second
-                        if (j < t.size && (t[j].startsWith("buçuk") || t[j].startsWith("buçuğ"))) dakika = 30
+                        if (j < t.size && t[j] in bucukBicimleri) dakika = 30
                         else if (j < t.size) sayiOku(t, j)?.let { if (it.first in 1..59) dakika = it.first }
                         break
                     }
@@ -114,7 +116,7 @@ object KomutYorumlayici {
                 val j = i + oku.second
                 var deger = oku.first.toDouble()
                 var k = j
-                if (k < t.size && (t[k].startsWith("buçuk") || t[k].startsWith("buçuğ"))) { deger += 0.5; k++ }
+                if (k < t.size && t[k] in bucukBicimleri) { deger += 0.5; k++ }
                 if (k < t.size) {
                     val birim = t[k]
                     val carpan = when {
