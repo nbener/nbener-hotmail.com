@@ -12,7 +12,8 @@ Son güncelleme: 2026-10-28
 - Git deposu başlatıldı (yerel, uzak depo yok).
 
 ## Derleme nasıl yapılır
-- `cd ~/sezai && ./build.sh` debug APK derler (ilk derleme ~3 dk).
+- Derleme araçları Termux içindeki Ubuntu proot ortamında kuruludur (bu ortam Termux'un içinde çalışır, başka platform değildir).
+- Termux'tan `proot-distro login ubuntu -- bash -c "cd /root/sezai && ./build.sh"` debug APK derler (ilk derleme ~3 dk).
 - `./build.sh kur` derler, Shizuku/rish ile telefona kurar ve açar.
 - Ortam: `source ~/sezai/env.sh` (JDK 17, Gradle 8.10.2, aapt2 override).
 - Telefona kurulum: tıklayarak kurulum çalışmadı; pm /sdcard'ı okuyamaz, bu yüzden dosya /data/local/tmp'ye kopyalanıp rish ile kurulur (build.sh bunu yapar). Shizuku kapalıysa önce Shizuku uygulamasından başlatılmalı. rish kopyası ~/rish, RISH_APPLICATION_ID=com.termux gerekir.

@@ -8,9 +8,10 @@ Hedef kitle: yaşlılar, çocuklar, gençler, aklında çok şey tutamayanlar.
 Proje özeldir, satılacaktır. Asla public yapma, GitHub'a açık depo olarak koyma, kodu dışarı paylaşma.
 
 ## 2. Çalışma ortamı (KESİN KURAL)
-- Her şey sadece Termux içinde, bu telefonda yapılır. GitHub Actions, bulut derleme, bilgisayar, Ubuntu/Flux Linux veya başka platform önerme.
+- Her şey sadece Termux içinde, bu telefonda yapılır. Derleme araçları Termux içindeki Ubuntu proot ortamında kuruludur (bu ortam Termux'un içinde çalışır, başka platform değildir). GitHub Actions, bulut derleme, bilgisayar veya başka platform önerme.
 - Kod bu telefonda derlenecek, kurulacak, çalıştırılacak ve test edilecek.
-- Önce Termux'ta mevcut araçları kontrol et (java, kotlin, gradle, aapt2, d8, apksigner, adb). Eksik olanı pkg ile kur. Hangisinin çalışıp çalışmadığını tahmin etme, komutla doğrula.
+- Derleme araçlarını (java, kotlin, gradle, aapt2, d8, apksigner, adb) Ubuntu proot ortamında kontrol et. Hangisinin çalışıp çalışmadığını tahmin etme, komutla doğrula.
+- Derleme komutu (Termux'tan): `proot-distro login ubuntu -- bash -c "cd /root/sezai && ./build.sh"`.
 - Derleme yöntemi seçerken ARM/Termux uyumluluğunu önce test et. Çalışmayan yöntemde ısrar etme, hatayı olduğu gibi bildir ve seçenek sun.
 - APK'yı derleyince imzala, termux-open ile kurulum ekranını aç. Test için mümkünse kablosuz adb (localhost) ile logcat oku. Bu mümkün değilse nedenini söyle.
 
@@ -62,7 +63,7 @@ Tüm uygulamada pil tüketimini düşük tut: gereksiz arka plan servisi, sürek
 ## 7. Başlangıç görevi
 Henüz kod yazma. Önce şunu yap:
 1. ~/sezai içindeki mevcut durumu analiz et (Zeki başka bir projedir, yalnızca referans olarak bakılabilir).
-2. Termux'ta derleme araçlarının durumunu kontrol et ve neyin çalıştığını raporla.
+2. Termux içindeki Ubuntu proot ortamında derleme araçlarının durumunu kontrol et ve neyin çalıştığını raporla.
 3. Özellikler için küçükten büyüğe bir yol haritası öner, benim onayımı bekle.
 
 ## 8. İmza ve yedek (UNUTMA)
