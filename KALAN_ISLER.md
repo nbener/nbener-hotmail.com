@@ -4,7 +4,8 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Öncelikli
 
-- [ ] Gerçek web araştırması aracı bağlama: kullanıcı webden bak dediğinde model araca erişemedi. Groq browser_search bağlantısı eklendi; canlı çağrı HTTP 400 ile reddedildi. Telefon internetsiz diye raporlama. Sağlayıcı desteği, maliyet, kaynak bağlantısı ve gerçek sorgu testi gerekir.
+- [x] Groq web araştırması bağlantısı: citation_options kaynaklı HTTP 400 düzeltildi. 29 Ekim canlı sabit sorgu kaynak adresiyle yanıt verdi; içerik resmî sayfayla karşılaştırıldı.
+- [ ] Web kullanımının hesaba özel maliyet/kota koşulları ve farklı sorularda kaynak kalitesi; diğer sağlayıcıların web desteği.
 
 - [ ] Görüşme önceliği gerçek kabul testi: APK kuruldu, sessiz testler 8/8 geçti. Gerçek telefon ve WhatsApp çağrısında doğrula. Otomatik mikrofon açılmamalı.
 - [x] Modern ekran düğme hizalama kontrolü: 29 Ekim cihaz testi ve görselde aynı üst hiza doğrulandı.

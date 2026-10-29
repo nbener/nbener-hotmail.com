@@ -11,6 +11,7 @@ class WebCanliTestActivity : Activity() {
     private var motor: SohbetMotoru? = null
     private var tamamlandi = false
     private var testId = ""
+    @Volatile private var tani = ""
 
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
@@ -28,7 +29,7 @@ class WebCanliTestActivity : Activity() {
             bitir("DESTEKLENMIYOR", "Seçili sağlayıcı Groq değil; başka hizmete geçilmedi.")
             return
         }
-        motor = SohbetMotoru(AnahtarKasasi(this, saglayici.kasaAdi), saglayici)
+        motor = SohbetMotoru(AnahtarKasasi(this, saglayici.kasaAdi), saglayici).also { it.testHataTanisi = { bilgi -> tani = bilgi } }
         motor!!.gonder(
             "Groq resmi browser_search belgesini webden araştır. Desteklenen model kimliklerini kısaca belirt ve resmi kaynak adresini yaz. Bilgiyi bulamazsan bunu açıkça söyle.",
             sonuc = { bitir("YANIT_ALINDI", it) },
@@ -38,7 +39,7 @@ class WebCanliTestActivity : Activity() {
     private fun bitir(sonuc: String, mesaj: String) {
         if (tamamlandi) return
         tamamlandi = true
-        val rapor = JSONObject().put("test_id", testId).put("sonuc", sonuc).put("mesaj", mesaj)
+        val rapor = JSONObject().put("test_id", testId).put("sonuc", sonuc).put("mesaj", mesaj).put("tani", tani)
         openFileOutput("web_canli_test_sonuc.json", MODE_PRIVATE).bufferedWriter().use { it.write(rapor.toString()) }
         finish()
     }

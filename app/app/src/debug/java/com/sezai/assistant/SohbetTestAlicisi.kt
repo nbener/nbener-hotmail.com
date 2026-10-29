@@ -150,7 +150,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     check(istek.getString("model") == SohbetSaglayici.GROQ.model)
                     check(istek.getString("tool_choice") == "required")
                     check(istek.getJSONArray("tools").getJSONObject(0).getString("type") == "browser_search")
-                    check(istek.getString("citation_options") == "enabled")
+                    check(!istek.has("citation_options"))
                     check(istek.getString("reasoning_effort") == "low")
                 }
                 kontrol("Desteklenmeyen sağlayıcı web isteğinde başka sunucuya geçmiyor") {
@@ -163,9 +163,12 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     }
                 }
                 kontrol("Web aracı reddedilirse arama yapılmış gibi yanıt dönmüyor") {
-                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { SahteBaglanti(400, """{"error":{"message":"citation_options reddedildi, OZEL_SORGU"}}""") }
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { SahteBaglanti(400, """{"error":{"message":"citation_options reddedildi, OZEL_SORGU sezai-test-anahtari"}}""") }
                         .also { motorlar.add(it) }
+                    var tani = ""
+                    motor.testHataTanisi = { tani = it }
                     val hata = iste(motor, "Webden bak")
+                    check(tani.contains("[GİZLİ]") && !tani.contains("sezai-test-anahtari"))
                     check(hata.startsWith("HATA:Web aracı"))
                     check(hata.contains("HTTP 400") && hata.contains("citation_options"))
                     check(!hata.contains("OZEL_SORGU"))

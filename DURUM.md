@@ -174,3 +174,17 @@ Son güncelleme: 2026-10-29
 - Son ayrı canlı web denemesi yine HTTP 400, ilgili alan model döndürdü; izin listesindeki standart hata kodlarından biri gelmedi. Yeni kanıt olmadan aynı canlı sorgu tekrarlanmayacak. Gerçek web hâlâ doğrulanmadı; kesin hata türünü güvenli debug tanısıyla ayırmak sonraki iştir.
 - test/ekran_kontrol.py geçti: yazı alanı, Gönder, web seçeneği ve iki ayar düğmesinin eşit sınırları doğrulandı. Görsel /sdcard/Download/sezai-ekran-dogrulama-1793246803794569500.png incelendi. Düğmeler aynı üst hizada; ekran görüntüsünde alt kısımları ekran sınırında kesiliyor, bu nedenle tam görünürlük ayrıca iyileştirilebilir.
 - Kullanıcının hataların da kaydedilmesi talebi doğrulandı; başarısızlıklar başarıdan ayrı tutuluyor. Son kota %53 / %15.
+
+## 29 Ekim — HTTP 400 kök nedeni bulundu
+- Yalnızca sabit kamu sorgusunun debug tanısı eklendi; gerçek anahtar maskeleniyor. Maskeleme cihazda sahte yanıtla doğrulandı, sohbet 21/21 PASS. Bu tanı normal sohbet tarafından bağlanmaz.
+- Sunucu açıklaması: `model openai/gpt-oss-120b does not support citations` (type=invalid_request_error). Ret nedeni açık citation_options=enabled alanı. Önceki hesap/model erişimi ihtimali bu hata için kanıtlanmadı.
+- citation_options alanı kaldırıldı; Browser Search belgesindeki örnek gibi tools + tool_choice korunuyor. Talimat kaynak HTTPS adreslerini istemeye devam ediyor. Düzeltme derleniyor; canlı başarı henüz doğrulanmadı.
+
+## Web HTTP 400 düzeltildi — 29 Ekim 2026
+- Kök neden: Groq açık `citation_options=enabled` alanını GPT-OSS modeli için reddediyor. Alan kaldırıldı; browser_search, tool_choice=required ve kaynak URL talimatı korundu. Sağlayıcı/model değiştirilmedi.
+- Yeni kaynak Ubuntu proot ./build.sh ile derlendi; zipalign -c 4 ve apksigner verify başarılı. İmzalı APK /sdcard/Download/Sezai-debug.apk; pm install -r Success.
+- `python3 test/web_canli_test.py`: YANIT_ALINDI (çıkış 0). Tek gerçek sabit kamu sorgusu, mikrofon/TTS kapalı. Yanıt openai/gpt-oss-20b, openai/gpt-oss-120b ve openai/gpt-oss-safeguard-20b modellerini, https://console.groq.com/docs/tool-use/built-in-tools/browser-search kaynağını verdi. Bu sayfa ayrıca açılıp model listesiyle karşılaştırıldı; eşleşti. Bu tek sorgu sonucu bütün sonraki kaynakların doğruluğunu veya ücretsiz kota koşullarını garanti etmez.
+- Aynı son APK: sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS. Sahte ağ testi artık citation_options alanının gönderilmediğini, hata tanısında anahtarın maskelendiğini de denetliyor. Gerçek sesli görüşme/telefon kabul testi kapsam dışı.
+- Debug tanısı yalnızca sabit kamu sorgusu Activity'sinde bağlanır; normal sohbete ham hata aktarılmaz. Anahtar maskelenir, günlükte/repo/raporda anahtar yok. Kaynak yedeği yedek/web-ayrintili-tani-oncesi-* içindedir.
+- Pil: yeni arka plan servisi, konum veya mikrofon dinlemesi eklenmedi. Web araması yalnızca açık istekle; ek ağ/model işi kullanım ve pil tüketir.
+- Sonraki işler: gerçek Kayseri takip sohbeti ve kullanıcıyla sesli kabul testi; ekran altı düğmelerin tam görünürlüğü; diğer sağlayıcıların web desteği ayrı aşama.

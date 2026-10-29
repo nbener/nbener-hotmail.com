@@ -29,6 +29,7 @@ try:
         if rapor.get('test_id') == kimlik:
             print('Canlı test:', rapor.get('sonuc'))
             print(rapor.get('mesaj', ''))
+            if rapor.get('tani'): print('Sabit sorgu hata tanısı:', rapor['tani'])
             # Yanıt almak, kaynak bilgisinin doğruluğunu tek başına kanıtlamaz.
             raise SystemExit(0 if rapor.get('sonuc') == 'YANIT_ALINDI' else 2)
         time.sleep(1)

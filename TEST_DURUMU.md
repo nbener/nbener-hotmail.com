@@ -10,7 +10,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve KALAN_ISLER.md ile birlik
 | APK | Web bağlantılı son APK: derleme, zipalign ve apksigner PASS; kurulum Success | Güncel kaynakta sonraki değişiklikler varsa yeniden derlenmesi gerekir. |
 | Yazılı ekran | Mesaj alanı ve Gönder cihazda görüldü | İlk hint-metin sorgusu hatalıydı; EditText sınıfı ve düğme üzerinden düzeltildi. Gerçek yazışma denenmedi. |
 | Görüşme önceliği | 29 Ekim 2026: 8/8 PASS | Sahte telefon/VoIP/odak olayları; gerçek cihazda mod dinleyicisi kaydı. Gerçek telefon/WhatsApp çağrısı denenmedi. |
-| Modern görünüm | Son APK derlendi/imza doğrulandı/kuruldu; son hizalama kontrolü TAMAMLANMADI | İlk sürüm görsel olarak kontrol edildi. Son kontrolde aranan düğme UI ağacında bulunamadı (StopIteration); sebep doğrulanmadı. Son hizalama geçti sayılmaz. |
+| Modern görünüm | 29 Ekim: düğme sınırları ve üst hiza PASS | Son görsel incelendi; alt düğmeler ekran sınırında kısmen kesiliyor, tam görünürlük iyileştirmesi açık. |
 
 ## Doğrulama komutları
 
@@ -39,3 +39,13 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 
 - Son standart kod tanısı dahil APK: derleme/imza/hizalama PASS, kurulum Success. Sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS. Son canlı web yine HTTP 400; bilinen kod listesine uyan hizmet kodu alınmadı.
 - Ekran kontrolü PASS: alanlar ve eşit düğme sınırları. Görsel incelendi; ayar düğmelerinin altı ekran sınırında kesiliyor, tam görünürlük iddiası yok.
+
+## 29 Ekim — HTTP 400 kök nedeni bulundu
+- Yalnızca sabit kamu sorgusunun debug tanısı eklendi; gerçek anahtar maskeleniyor. Maskeleme cihazda sahte yanıtla doğrulandı, sohbet 21/21 PASS. Bu tanı normal sohbet tarafından bağlanmaz.
+- Sunucu açıklaması: `model openai/gpt-oss-120b does not support citations` (type=invalid_request_error). Ret nedeni açık citation_options=enabled alanı. Önceki hesap/model erişimi ihtimali bu hata için kanıtlanmadı.
+- citation_options alanı kaldırıldı; Browser Search belgesindeki örnek gibi tools + tool_choice korunuyor. Talimat kaynak HTTPS adreslerini istemeye devam ediyor. Düzeltme derleniyor; canlı başarı henüz doğrulanmadı.
+
+## Son geçerli web sonucu — 29 Ekim 2026
+- Kök neden sunucudan doğrulandı: `model openai/gpt-oss-120b does not support citations`. Açık citation_options alanı kaldırıldı. Önceki HTTP 400 kayıtları bu düzeltmeden önceki sürümlerdir.
+- Düzeltmeli APK derleme, zipalign, apksigner PASS; pm install -r Success. Aynı APK üzerinde sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS.
+- Canlı web testi YANIT_ALINDI, çıkış kodu 0. Tek sabit kamu sorgusunda üç desteklenen model kimliği ve resmî Browser Search adresi geldi. Sayfa ayrıca açılıp içerikle eşleştirildi. Ücretsiz erişim/maliyet ve bütün web soruları için genel başarı iddiası yok. Gerçek mikrofon/seslendirme kullanılmadı.

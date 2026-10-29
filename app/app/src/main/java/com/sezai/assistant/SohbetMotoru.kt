@@ -26,6 +26,8 @@ class SohbetMotoru(
     private val gecmis = mutableListOf<Pair<String, String>>()
     @Volatile private var baglanti: HttpURLConnection? = null
     private var gorev: Future<*>? = null
+    // Yalnızca debug kaynağındaki sabit kamu sorgusu testi bağlar; normal sohbet bağlamaz.
+    internal var testHataTanisi: ((String) -> Unit)? = null
 
     fun sifirla() { iptal(); synchronized(gecmis) { gecmis.clear() } }
 
@@ -67,7 +69,7 @@ class SohbetMotoru(
                             if (webAramasi) {
                                 put("tools", JSONArray().put(JSONObject().put("type", "browser_search")))
                                 put("tool_choice", "required")
-                                put("citation_options", "enabled")
+                                // GPT-OSS browser_search açık citation_options=enabled alanını reddediyor.
                             }
                         } else {
                             put("max_tokens", 1024)
@@ -101,6 +103,7 @@ class SohbetMotoru(
                             }
                             sinirli.toString()
                         } ?: "" } catch (_: Exception) { "" }
+                        testHataTanisi?.invoke(ham.replace(anahtar, "[GİZLİ]").take(2000))
                         val parametreler = listOf("citation_options", "tool_choice", "browser_search", "include_reasoning", "reasoning_effort", "model")
                             .filter { ham.contains(it) }.joinToString(", ")
                         val hataKodu = try { JSONObject(ham).optJSONObject("error")?.optString("code") } catch (_: Exception) { null }
