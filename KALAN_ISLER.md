@@ -75,3 +75,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [ ] Kullanıcı hazır olduğunu bildirince gerçek Sezai çağrısı ve sonraki istek denenecek. Henüz insan sesi tanıma başarısı yok.
 - [ ] Fiziksel kilit, yanlış tetikleme ve gerçek pil maliyeti ölçülecek. Ön planda mikrofon+Vosk artık gerçekten çalışıyor; arka planda kapandığı doğrulandı. TTS sırasında söz kesme ve kapalı uygulamadan uyanma ayrı açık işlerdir.
 - Önceki 81e8a0d motor kabulü geçerli kanıt sayılmaz: o kaynakta gorunur bayrağı hiç true olmuyordu. Son iki tur doğrulama bu düzeltmeye aittir.
+
+
+## 29 Ekim 2026 23.37 — devam ve sessiz regresyon
+- Mevcut APK üzerinde dinleme9 + sohbet21 (sahte ağ) + görüşme8 =38 sessiz kontrol yeniden geçti. Uygulama kaynağı değişmedi.
+- Gerçek insan sesiyle uygulama içi uyanma için hazır oluş yanıtı bekleniyor; henüz başarılı sayılmadı. TTS sırasında söz kesme, yanlış tetikleme, fiziksel kilit ve pil ölçümü bekliyor.

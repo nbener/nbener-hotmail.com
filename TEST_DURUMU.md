@@ -159,3 +159,10 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Son aynı kurulu APK'da dinleme9/9, sohbet21/21, görüşme8/8 PASS (38 sessiz regresyon). Sohbet yanıtları kontrollü/sahte ağdır; gerçek çağrı veya canlı model testi değildir. git diff --check geçti.
 - Bekleyen: gerçek insanın Sezai demesiyle uyanma, yanlış tetikleme, uyanmadan sonraki isteğin başlangıcı, fiziksel ekran kilidi ve pil ölçümü. Kullanıcıya hazır oluş sorusu gönderildi; yanıt gelmediği için insan sesi testi yapılmadı. TTS sırasında söz kesme ve uygulama kapalıyken uyanma tamamlanmadı. Model yalnız bu cihazın özel files dizininde; taze kurulum dağıtımı hâlâ açık.
 - Pil: bu düzeltme ön plandaki mevcut uyanma dinlemesini gerçekten etkinleştirir; ekran görünür ve boşta mikrofon+Vosk CPU kullanır. Arka plana geçişte kapandığı doğrulandı; pil maliyeti ölçülmedi, yeni servis/wake lock eklenmedi.
+
+
+## 29 Ekim 2026 23.37 — devam ve sessiz regresyon
+- Kullanıcının `~` devam talimatıyla kota kontrol edildi: %26 / %33, devam edilebilir. Shizuku/rish uid=2000(shell) bağlantısı doğrulandı.
+- Mevcut kurulu APK üzerinde `python3 test/dinleme_test.py` 9/9, `python3 test/sohbet_test.py` 21/21, `python3 test/gorusme_test.py` 8/8 PASS; her betik bu çalışmanın test kimliğini doğruladı. Toplam 38 sessiz kontrol, çıkış kodları 0. Gerçek mikrofon/TTS, canlı API veya gerçek telefon görüşmesi testi değildir.
+- Uyanma kaynağı ve MainActivity yaşam döngüsü bağlantısı okundu; uygulama kaynağı/APK değiştirilmedi, yeniden derleme/kurulum yapılmadı. Yeni servis veya pil yükü eklenmedi.
+- Gerçek uygulama içi uyanma testi için kullanıcıya hazır oluş sorusu gönderildi. Henüz insan sesiyle uyanma, yanlış tetikleme, devam isteği ve pil kabulü doğrulanmadı. TTS sırasında söz kesme ve kapalı uygulamadan uyanma açık işlerdir.
