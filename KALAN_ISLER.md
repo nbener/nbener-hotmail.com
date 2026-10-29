@@ -117,3 +117,10 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## Kullanıcının son0.2 denemesi teyidi
 - Kullanıcı hem dur hem Sezai söyledi; son1793307976850923985 turu gerçek çağrıyı kaçırdı, söz kesme kabulü başarısız. Aynı düşük-ses denemesini yeni kanıt olmadan tekrarlama.
 - Sonraki teknik ayrıştırma: debug kayıt kaynağı/AEC etkisi, aynı mesafede sessiz-asistan kontrolü. Bastırma/yankı/model olasılıkları henüz kesin kök neden değildir.
+
+
+## 30 Ekim — araştırma sonrası yol
+- Kaynaklı rapor: SOZ_KESME_ARASTIRMASI.md. Tekrarlanan düşük-ses testleri yerine hoparlör referanslı yerel AEC + temiz seste konuşma başlangıcı + çıkış kuyruğunu kesme prototipi değerlendirilecek.
+- [ ] İlk küçük debug doğrulaması: Android TTS onAudioAvailable/onBeginSynthesis PCM biçim ve parça akışı; ham ses diske/ağa gitmez.
+- [ ] WebRTC APM bağımsız ARM64/Termux derleme/bağımlılık, lisans/boyut ve pil uygunluğu; ardından senkron referanslı kayıt/çalma prototipi. Native paket henüz eklenmedi.
+- [ ] Türkçe çağrı, kendi sesinden yanlış tetikleme, devam isteğinin ilk kelimeleri, bağlam, görüşme/kilit ve ölçülmüş enerji kabulü. Araştırma başarısı gerçek sesli başarı değildir.
