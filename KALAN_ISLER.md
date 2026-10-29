@@ -142,3 +142,9 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [x] SpeexDSP1.2.1 yerel AndroidARM64 statik derleme ve kontrollü yapay yankı testi geçti; son test1793310420046423805. Tekrarlama python3 scripts/speex_yerel_dene.py, kaynak/lisans/kabul kaydı SPEEX_DENEY_KAYDI.md.
 - [ ] Debug native köprü/APK yükleme ve kontrollü gerçek çalma/mikrofon referans hattı. CLI ikilisi Termux RUNPATH içerir; Android uygulama namespace uyumu ayrıca doğrulanmalı.
 - [ ] Gerçek TTS kendi-sesinden tetikleme, dur/Sezai, ilk kelime/bağlam ve pil kabulü. Yapay58dB sonucu gerçek oda veya Türkçe başarı garantisi değildir.
+
+
+## 30 Ekim00.57 — APK JNI doğrulandı
+- [x] Debug APK native yükleme ve yapay AEC testi1793310897691974925 PASS;56KB kütüphane,özelRUNPATH yok,lisans/derleme kayıtları APK içinde. Aynı APK38 sessiz regresyon PASS.
+- Derleme ön koşulu: Termux python3 scripts/speex_android_derle.py; sonra proot ./build.sh. preDebugBuild eski/eksik native çıktıyı reddeder.
+- [ ] Gerçek mikrofon/kontrollü AudioTrack referans hattı ve örnekleme/çalma gecikmesi/genlik eşlemesi. JNI yapay başarı gerçek TTS üzerinde kesme değildir; insan çağrısı/yanlış tetikleme/devam isteği/pil/kilit açık.

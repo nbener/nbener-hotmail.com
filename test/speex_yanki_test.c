@@ -4,7 +4,6 @@
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
 
 enum { HZ = 16000, KARE = 160, TUR = 1200, GECMIS = 512 };
@@ -18,7 +17,7 @@ static double saat(void) {
 
 static Olcum dene(int referansVar, int ikinciSes) {
     SpeexEchoState *s = speex_echo_state_init(KARE, 1600);
-    if (!s) { fputs("AEC belleği ayrılamadı\n", stderr); exit(2); }
+    if (!s) return (Olcum){NAN, NAN, NAN, NAN};
     int hz = HZ;
     speex_echo_ctl(s, SPEEX_ECHO_SET_SAMPLING_RATE, &hz);
     int16_t hoparlor[KARE], mikrofon[KARE], cikis[KARE];
@@ -57,7 +56,7 @@ static Olcum dene(int referansVar, int ikinciSes) {
     return o;
 }
 
-int main(void) {
+int sezai_yapay_aec_olc(double sonuc[5]) {
     double bas = saat();
     Olcum temiz = dene(1, 0), kontrol = dene(0, 0), birlikte = dene(1, 1);
     double azalma = 10 * log10((temiz.yankili + 1) / (temiz.artik + 1));
@@ -66,9 +65,19 @@ int main(void) {
     double koruma = birlikte.capraz / birlikte.yakin;
     int gecti = isfinite(azalma) && azalma > 15 && fabs(kontrolDb) < 1
         && isfinite(koruma) && koruma > 0.75 && koruma < 1.25 && birlikteDb > 6;
+    sonuc[0] = azalma; sonuc[1] = kontrolDb; sonuc[2] = koruma;
+    sonuc[3] = birlikteDb; sonuc[4] = (saat() - bas) * 1000;
+    return gecti ? 0 : 1;
+}
+
+#ifndef SEZAI_KUTUPHANE
+int main(void) {
+    double sonuc[5];
+    int kod = sezai_yapay_aec_olc(sonuc);
     printf("{\"yapay_yanki_azalma_db\":%.3f,\"referanssiz_kontrol_db\":%.3f,"
            "\"yapay_ikinci_ses_katsayisi\":%.3f,\"birlikte_artik_azalma_db\":%.3f,"
            "\"islem_cpu_ms\":%.3f,\"uretilen_toplam_ses_ms\":36000,\"gecti\":%s}\n",
-           azalma, kontrolDb, koruma, birlikteDb, (saat() - bas) * 1000, gecti ? "true" : "false");
-    return gecti ? 0 : 1;
+           sonuc[0], sonuc[1], sonuc[2], sonuc[3], sonuc[4], kod == 0 ? "true" : "false");
+    return kod;
 }
+#endif

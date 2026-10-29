@@ -22,3 +22,9 @@ Kabul: referansla yankı azalması>15dB; referanssız kontrolde mutlak azalma<1d
 Sonraki adım: Android debug bileşenine uygun native köprü, kontrollü AudioTrack çalma ve gecikmesi eşleştirilmiş referans/mikrofon hattı. TTS24kHz ile mikrofon16kHz örnekleme uyumu, ses katsayısı, görüşme ve kaynak bırakma şartları korunmalı. Gerçek kendi-sesinden yanlış tetikleme ve kullanıcının söz kesmesi ayrıca ölçülmeli.
 
 Son betik turu: test_id1793310420046423805, çıktı0/PASS;58.167dB,referanssız0.247dB,ikinci sinyal0.947,karışık9.190dB,CPU108.246ms. ELF64 AArch64 ve /system/bin/linker64 kontrolü geçti. Android uygulama yüklemesi henüz yapılmadı; CLI Termux RUNPATH içeriyor.
+
+
+## Debug APK JNI aşaması
+Termux python3 scripts/speex_android_derle.py, sonra Ubuntu proot ./build.sh. Native kaynak/çıktı kontrolü debug derlemesini korur; release kaynaklarına eklenmez. İlkld.lld sistem kütüphane yolu hatası /system/lib64 eklenerek düzeltildi. Son56KBso özelRUNPATH içermez; SpeexCOPYING ve derlemeJSON debug assets içine alınır.
+
+Son kurulu APK python3 test/yanki_yerel_test.py test1793310897691974925 PASS:58.167dB,referanssız0.247dB,ikinci sinyal0.947,karışık9.190dB,süreçCPU591.834ms. Gerçek mikrofon/hoparlör kullanılmadı. ELF segment16KB hizası fiziksel16KB cihaz desteğini doğrulamaz.38 sessiz regresyon aynıAPK üzerinde geçti. Gerçek kayıt/çalma referansı henüz bağlı değildir.

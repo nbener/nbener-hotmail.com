@@ -10,6 +10,8 @@ dependencies {
 android {
     namespace = "com.sezai.assistant"
     compileSdk = 34
+    sourceSets.getByName("debug").jniLibs.srcDir("../../yerel-model/speex-deneme/android/jni")
+    sourceSets.getByName("debug").assets.srcDir("../../yerel-model/speex-deneme/android/assets")
     defaultConfig {
         applicationId = "com.sezai.assistant"
         minSdk = 26
@@ -24,3 +26,10 @@ android {
     }
     kotlinOptions { jvmTarget = "17" }
 }
+
+// Native dosya ayrı Termux adımıyla üretilir; eski/eksik dosya ile APK üretme.
+val yerelAecDogrula by tasks.registering(Exec::class) {
+    workingDir("../..")
+    commandLine("python3", "scripts/speex_android_derle.py", "--kontrol")
+}
+tasks.matching { it.name == "preDebugBuild" }.configureEach { dependsOn(yerelAecDogrula) }
