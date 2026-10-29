@@ -1,0 +1,3 @@
+vosk-model-small-tr-0.3
+https://alphacephei.com/vosk/models
+Model listesi: Apache 2.0. Yerel model APK içine eklenmez.

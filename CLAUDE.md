@@ -104,3 +104,5 @@ Henüz kod yazma. Önce şunu yap:
 - Hoparlör/TTS sesini kullanıcı komutu sayma. Eşzamanlı mikrofon/TTS, ses odağı ve yankı davranışını cihazda doğrula. Mevcut Android tanımayı kontrolsüz sürekli döngüye sokma; pil ve görüşme önceliği korunur. Tamamlanmayan eşzamanlı kesmeyi çalışıyor diye sunma.
 
 - Söz alma ölçümleri, başarısız cihaz denemesi ve motor önerisi SOZ_KESME_TASARIMI.md içindedir; Claude/Anthropic ve Codex aynı kaydı kullanır. TTS sırasında söz kesme henüz çalışmıyor.
+
+- Kullanıcının sonraki `~` devam komutu, sunulan Vosk sınırlı denemesine onay olarak alındı. Model/debug bağımlılık denemesi yapılabilir; varsayılan motoru değiştirme kararı gerçek Türkçe/yankı/pil kabulünden sonra ayrıca verilir.

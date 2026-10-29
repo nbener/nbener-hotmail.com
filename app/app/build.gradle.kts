@@ -2,6 +2,11 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
 }
+dependencies {
+    // Yalnız sınırlı yerel ses denemesi; üretim motoru değişmez.
+    debugImplementation("com.alphacephei:vosk-android:0.3.75@aar")
+    debugImplementation("net.java.dev.jna:jna:5.18.1@aar")
+}
 android {
     namespace = "com.sezai.assistant"
     compileSdk = 34
