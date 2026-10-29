@@ -5,7 +5,8 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 ## Öncelikli
 
 - [x] Özgün Canvas karakteri kaynak/olay bağlantıları, derleme-imza-kurulum ve altı durağan ifade doğrulandı; eski S simgesi tek sabitle korunur. Kurallar KARAKTER_TASARIMI.md içinde.
-- [ ] Karakter canlı hareket/TTS ve ana ekran kabulü: kullanıcı ekranı açıp kilidi çözünce `python3 test/karakter_test.py`, gerçek ana ekran ve TTS senkronunu doğrula. İlk canlı tur telefon Dozing olduğu için FAIL; geçmiş başarı gibi sunulmaz. Gerçek pil ölçümü ayrıca bekliyor.
+- [x] Karakter canlı View kontrolü 6/6, ana ekran yerleşimi ve gerçek TTS sırasında farklı ağız açıklıkları 29 Ekim doğrulandı. İlk Dozing/FAIL geçmişi korundu.
+- [ ] Karakterin doğal mikrofon → model → seslendirme akışındaki durumları, fiziksel kilit/arka plan ve gerçek pil tüketimi kabulü. Debug ekran/lifecycle sinyal testi fiziksel kabul yerine geçmez.
 
 - [ ] Kullanıcı Android erişilebilirlik ayarından Sezai ekran yardımcısını açacak. Yeni APK kurulu; 9/9 politika/sentetik test ve izin kapalı ayar UI doğrulandı.
 - [ ] Erişim açılınca gerçek açık ekran metnini alma/okuma/yorumlama ve Termux metin görünürlüğünü doğrula; kilit/uygulama değişimi/görüşme kesintisini test et.

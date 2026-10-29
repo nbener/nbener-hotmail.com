@@ -4,7 +4,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve KALAN_ISLER.md ile birlik
 
 | Alan | Son doğrulanan sonuç | Kapsam / sınır |
 | --- | --- | --- |
-| Yeni karakter | 29 Ekim: 6/6 durağan Canvas PASS; altı ifade görselde incelendi | Canlı önizleme FAIL (telefon Dozing). Hareket/gerçek TTS/ana ekran kabulü ekran açılınca yapılacak. |
+| Yeni karakter | 29 Ekim: 6/6 durağan + 6/6 canlı View kontrolü PASS; ana ekran ve gerçek TTS ağız hareketi görüldü | Hareket azaltma/ekran/lifecycle sinyalleri debug koşullarıyla test edildi. Fiziksel kilit, gerçek pil ve doğal mikrofon sohbeti hâlâ ayrı kabul işi. |
 | Sohbet motoru | 29 Ekim 2026: 21/21 PASS | Gerçek cihaz + Keystore + sahte ağ. Dört sağlayıcıda Kayseri → konumu → nüfusu istek geçmişi; iptal/sıfırlama; açık web isteği, Groq aracı, sağlayıcı sınırı ve büyük yanıt kontrolü. Canlı model anlamlandırması denenmedi. |
 | Dinleme olayları | 29 Ekim 2026: 6/6 PASS | Sahte tanıma oturumu; eski/çift olay, izin hatası, sesli bitirme. Gerçek mikrofon kullanılmadı. |
 | Komut yorumlama | 29 Ekim 2026: 20/20 PASS | Yalnızca yorumlama; alarm/arama çalıştırılmaz. |
@@ -80,3 +80,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Durağan Android Canvas görselinde bekleme, dinleme, düşünme, konuşma ağzı, mutluluk ve şefkat/gece paleti incelendi. Durağan/bağlanmamış View için kare kuyruğu kurulmadı. Son görsel /sdcard/Download/sezai-karakter-duragan-1793270314030295687.png.
 - Canlı `python3 test/karakter_test.py` hâlâ BAŞARILI DEĞİL: ilk tur görünürlüğü kaybetti, `dumpsys power` Dozing gösterdi, siyah ekran görüntüsü alındı. Telefonun açılması kullanıcıdan istendi. Canlı blink, kare hızı, azaltılmış hareket/sade mod, ekran-off/lifecycle duruş testleri henüz geçmedi.
 - Gerçek TTS ses yüksekliği ölçülmez; ağız ritmi metne dayanır. Kullanıcının konuşması veya gerçek TTS ile görsel senkron kabulü yapılmadı. Sessiz eski testler bunu doğrulamaz.
+
+## Son geçerli canlı karakter sonucu — 29 Ekim
+- Ekran Awake ve sistem animasyon ölçeği 1.0 iken `python3 test/karakter_test.py`: 6/6 PASS. İlk Dozing/FAIL geçmiş kaydıdır; son tur kendi test_id raporuyla doğrulandı.
+- Altı durum, bekleme çiziminin 30 fps altında kalması, azaltılmış hareket/sade mod/ekran-kapalı ve yaşam döngüsü sinyallerinde kare kuyruğu duruşu geçti. Bunlar debug bayrak/sinyal testleri; sistem ayarı veya fiziksel ekran kapatılmadı.
+- Ana ekran görseli kontrol edildi. Gerçek TTS sabit cümlesi sırasında iki görüntüde ağız açıklığının değiştiği görüldü. Test mikrofon ve gerçek model çağrısı içermez; yaklaşık ritimdir.
+- Önceki son APK testleri: durağan karakter 6 + ekran 9 + sohbet 21 + dinleme 6 + görüşme 8 = 50; bu tur canlı karakter 6 ilave kontrol geçti. Bu sayı bütün uçtan uca sesli konuşmanın geçtiği anlamına gelmez.

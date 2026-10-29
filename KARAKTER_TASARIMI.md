@@ -30,7 +30,7 @@ Bu kayıt Codex, Claude/Anthropic ve projeyi devralan tüm ajanlar içindir. Ön
 
 Son kaynak derlendi, zipalign/apksigner doğrulandı ve telefona kuruldu. Son aynı APK'da altı durağan Canvas ifadesi 6/6, ekran politikası 9/9, sohbet 21/21, dinleme 6/6, görüşme 8/8 geçti (toplam 50). Durağan çizim görseli incelendi; bu, canlı animasyon/TTS kabul testi değildir.
 
-İlk canlı önizleme testi telefon Dozing durumunda olduğu için görünürlük kaybıyla başarısız oldu; ekran görüntüsü siyahtı. Kullanıcıdan ekranı açıp kilidi çözmesi istendi. Canlı göz kırpma/ritim, 300 ms geçiş, gerçek ekran/arka plan duruşu ve ana ekran yerleşimi kabul testi bekliyor. `python3 test/karakter_test.py` bunun içindir; henüz geçti sayılmaz.
+İlk canlı önizleme telefon Dozing olduğu için başarısızdı. Sonraki ekran-açık turda `python3 test/karakter_test.py` 6/6 geçti: altı ifade hedefi, kare hızı sınırı ve azaltılmış hareket/sade/ekran-kapalı/lifecycle sinyallerinde kare duruşu. Ana ekran yerleşimi ve gerçek TTS sabit cümlesi sırasında değişen ağız açıklıkları görüntülerle doğrulandı. Sistem animasyon ölçeği 1.0 okundu; sistem ayarı değiştirilmedi. Debug sinyalleri fiziksel ekran kapatma/gerçek pil kabulü değildir. Doğal mikrofon-model-sohbet ve kesin dudak senkronu ayrıca denenmiş sayılmaz.
 
 Son durağan görsel: /sdcard/Download/sezai-karakter-duragan-1793270314030295687.png. Kaynak yedeği: yedek/karakter-oncesi-20261029-132319.tar.gz. TTS onStart/onDone/onStop/onError görsel bildirimleri ana iş parçacığında nesil ve benzersiz konuşma kimliğiyle korunur. Duygu seçimi birkaç açık ifadeye dayalı basit kuraldır, genel duygu anlama iddiası değildir.
 
