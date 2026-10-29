@@ -1,3 +1,8 @@
+# GÜNCEL KULLANICI TALİMATI
+- Kullanıcı 29 Ekim sabahı 06.00 saat sınırını kaldırdı. Saat nedeniyle durma; %80 kota sınırı korunuyor.
+- Kullanıcı erken durmayı istemiyor: canlı API anahtarı olmayan aşamada bağımsız geliştirme ve sessiz testlerle devam et, durumu kaydet.
+- Saat gözcüsü iptal edilip yalnızca kota izleyen süreç başlatılıyor. Aşağıdaki eski 06.00 kayıtları geçmiş bilgidir; bu yeni talimat geçerlidir.
+
 # SEZAI - DURUM (her adımdan sonra güncelle, her oturumda ilk bunu oku)
 
 Son güncelleme: 2026-10-29
@@ -79,3 +84,12 @@ Son güncelleme: 2026-10-29
 - Son ekran görsel olarak da kontrol edildi: başlık, üst durum kutusu, Sohbet et, Sohbet bağlantısı ve mevcut düğmeler okunuyor; son ekran /sdcard/Download/sezai-son-test.png.
 - Kullanıcının ilk verdiği /sdcard/Download/ekran_son.png dosyası değiştirilmedi. Başlangıçtaki test/yorumla_test.sh ve test/yorumla_cumleler.txt dosyaları değiştirilmedi ve bu değişikliklerin commitine eklenmedi.
 - OpenAI bağlantısının dayanağı: https://developers.openai.com/api/docs/guides/conversation-state ve https://developers.openai.com/api/docs/models/gpt-4.1-mini (bu oturumda açılıp kontrol edildi).
+
+## 05.32 sonrası devam ve dinleme düzeltmesi
+- Kullanıcı erken durulduğunu belirtti; bağımsız sohbet geliştirmesi ve sessiz testlerle devam ediliyor. Sonra 06.00 sınırını açıkça kaldırdı; yalnızca %80 kota sınırı kaldı. Eski saat gözcüsü kendi PID'si doğrulanarak durduruldu ve kota gözcüsü olarak yeniden başlatıldı.
+- AndroidDinleme'de eski RecognitionListener olayları yeni tanıyıcıyı kapatabiliyordu. Olaylar oturum kimliğiyle filtreleniyor; kapatma öncesinde etkin tanıyıcı referansı temizleniyor. Başlatma sırasında izin hatası anlaşılır şekilde işleniyor.
+- Tanıma oturumu küçük bir arayüzle ayrıldı; debug testleri mikrofonu açmadan gecikmiş/eski/çift olayları canlandırabiliyor.
+- SohbetKomutlari ile hitap ve noktalama içeren bitirme istekleri tanınıyor; normal konuşmadaki "sohbeti bitir demedim" benzeri cümleler oturumu kapatmıyor.
+- Yeni debug APK derlendi; zipalign/apksigner doğrulandı; pm install -r Success. `python3 test/dinleme_test.py`: 6/6 PASS (mikrofon, ağ, gerçek anahtar kullanılmadı).
+- Kullanıcı ücretsiz güçlü/hızlı sağlayıcıları sordu. Groq, Gemini, OpenRouter, ModelScope, Cloudflare, Hugging Face ve Cerebras güncel resmî kaynaklarla karşılaştırıldı; yanıt verildi. Şimdi Groq/Gemini/OpenRouter'ın uygulamada seçilebilir olması hazırlanacak.
+- Beş saatlik kota penceresi yenilendi; son kontrol %6 / haftalık %8 idi. Sınır her aşamada yeniden okunur.

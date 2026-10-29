@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Bu geceki çalışma sınırı: 29 Ekim 2026 06.00 (İstanbul), kota en fazla %80.
+# Kullanıcı saat sınırını kaldırdı; kota en fazla %80.
 # Yalnızca mevcut oturumun kullanım sayacını okur; mesaj veya anahtar yazdırmaz.
 import datetime
 import json
@@ -9,9 +9,6 @@ import pathlib
 durdu = pathlib.Path(__file__).resolve().parent.parent / 'calisma_durdu.json'
 if durdu.exists():
     raise SystemExit('DUR: Önceden çalışma sınırı işaretlendi. Yeni kullanıcı talimatı olmadan sürdürme.')
-bitis = datetime.datetime.fromisoformat('2026-10-29T06:00:00+03:00')
-if datetime.datetime.now(datetime.timezone.utc) >= bitis:
-    raise SystemExit('DUR: İstanbul saatiyle 06.00 çalışma sınırına ulaşıldı.')
 oturum = os.environ.get('CODEX_THREAD_ID')
 kok = os.environ.get('CODEX_HOME')
 if not oturum or not kok:
@@ -36,4 +33,4 @@ if not yuzdeler:
 print('Kota kullanımı:', ', '.join('%'+str(y) for y in yuzdeler))
 if max(yuzdeler) >= 80:
     raise SystemExit('DUR: %80 kota sınırına ulaşıldı.')
-print('Devam edilebilir; son saat 06.00 İstanbul.')
+print('Devam edilebilir; saat sınırı yok, kota sınırı %80.')

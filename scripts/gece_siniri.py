@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# Kullanıcının bu geceki sınırında CPU kilidini ve geçici pil istisnasını bırakır.
-# Geliştirme yapmaz; yalnızca 06.00 / %80 güvenlik sınırını izler.
+# Kullanıcının kota sınırında CPU kilidini ve geçici pil istisnasını bırakır.
+# Geliştirme yapmaz; yalnızca %80 kota sınırını izler.
 import datetime
 import fcntl
 import json
@@ -16,15 +16,12 @@ try:
 except BlockingIOError:
     raise SystemExit('Sınır gözcüsü zaten çalışıyor.')
 kilit.write(str(os.getpid())); kilit.flush()
-bitis = datetime.datetime.fromisoformat('2026-10-29T06:00:00+03:00')
 oturum = os.environ.get('CODEX_THREAD_ID', '')
 oturumlar = pathlib.Path(os.environ['CODEX_HOME'])/'sessions'
 dosyalar = list(oturumlar.rglob('*'+oturum+'*.jsonl')) if oturum else []
-print('Sınır gözcüsü başladı; 29 Ekim 06.00 İstanbul veya %80 kota.', flush=True)
+print('Kota gözcüsü başladı; saat sınırı yok, %80 kullanımda durur.', flush=True)
 while True:
     sebep = None
-    if datetime.datetime.now(datetime.timezone.utc) >= bitis:
-        sebep = '06.00 çalışma sınırı'
     son = None
     for dosya in dosyalar:
         with dosya.open('rb') as kaynak:
@@ -60,5 +57,4 @@ while True:
                 print('Bir kapanış işlemi tamamlanamadı:',komut[0],flush=True)
         print('Duruldu:',sebep,flush=True)
         break
-    kalan = (bitis - datetime.datetime.now(datetime.timezone.utc)).total_seconds()
-    time.sleep(max(0.1, min(15, kalan)))
+    time.sleep(15)

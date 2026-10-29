@@ -158,8 +158,7 @@ class MainActivity : Activity() {
         dinleme.dinle(
             sonuc = { metin -> runOnUiThread {
                 if (sohbetAcik && nesil == sohbetNesli) {
-                    val ifade = KomutYorumlayici.normalize(metin).joinToString(" ")
-                    if (ifade in setOf("sohbeti bitir", "sohbeti kapat", "görüşmeyi bitir", "konuşmayı bitir")) {
+                    if (SohbetKomutlari.bitirMi(metin)) {
                         sohbetBitir()
                         return@runOnUiThread
                     }
