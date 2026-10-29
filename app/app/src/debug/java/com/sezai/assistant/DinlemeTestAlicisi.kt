@@ -58,8 +58,22 @@ class DinlemeTestAlicisi : BroadcastReceiver() {
                 }
                 kontrol("Sesli bitirme hitap ve noktalama ile tanınıyor") {
                     check(SohbetKomutlari.bitirMi("Sezai, sohbeti bitir."))
-                    check(SohbetKomutlari.bitirMi("DUR!"))
+                    check(!SohbetKomutlari.bitirMi("DUR!"))
                     check(SohbetKomutlari.bitirMi("Konuşmayı bitir…"))
+                }
+                kontrol("Dur ve Sezai sözü alır sohbeti bitirmez") {
+                    for (metin in listOf("dur", "DUR!", "Sezai", "Sezai, dur!", "Dur Sezai")) {
+                        check(!SohbetKomutlari.bitirMi(metin))
+                        check(SohbetKomutlari.sozAlmaMetni(metin) == "")
+                    }
+                }
+                kontrol("Söz alma arkasındaki istek değiştirilmeden korunur") {
+                    check(SohbetKomutlari.sozAlmaMetni("Sezai, peki nüfusu kaç?") == "peki nüfusu kaç?")
+                    check(SohbetKomutlari.sozAlmaMetni("Dur, başka konu: yemek yapalım.") == "başka konu: yemek yapalım.")
+                }
+                kontrol("Alıntı ve benzer sözcükler söz alma sayılmaz") {
+                    for (metin in listOf("durum nedir", "durak nerede", "dur demedim", "Sezai kelimesi ne demek", "Bana dur dediler"))
+                        check(SohbetKomutlari.sozAlmaMetni(metin) == null)
                 }
                 kontrol("Normal konuşma yanlışlıkla sohbeti bitirmiyor") {
                     check(!SohbetKomutlari.bitirMi("Sohbeti bitir demedim"))

@@ -4,6 +4,8 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Öncelikli
 
+- [ ] TTS arasında “dur/Sezai” ile söz alma: Cihaz ölçümü yapıldı: yerel Android tanıma yok; standart tanıma TTS odağını kesiyor. Ayrı yerel motor/yankı denemesi ve ardından konu bütünlüğünü koruyan dinleme gerekli (SOZ_KESME_TASARIMI.md). Şu an TTS sırasında mikrofon kapalı; bu hedef tamamlanmış değil.
+
 - [x] Özgün Canvas karakteri kaynak/olay bağlantıları, derleme-imza-kurulum ve altı durağan ifade doğrulandı; eski S simgesi tek sabitle korunur. Kurallar KARAKTER_TASARIMI.md içinde.
 - [x] Karakter canlı View kontrolü 6/6, ana ekran yerleşimi ve gerçek TTS sırasında farklı ağız açıklıkları 29 Ekim doğrulandı. İlk Dozing/FAIL geçmişi korundu.
 - [ ] Karakterin doğal mikrofon → model → seslendirme akışındaki durumları, fiziksel kilit/arka plan ve gerçek pil tüketimi kabulü. Debug ekran/lifecycle sinyal testi fiziksel kabul yerine geçmez.

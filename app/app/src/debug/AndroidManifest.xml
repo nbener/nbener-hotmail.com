@@ -14,6 +14,8 @@
             android:permission="android.permission.DUMP"/>
         <receiver android:name=".KarakterCizimTestAlicisi" android:exported="true"
             android:permission="android.permission.DUMP"/>
+        <activity android:name=".EszamanliSesTestActivity" android:exported="true"
+            android:permission="android.permission.DUMP"/>
         <activity android:name=".KarakterOnizlemeActivity" android:exported="true"
             android:permission="android.permission.DUMP"/>
         <activity android:name=".WebCanliTestActivity" android:exported="true"

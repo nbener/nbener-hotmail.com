@@ -98,3 +98,9 @@ Henüz kod yazma. Önce şunu yap:
 
 ## Özgün karakter — tüm ajanlar için
 - Karakter tasarımı, yasaklanan biçimler, pil/animasyon kuralları ve geri dönüş yolu KARAKTER_TASARIMI.md dosyasındadır. Claude/Anthropic, Codex ve devralan diğer ajanlar bu ortak kayda uyar. Kullanıcı bütün kararların ve gerçek test/hata sonuçlarının MD dosyalarında tutulmasını özellikle istedi.
+
+## Konuşmanın arasına girme — kullanıcı talimatı
+- Kullanıcı Sezai konuşurken “dur” veya “Sezai” diyerek sözünü kesip yeniden yönlendirmek istiyor. Bu, sohbeti bitirmek veya geçmişi silmek değildir. Sözü alınca dinlemeye geçer; takip mesajı aynı konuysa bağlamı korur, yeni konuysa son isteği esas alır.
+- Hoparlör/TTS sesini kullanıcı komutu sayma. Eşzamanlı mikrofon/TTS, ses odağı ve yankı davranışını cihazda doğrula. Mevcut Android tanımayı kontrolsüz sürekli döngüye sokma; pil ve görüşme önceliği korunur. Tamamlanmayan eşzamanlı kesmeyi çalışıyor diye sunma.
+
+- Söz alma ölçümleri, başarısız cihaz denemesi ve motor önerisi SOZ_KESME_TASARIMI.md içindedir; Claude/Anthropic ve Codex aynı kaydı kullanır. TTS sırasında söz kesme henüz çalışmıyor.

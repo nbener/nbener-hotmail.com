@@ -86,3 +86,11 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Altı durum, bekleme çiziminin 30 fps altında kalması, azaltılmış hareket/sade mod/ekran-kapalı ve yaşam döngüsü sinyallerinde kare kuyruğu duruşu geçti. Bunlar debug bayrak/sinyal testleri; sistem ayarı veya fiziksel ekran kapatılmadı.
 - Ana ekran görseli kontrol edildi. Gerçek TTS sabit cümlesi sırasında iki görüntüde ağız açıklığının değiştiği görüldü. Test mikrofon ve gerçek model çağrısı içermez; yaklaşık ritimdir.
 - Önceki son APK testleri: durağan karakter 6 + ekran 9 + sohbet 21 + dinleme 6 + görüşme 8 = 50; bu tur canlı karakter 6 ilave kontrol geçti. Bu sayı bütün uçtan uca sesli konuşmanın geçtiği anlamına gelmez.
+
+## 29 Ekim — söz alma son ölçüm ve kurulu sürüm
+- “dur” bitirme listesinden çıkarıldı; dur/Sezai çağrısı, devam isteği ve benzer kelimeler ayrılıyor. Konu geçmişi silinmiyor; son isteği esas alma talimatı eklendi. MainActivity karakterinde gecikmiş ses-bitiş olayı yalnız konuşma durumunu sonlandırır.
+- İlk yeni APK build/zipalign/imza/kurulum başarılı. Dinleme 9/9, sohbet 21/21, görüşme 8/8, ekran 9/9 PASS (47 sessiz kontrol). Sohbet testleri kontrollü ağ yanıtıdır; canlı Türkçe yönlendirme başarısı değildir.
+- Gerçek cihaz yerel tanıma yeteneği false. Gerçek TTS + standart tanıma denemesi SES_ODAGI_KESILDI ile bitti; kullanıcı sözü algılanmadan odak kesildi. Eşzamanlı söz kesme BAŞARISIZ ve üretime bağlanmadı; mevcut üretim TTS sırasında dinlemez.
+- Komutlar, benzersiz test kimlikleri, tam sonuçlar ve yerel Vosk deneme önerisi SOZ_KESME_TASARIMI.md içinde. Ham tanınan metin kaydedilmedi. Yeni kütüphane/model indirilmedi. Gerçek yankı ayırma, kesme gecikmesi, doğal takip konuşması ve pil ölçümü açık.
+
+- Son küçük karakter olay korumasından sonra APK yeniden derlendi, zipalign/imza doğrulandı ve pm install -r Success alındı. Aynı SON APK: dinleme 9 + sohbet 21 + görüşme 8 + ekran 9 + durağan karakter 6 = 53/53 PASS. Durağan Canvas testi canlı animasyon veya gerçek söz kesme testi değildir. git diff --check geçti. Motor denemesi için kullanıcıya Vosk 35 MB + Android kütüphanesi önerisi sunuldu; henüz onay gelmedi, bağımlılık eklenmedi.

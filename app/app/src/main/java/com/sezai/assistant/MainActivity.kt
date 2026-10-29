@@ -132,7 +132,9 @@ class MainActivity : Activity() {
                     karakter?.konusmaBasladi(olay.metin)
                 }
                 KonusmaGorselOlayi.Tur.HATA -> karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
-                KonusmaGorselOlayi.Tur.BITTI, KonusmaGorselOlayi.Tur.DURDU -> karakter?.konusmaBitti()
+                KonusmaGorselOlayi.Tur.BITTI, KonusmaGorselOlayi.Tur.DURDU -> {
+                    if (karakter?.durum == SezaiKarakterView.Durum.KONUSUYOR) karakter?.konusmaBitti()
+                }
             }
         } }
         dinleme = AndroidDinleme(this)
@@ -410,12 +412,22 @@ class MainActivity : Activity() {
                         durumYazisi.text = "Dinleme durdu. Sohbetin konusu korunuyor."
                         return@runOnUiThread
                     }
+                    val sozAlma = SohbetKomutlari.sozAlmaMetni(metin)
+                    if (sozAlma != null) {
+                        konusma.durdur(); sohbet?.iptal()
+                        if (sozAlma.isBlank()) {
+                            durumYazisi.text = "Seni dinliyorum. Konuşmanın konusu korunuyor."
+                            anaIs.postDelayed({ sohbetDinle(nesil) }, 200)
+                            return@runOnUiThread
+                        }
+                    }
+                    val istekMetni = sozAlma ?: metin
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
-                    durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
-                    sohbet?.gonder(metin,
+                    durumYazisi.text = "Siz: $istekMetni\n\nSezai düşünüyor..."
+                    sohbet?.gonder(istekMetni,
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
-                                durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
+                                durumYazisi.text = "Siz: $istekMetni\n\nSezai: $cevap"
                                 val sesliCevap = if (cevap.length > 3000) cevap.take(2800) + "… Devamını ekrandan okuyabilirsiniz." else cevap
                                 seslendir(sesliCevap,
                                     bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },

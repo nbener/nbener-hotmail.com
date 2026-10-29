@@ -243,3 +243,17 @@ Son güncelleme: 2026-10-29
 - MainActivity yeni bir görevde açıldı, ana ekran yerleşimi /sdcard/Download/sezai-karakter-ana-ekran-1793271227687886485.png görselinde kontrol edildi. Başlıkta karakter ve Sezai adı, sesli sohbet düğmesi, mesaj kartı, web seçeneği, yazı alanı ve Gönder görünür; diğer araçlar kaydırılabilir düzende korunuyor.
 - Sabit bir Türkçe cümle `--es oto` ile gerçek Android TTS motoruna verildi. Mikrofon ve API çağrısı başlatılmadı. TTS sırasında alınan /sdcard/Download/sezai-gercek-tts-1793271275331580008.png ve /sdcard/Download/sezai-gercek-tts-1793271277152675372.png görüntülerinde farklı ağız açıklıkları görülüyor. Bu, TTS başlangıç olayının görsele ulaştığını gösterir; ses yüksekliği/gerçek fonem senkronu veya hoparlör sesinin işitildiği iddiası değildir.
 - Bu aşamada uygulama kaynağı değişmedi, yeniden build gerekmedi. Kalan: gerçek mikrofondan model yanıtına doğal sohbet akışında görsel durumlar, ölçülmüş pil ve fiziksel kilit/arka plan kabulü.
+
+## Konuşma arasında söz alma — sürüyor
+- Kullanıcı “dur/Sezai” ile TTS arasında sözü alıp aynı konuda devam veya yeni konuya geçiş istedi. CLAUDE.md'ye kalıcı kaydedildi.
+- Kök neden: mevcut TTS sırasında mikrofon kapalı; “dur” bitirme kümesindeydi. SohbetKomutlari sözü alma/bitirme ayrımı, MainActivity çağrı sonrası dinlemeyi sürdürme ve takip isteğini aktarma, SohbetMotoru son isteği esas alma talimatı yazıldı. Bu değişiklik TTS sırasında duyabilme özelliği olarak sunulmaz.
+- En çok 12 saniyelik DUMP korumalı EszamanliSesTestActivity eklendi: yerel tanıma kullanılabilirliği, gerçek TTS+mikrofon ve ses odağı uyumu ölçülecek. Ham tanınan metin raporlanmaz; API isteği yok. Üretim akışına bağlı değil.
+- Yedek yedek/soz-kesme-oncesi-20261029-135920.tar.gz. Derleme sürüyor; son kaynak henüz kurulup test edilmedi. Telefon API31, varsayılan STT com.google.android.tts/...GoogleTTSRecognitionService olarak okundu.
+
+## 29 Ekim — söz alma son ölçüm ve kurulu sürüm
+- “dur” bitirme listesinden çıkarıldı; dur/Sezai çağrısı, devam isteği ve benzer kelimeler ayrılıyor. Konu geçmişi silinmiyor; son isteği esas alma talimatı eklendi. MainActivity karakterinde gecikmiş ses-bitiş olayı yalnız konuşma durumunu sonlandırır.
+- İlk yeni APK build/zipalign/imza/kurulum başarılı. Dinleme 9/9, sohbet 21/21, görüşme 8/8, ekran 9/9 PASS (47 sessiz kontrol). Sohbet testleri kontrollü ağ yanıtıdır; canlı Türkçe yönlendirme başarısı değildir.
+- Gerçek cihaz yerel tanıma yeteneği false. Gerçek TTS + standart tanıma denemesi SES_ODAGI_KESILDI ile bitti; kullanıcı sözü algılanmadan odak kesildi. Eşzamanlı söz kesme BAŞARISIZ ve üretime bağlanmadı; mevcut üretim TTS sırasında dinlemez.
+- Komutlar, benzersiz test kimlikleri, tam sonuçlar ve yerel Vosk deneme önerisi SOZ_KESME_TASARIMI.md içinde. Ham tanınan metin kaydedilmedi. Yeni kütüphane/model indirilmedi. Gerçek yankı ayırma, kesme gecikmesi, doğal takip konuşması ve pil ölçümü açık.
+
+- Son küçük karakter olay korumasından sonra APK yeniden derlendi, zipalign/imza doğrulandı ve pm install -r Success alındı. Aynı SON APK: dinleme 9 + sohbet 21 + görüşme 8 + ekran 9 + durağan karakter 6 = 53/53 PASS. Durağan Canvas testi canlı animasyon veya gerçek söz kesme testi değildir. git diff --check geçti. Motor denemesi için kullanıcıya Vosk 35 MB + Android kütüphanesi önerisi sunuldu; henüz onay gelmedi, bağımlılık eklenmedi.
