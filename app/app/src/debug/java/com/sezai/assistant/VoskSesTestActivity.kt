@@ -47,6 +47,7 @@ class VoskSesTestActivity : Activity() {
         kip = intent.getStringExtra("kip") ?: "bilgi"
         rapor.put("test_id", intent.getStringExtra("test_id") ?: "elle").put("kip", kip)
         ttsGenlik = intent.getFloatExtra("tts_genlik", 1f)
+        if (kip == "pcm") ttsGenlik = 0f // Bu mod mikrofon açmaz ve işitilir ses üretmez.
         yazi = TextView(this).apply {
             text = "Yerel Vosk denemesi: $kip. Hazırlanıyor…"; textSize = 18f; setPadding(32,48,32,32)
         }
@@ -54,7 +55,13 @@ class VoskSesTestActivity : Activity() {
         if (!ttsGenlik.isFinite() || ttsGenlik !in 0f..1f) { bitir("GECERSIZ_TTS_GENLIK"); return }
         rapor.put("tts_istenen_genlik", ttsGenlik.toDouble())
         if (state != null) { bitir("YENIDEN_OLUSTURULDU"); return }
-        if (kip !in setOf("bilgi", "dinle", "birlikte", "yanki")) { bitir("GECERSIZ_KIP"); return }
+        if (kip !in setOf("bilgi", "dinle", "birlikte", "yanki", "pcm")) { bitir("GECERSIZ_KIP"); return }
+        if (kip == "pcm") {
+            odak.izle()
+            if (!odak.hazirlan(true)) { bitir("SES_ODAGI_YOK"); return }
+            sesHazir()
+            return
+        }
         if (kip != "bilgi" && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             bitir("MIKROFON_IZNI_YOK"); return
         }
@@ -195,18 +202,30 @@ class VoskSesTestActivity : Activity() {
 
     private fun sesHazir() {
         anaIs.removeCallbacksAndMessages(null)
-        yazi.text = "Mikrofon açık: $kip. En çok 12 saniye. Dur veya Sezai diyebilirsiniz."
+        yazi.text = if (kip == "pcm") "Sessiz TTS PCM kontrolü. Mikrofon kapalı."
+            else "Mikrofon açık: $kip. En çok 12 saniye. Dur veya Sezai diyebilirsiniz."
         anaIs.postDelayed({ bitir("SURE_DOLDU") }, 12000)
         if (kip == "dinle") return
         tts = AndroidKonusma(this, "com.google.android.tts", cumleSesDuzeyi = ttsGenlik) { hazir -> anaIs.post {
             if (!etkin.get()) return@post
             if (!hazir) { bitir("TTS_HAZIR_DEGIL"); return@post }
+            tts!!.pcmTanisi = { olay -> anaIs.post {
+                if (etkin.get()) {
+                    if (olay.hz > 0) {
+                        rapor.put("tts_pcm_hz", olay.hz).put("tts_pcm_bicim", olay.bicim).put("tts_pcm_kanal", olay.kanal)
+                    } else if (olay.bayt > 0) {
+                        rapor.put("tts_pcm_parca", rapor.optInt("tts_pcm_parca") + 1)
+                            .put("tts_pcm_bayt", rapor.optLong("tts_pcm_bayt") + olay.bayt)
+                    }
+                }
+            } }
             tts!!.gorselOlayi = { olay ->
                 if (olay.tur == KonusmaGorselOlayi.Tur.BASLADI) {
                     ttsSuruyor = true; ttsBaslangici = SystemClock.elapsedRealtime(); rapor.put("tts_basladi", true)
                 }
             }
-            val metin = if (kip == "yanki") "Sezai, dur. Bu iki sözcük bu deneme cümlesinin parçasıdır. Şimdi sakin bir şekilde konuşmayı sürdürüyorum."
+            val metin = if (kip == "pcm") "Bu sessiz ses biçimi denemesidir."
+                else if (kip == "yanki") "Sezai, dur. Bu iki sözcük bu deneme cümlesinin parçasıdır. Şimdi sakin bir şekilde konuşmayı sürdürüyorum."
                 else "Bu kısa bir yerel ses denemesidir. Konuşma sürerken seni dinleyebilmek için mikrofon ve sesin birlikte çalışmasını kontrol ediyorum. İstersen şimdi araya girebilirsin."
             tts!!.konus(metin,
                 bitince = { anaIs.post { ttsSuruyor = false; rapor.put("tts_tamamlandi", true); bitir("DENEME_TAMAMLANDI") } },
@@ -222,6 +241,7 @@ class VoskSesTestActivity : Activity() {
         }
         anaIs.removeCallbacksAndMessages(null)
         ttsSuruyor = false; tts?.kapat(); tts = null; odak.kapat()
+        if (kip == "pcm") rapor.put("kaynaklar_birakildi", true)
         if (!calisan) raporYaz() else yazi.text = "Ses denemesi durdu; kaynaklar bırakılıyor."
     }
     private fun raporYaz() {

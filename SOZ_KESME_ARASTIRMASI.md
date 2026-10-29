@@ -42,3 +42,7 @@ Yöntem var: eşzamanlı kayıt/çalma, hoparlör referansıyla yankı giderme, 
 Kullanıcı yokken TTS içindeki dur/Sezai kelimelerinde yanlış tetikleme olmamalı. Kullanıcı konuşmaya başladığında kesme gecikmesi gerçek söyleme anına göre ölçülmeli; takip isteğinin ilk kelimeleri kaybolmamalı. Aynı/yeni konu, görüşme, arka plan ve kilit denenmeli. Yakın geçmişte ses tamponu kaybı kanıtlanmadı; CPU süresi bunu tek başına göstermez. Yalnız etkin sesli oturumda işleme, ekran/uygulama kapanınca kaynak bırakma korunur. APM/VAD'nin gerçek CPU/pil maliyeti ölçülmeden düşük pil iddiası yapılmaz.
 
 Araştırma sırasında APK veya üretim kodu değişmedi; yeni paket kurulmadı, ses testi başlatılmadı. Başarı vaadi yerine uygulanabilir, kaynaklı yol belirlendi.
+
+
+## İlk uygulama sonucu
+30 Ekim: mikrofonsuz sıfır ses katsayılı PCM testi1793309848188549596 geçti. TTS24kHz mono PCM16 ses parçalarını sağlıyor;132 parça/132624 bayt ölçüldü. Henüz gerçek çalma ile senkron referans/AEC hattı kurulmadı. Ayrıntı TEST_DURUMU.md son kaydında.

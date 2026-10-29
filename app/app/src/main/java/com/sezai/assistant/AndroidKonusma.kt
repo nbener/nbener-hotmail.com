@@ -16,6 +16,8 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
         require(cumleSesDuzeyi == null || (cumleSesDuzeyi.isFinite() && cumleSesDuzeyi in 0f..1f))
     }
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
+    // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.
+    @Volatile internal var pcmTanisi: ((PcmTaniOlayi) -> Unit)? = null
     private val gorselNesil = AtomicInteger()
     private val gorselAnaIs = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
@@ -50,6 +52,15 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
         val t = tts
         if (t == null || !hazirlandi) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke(); return }
         t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+            private fun pcmBildir(olay: PcmTaniOlayi) {
+                if (gorselNesil.get() == sira) pcmTanisi?.invoke(olay)
+            }
+            override fun onBeginSynthesis(id: String?, hz: Int, bicim: Int, kanal: Int) {
+                if (id == konusmaKimligi && pcmTanisi != null) pcmBildir(PcmTaniOlayi(hz, bicim, kanal))
+            }
+            override fun onAudioAvailable(id: String?, audio: ByteArray?) {
+                if (id == konusmaKimligi && audio != null && pcmTanisi != null) pcmBildir(PcmTaniOlayi(bayt = audio.size))
+            }
             override fun onStart(id: String?) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
             override fun onDone(id: String?) {
                 if (id == konusmaKimligi) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() }
@@ -86,8 +97,10 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+    override fun kapat() { pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
 }
+
+internal data class PcmTaniOlayi(val hz: Int = 0, val bicim: Int = 0, val kanal: Int = 0, val bayt: Int = 0)
 
 // Yalnızca görsel geri bildirim; ses akışını ve ses odağını değiştirmez.
 internal data class KonusmaGorselOlayi(val tur: Tur, val metin: String = "") {

@@ -124,3 +124,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [ ] İlk küçük debug doğrulaması: Android TTS onAudioAvailable/onBeginSynthesis PCM biçim ve parça akışı; ham ses diske/ağa gitmez.
 - [ ] WebRTC APM bağımsız ARM64/Termux derleme/bağımlılık, lisans/boyut ve pil uygunluğu; ardından senkron referanslı kayıt/çalma prototipi. Native paket henüz eklenmedi.
 - [ ] Türkçe çağrı, kendi sesinden yanlış tetikleme, devam isteğinin ilk kelimeleri, bağlam, görüşme/kilit ve ölçülmüş enerji kabulü. Araştırma başarısı gerçek sesli başarı değildir.
+
+
+## 30 Ekim00.37 — ilk referans adımı geçti
+- [x] TTS onAudioAvailable/onBeginSynthesis: son APK mikrofonsuz katsayı0 test1793309848188549596 PASS;24kHz mono PCM16,132 parça132624 bayt. Ham ses tutulmadı. Aynı APK38 sessiz regresyon PASS.
+- [ ] Yerel AEC bağımlılık/ARM64 uyumu ve kontrollü çalma-referans senkronu. Termux clang Android24 hedefli çalışıyor; NDK/cmake/ninja bulunmadı, paket kurulmadı. TTS24kHz/mikrofon16kHz uyumu gerekir. Söz kesme henüz tamamlanmadı.

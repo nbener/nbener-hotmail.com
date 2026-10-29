@@ -9,11 +9,12 @@ import subprocess
 import time
 
 p = argparse.ArgumentParser(description=__doc__)
-p.add_argument('--kip', choices=['bilgi', 'dinle', 'birlikte', 'yanki'], default='bilgi')
+p.add_argument('--kip', choices=['bilgi', 'dinle', 'birlikte', 'yanki', 'pcm'], default='bilgi')
 p.add_argument('--tts-genlik', type=float, default=1.0, help='Yalnız deneme cümlesi için 0–1 ses katsayısı; sistem sesini değiştirmez')
 p.add_argument('--arka-plan', action='store_true', help='Dinle kipinde 3 saniye sonra Home ile gerçek yaşam döngüsünü dene')
 a = p.parse_args()
 if not 0 <= a.tts_genlik <= 1: p.error('--tts-genlik 0 ile 1 arasında olmalı')
+if a.kip == 'pcm': a.tts_genlik = 0.0
 if a.arka_plan and a.kip != 'dinle': p.error('--arka-plan yalnız --kip dinle ile kullanılır')
 rish = Path(__file__).resolve().parents[2] / 'rish/rish'
 env = dict(os.environ, RISH_APPLICATION_ID='com.termux')
@@ -41,6 +42,15 @@ try:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
             if abs(rapor.get('tts_istenen_genlik', -1) - a.tts_genlik) > 0.00001:
                 raise SystemExit('Bu APK istenen TTS genlik parametresini doğrulamadı')
+            if a.kip == 'pcm':
+                if not (rapor.get('sonuc') == 'DENEME_TAMAMLANDI' and rapor.get('tts_tamamlandi')
+                        and rapor.get('tts_pcm_hz', 0) > 0 and rapor.get('tts_pcm_bicim') in (2, 3, 4)
+                        and rapor.get('tts_pcm_kanal', 0) > 0 and rapor.get('tts_pcm_parca', 0) > 0
+                        and rapor.get('tts_pcm_bayt', 0) > 0 and rapor.get('kaynaklar_birakildi')
+                        and not rapor.get('mikrofon_basladi') and not rapor.get('model_acildi')):
+                    raise SystemExit('Mikrofonsuz TTS PCM biçim/parça kontrolü geçmedi')
+                print('Mikrofonsuz sessiz TTS PCM kontrolü: PASS')
+                break
             if not rapor.get('kaynaklar_birakildi') or not rapor.get('model_acildi'):
                 raise SystemExit('Model/kaynak bırakma doğrulanamadı')
             if a.kip == 'bilgi' and rapor.get('sonuc') != 'MODEL_HAZIR':
