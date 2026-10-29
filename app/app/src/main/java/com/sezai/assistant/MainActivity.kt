@@ -30,6 +30,9 @@ class MainActivity : Activity() {
     }
     private var sohbet: SohbetMotoru? = null
     private var sohbetAcik = false
+    private var yaziliSohbetAcik = false
+    private lateinit var mesajAlani: EditText
+    private lateinit var gonderDugmesi: Button
     private var sohbetNesli = 0
     private lateinit var sohbetDugmesi: Button
     private val anaIs = Handler(Looper.getMainLooper())
@@ -75,10 +78,24 @@ class MainActivity : Activity() {
         intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
         calistirici = KomutCalistirici(this)
 
-        sohbetDugmesi = dugme("Sohbet et") { if (sohbetAcik) sohbetBitir() else sohbetBaslat() }
+        sohbetDugmesi = dugme("Sohbet et") { if (sohbetAcik || yaziliSohbetAcik) sohbetBitir() else sohbetBaslat() }
         // Yanıt uzadığında da sohbeti bitirme düğmesi üstte erişilebilir kalsın.
         kutu.removeView(sohbetDugmesi)
         kutu.addView(sohbetDugmesi, kutu.indexOfChild(durumYazisi))
+        mesajAlani = EditText(this).apply {
+            hint = "Sezai’ye yazın"
+            textSize = 20f
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
+            minLines = 2; maxLines = 3
+            filters = arrayOf(android.text.InputFilter.LengthFilter(2000))
+            importantForAutofill = android.view.View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
+        }
+        kutu.addView(mesajAlani, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 24 })
+        gonderDugmesi = Button(this).apply {
+            text = "Gönder"; textSize = 22f
+            setOnClickListener { yaziliMesajGonder() }
+        }
+        kutu.addView(gonderDugmesi, LinearLayout.LayoutParams(-1, -2))
         dugme("Sohbet bağlantısı") { sohbetBitir(false); baglantiAyarlariniAc() }
         dugme("Konuş") { sohbetBitir(false); konusma.konus("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
         dugme("Dinle") { sohbetBitir(false); dinle() }
@@ -170,11 +187,48 @@ class MainActivity : Activity() {
         }
         if (!dinleme.kullanilabilirMi()) { durumYazisi.text = "Konuşma tanıma yok"; return }
         if (!konusma.hazirMi()) { durumYazisi.text = "Ses motoru hazırlanıyor. Biraz sonra tekrar deneyin."; return }
-        dinleme.kapat(); konusma.durdur(); sohbet?.kapat()
+        sohbetBitir(false)
         sohbet = SohbetMotoru(kasa, saglayici)
         sohbetAcik = true; sohbetNesli++
         sohbetDugmesi.text = "Sohbeti bitir"
         sohbetDinle(sohbetNesli)
+    }
+
+    private fun yaziliMesajGonder() {
+        val metin = mesajAlani.text.toString().trim()
+        if (metin.isBlank()) { mesajAlani.error = "Bir mesaj yazın."; return }
+        if (!gonderDugmesi.isEnabled) return
+        if (!yaziliSohbetAcik) {
+            val saglayici = SohbetSaglayici.secili(this)
+            val kasa = AnahtarKasasi(this, saglayici.kasaAdi)
+            val anahtarVar = try { !kasa.oku().isNullOrBlank() } catch (_: Exception) { false }
+            if (!anahtarVar) { sohbetBitir(false); baglantiAyarlariniAc(); return }
+            sohbetBitir(false)
+            sohbet = SohbetMotoru(kasa, saglayici)
+            yaziliSohbetAcik = true
+            sohbetDugmesi.text = "Sohbeti bitir"
+        }
+        val motor = sohbet ?: return
+        val nesil = sohbetNesli
+        gonderDugmesi.isEnabled = false
+        gonderDugmesi.text = "Yanıt bekleniyor..."
+        (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
+            .hideSoftInputFromWindow(mesajAlani.windowToken, 0)
+        durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
+        motor.gonder(metin,
+            sonuc = { cevap ->
+                if (yaziliSohbetAcik && nesil == sohbetNesli) {
+                    durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
+                    if (mesajAlani.text.toString().trim() == metin) mesajAlani.text.clear()
+                    gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
+                }
+            },
+            hata = { mesaj ->
+                if (yaziliSohbetAcik && nesil == sohbetNesli) {
+                    durumYazisi.text = "Siz: $metin\n\n$mesaj"
+                    gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
+                }
+            })
     }
 
     private fun sohbetDinle(nesil: Int) {
@@ -213,10 +267,11 @@ class MainActivity : Activity() {
     }
 
     private fun sohbetBitir(mesajGoster: Boolean = true) {
-        sohbetAcik = false; sohbetNesli++
+        sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
         sohbet?.kapat(); sohbet = null; dinleme.kapat(); konusma.durdur()
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sohbet et"
+        if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
         if (mesajGoster) durumYazisi.text = "Sohbet bitti."
     }
 

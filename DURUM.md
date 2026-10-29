@@ -101,3 +101,9 @@ Son güncelleme: 2026-10-29
 - Bağlantı ekranında Groq varsayılanı ve password=true görüldü. Seçim değiştirme/iptal UI testi, kullanıcı telefonu kullanırken başka ekran öne geldiği için tamamlanmadı. Otomatik dokunuşlar durduruldu. Gerçek API denenmedi.
 - Resmî kaynakların karşılaştırması UCRETSIZ_AI_SECENEKLERI.md içinde.
 - Kullanıcı yazarak sohbet de istedi; sıradaki değişiklik mikrofon ve seslendirme kullanmadan metin gönderme/yanıt gösterme.
+
+## Yazılı sohbet çalışması
+- MainActivity'ye çok satırlı mesaj alanı ve Gönder düğmesi eklendi. Aynı sohbet motoru/sağlayıcı bellekteki bağlamı korur; metin modunda mikrofon izni istenmez ve TTS çağrılmaz.
+- Bekleyen istekte çift gönderim engellenir. Hata halinde taslak korunur; yanıt geldiğinde kullanıcı yeni metin yazmışsa silinmez. Bitir/uygulamadan çıkış, isteği ve sohbet bağlamını kapatır.
+- Kaynak yedeği: yedek/yazili-sohbet-oncesi-20261029.tar.gz.
+- Yeni APK Ubuntu proot içinde derlendi; zipalign/apksigner doğrulandı, kurulum Success. Son APK üzerinde ortak sohbet testleri 11/11 PASS. Yazı alanı ve Gönder düğmesi cihaz arayüzünde görüldü; otomatik dokunuş yapılmadı. İlk UI kontrolü hint metnini XML text alanında aradığı için başarısızdı; gerçek EditText sınıfı ve Gönder düğmesi üzerinden doğrulandı. Canlı API anahtarı olmadığı için gerçek yazışma henüz denenmedi.
