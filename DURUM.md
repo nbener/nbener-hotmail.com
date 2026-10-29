@@ -216,3 +216,5 @@ Son güncelleme: 2026-10-29
 - Görüşme/ses odağı kaybı okumayı keser; başka uygulama öne gelince ve ekran kilitlenince kuyruk bırakılır. TTS parçalara bölünür; iptal edilen eski callback yeni okumayı ilerletmez. Yeni mikrofon dinlemesi, konum, wake lock veya periyodik ekran sorgusu yok. Hizmet sistemce açıkken olay dinler; gerçek pil ölçümü henüz yapılmadı.
 - SONRAKİ GEREKLİ ADIM: Kullanıcı Android erişilebilirlik ayarlarında Sezai ekran yardımcısı hizmetini açacak; ayar bu ajan tarafından değiştirilmedi. Ardından gerçek ekran okuma/yorumlama, Termux metin erişimi ve görüşme/kilit kesintisi kabul testleri yapılacak. Genel arka plan sesli uyandırma, konuşarak herhangi bir ekranı inceletme ve telefon eylemlerini yürütme henüz uygulanmadı; kullanıcı hedefi olarak CLAUDE.md'de duruyor.
 - Resmî uygulama kaynağı: https://developer.android.com/guide/topics/ui/accessibility/service .
+
+- Devretme: bad0322 commitinden sonra Android erişilebilirlik ayarları `am start -W -a android.settings.ACCESSIBILITY_SETTINGS` ile açıldı; Settings$AccessibilitySettingsActivity sonucu Status: ok. Hizmet açılmadı; kullanıcı onayı bekleniyor.
