@@ -100,6 +100,42 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                         check(SohbetSaglayici.entries.all { URL(it.adres).protocol == "https" })
                     } finally { diger.sil() }
                 }
+                for (saglayici in SohbetSaglayici.entries) {
+                    kontrol("${saglayici.adi}: Kayseri-konumu-nüfusu bağlamı duraklatmada korunuyor") {
+                        val baglantilar = mutableListOf<SahteBaglanti>()
+                        val yanit = if (saglayici.yanitApi)
+                            """{"output":[{"type":"message","content":[{"type":"output_text","text":"Kayseri İç Anadolu Bölgesindedir."}]}]}"""
+                        else """{"choices":[{"message":{"content":"Kayseri İç Anadolu Bölgesindedir."}}]}"""
+                        val motor = SohbetMotoru(kasa, saglayici) {
+                            SahteBaglanti(yanit = yanit).also { baglantilar.add(it) }
+                        }.also { motorlar.add(it) }
+                        check(iste(motor, "Kayseri nerede?") == "Kayseri İç Anadolu Bölgesindedir.")
+                        // Ekrandan çıkış ve giriş yöntemi değişimi aynı motoru duraklatır.
+                        motor.iptal()
+                        iste(motor, "konumu")
+                        val istek = JSONObject(baglantilar.last().giden.toString("UTF-8"))
+                        val mesajlar = istek.getJSONArray(if (saglayici.yanitApi) "input" else "messages")
+                        val bas = if (saglayici.yanitApi) 0 else 1
+                        check(mesajlar.length() == bas + 3)
+                        check(mesajlar.getJSONObject(bas).getString("content") == "Kayseri nerede?")
+                        check(mesajlar.getJSONObject(bas + 1).getString("content") == "Kayseri İç Anadolu Bölgesindedir.")
+                        check(mesajlar.getJSONObject(bas + 2).getString("content") == "konumu")
+                        motor.iptal()
+                        iste(motor, "nüfusu")
+                        val nufusIstegi = JSONObject(baglantilar.last().giden.toString("UTF-8"))
+                            .getJSONArray(if (saglayici.yanitApi) "input" else "messages")
+                        check(nufusIstegi.length() == bas + 5)
+                        check(nufusIstegi.getJSONObject(bas).getString("content") == "Kayseri nerede?")
+                        check(nufusIstegi.getJSONObject(bas + 2).getString("content") == "konumu")
+                        check(nufusIstegi.getJSONObject(bas + 4).getString("content") == "nüfusu")
+                        // Açıkça yeni sohbet başlatılması önceki konuyu taşımamalı.
+                        motor.sifirla(); iste(motor, "Yeni konu")
+                        val yeni = JSONObject(baglantilar.last().giden.toString("UTF-8"))
+                            .getJSONArray(if (saglayici.yanitApi) "input" else "messages")
+                        check(yeni.length() == bas + 1)
+                        check(yeni.getJSONObject(bas).getString("content") == "Yeni konu")
+                    }
+                }
                 kontrol("İptal edilen yanıt kullanıcıya dönmüyor") {
                     val basladi = CountDownLatch(1)
                     val devam = CountDownLatch(1)

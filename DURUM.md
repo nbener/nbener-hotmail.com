@@ -107,3 +107,16 @@ Son güncelleme: 2026-10-29
 - Bekleyen istekte çift gönderim engellenir. Hata halinde taslak korunur; yanıt geldiğinde kullanıcı yeni metin yazmışsa silinmez. Bitir/uygulamadan çıkış, isteği ve sohbet bağlamını kapatır.
 - Kaynak yedeği: yedek/yazili-sohbet-oncesi-20261029.tar.gz.
 - Yeni APK Ubuntu proot içinde derlendi; zipalign/apksigner doğrulandı, kurulum Success. Son APK üzerinde ortak sohbet testleri 11/11 PASS. Yazı alanı ve Gönder düğmesi cihaz arayüzünde görüldü; otomatik dokunuş yapılmadı. İlk UI kontrolü hint metnini XML text alanında aradığı için başarısızdı; gerçek EditText sınıfı ve Gönder düğmesi üzerinden doğrulandı. Canlı API anahtarı olmadığı için gerçek yazışma henüz denenmedi.
+
+## Sohbet bağlamı düzeltmesi (Kayseri → konumu → nüfusu)
+- Kullanıcı ardışık kısa mesajların önceki konuya bağlanmadığını bildirdi. Kodda doğrulanan iki kayıp yolu: onStop geçmişi kapatıyordu; sesli/yazılı geçiş yeni motor oluşturuyordu. Aynı ekranda aralıksız metin akışında geçmiş zaten gönderiliyordu; modelin canlı yanıtı henüz incelenmedi.
+- MainActivity: geçici duraklatma isteği/mikrofonu/TTS'i durdurur, aynı motor ve geçmiş kalır. Sesli/yazılı giriş ortak motoru kullanır. Yeni sohbet düğmesi açıkça geçmişi sıfırlar. Dinlemeyi durdurmak veya sesli bitirme sözü, konu geçmişini silmez.
+- Ekran dönüşünde motor onRetainNonConfigurationInstance ile devredilir, eski Activity geri çağrıları iptal edilir. Son görünen yanıt/taslak Bundle ile geri yüklenir. Geçmiş diske kaydedilmez; Android uygulama sürecini tamamen sonlandırırsa korunmaz. Sağlayıcı değiştirmek yeni motor başlatır, eski sağlayıcı geçmişi diğer hizmete taşınmaz.
+- SohbetMotoru talimatı kısa takip mesajlarını önceki konuya bağlayacak biçimde netleştirildi. Dört sağlayıcı için Kayseri nerede? → konumu → nüfusu zinciri, duraklatma ve açık sıfırlama testleri eklendi. Sahte ağ testleri modelin gerçek cevabını/gerçek nüfus bilgisini doğrulamaz, istek geçmişini doğrular.
+- Yedek: yedek/sohbet-baglami-oncesi-20261029.tar.gz. Ubuntu proot derlemesi, zipalign ve apksigner başarılı. APK son üç mesajlık test kodunu içeriyor; pm install -r Success. Cihazda test/sohbet_test.py 15/15 PASS. Canlı model anlamlandırması bu sahte ağ testinin kapsamı dışındadır.
+
+## Bağlam zinciri/verimlilik görüşmesi
+- Kullanıcı her turda geçmişin tekrar gönderilmesini sorguladı. Mevcut uygulama en son 8 mesajı (4 tur) tekrar gönderir; sınırsız geçmiş aktarımı yoktur. Henüz kimlikle sunucu zincirine veya özet belleğe geçilmedi.
+- Resmî doküman: OpenAI previous_response_id ile devamı destekler; önceki bağlam tokenları yine giriş tokenı olarak faturalandırılır. Sunucuda saklama koşulları ayrıca ele alınmalı, mevcut store=false kendiliğinden değiştirilmedi. Kaynak: https://developers.openai.com/api/docs/guides/conversation-state
+- Groq Responses belgesindeki Unsupported Features bölümü previous_response_id ve store desteklenmediğini açıkça belirtiyor; girişteki genel stateful ifadesine güvenip geçiş yapma. Kaynak: https://console.groq.com/docs/responses-api
+- Tasarım seçeneği: aktif konu + gerektiğinde güncellenen kısa özet + son mesajlar. Bu yalnızca öneri; henüz uygulanmadı. Konu çözümleme genel olmalı, Kayseri'ye özel kelime kuralıyla belirti gizlenmemeli. Belirsiz takip mesajlarında açıklama istenir.

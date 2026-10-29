@@ -45,7 +45,7 @@ class SohbetMotoru(
                 }
                 girdi.put(JSONObject().put("role", "user").put("content", metin.take(2000)))
                 val talimat = "Adın Sezai. Türkçe konuşan sıcak, sabırlı ve güvenilir bir sesli yol arkadaşısın. " +
-                    "Kısa, doğal, kolay anlaşılan yanıtlar ver; genellikle iki üç cümle yeterli. Önceki konuşmayı takip et. " +
+                    "Kısa, doğal, kolay anlaşılan yanıtlar ver; genellikle iki üç cümle yeterli. Önceki konuşmayı takip et. Kısa takip mesajlarını önceki konuya bağla; örneğin bir yerden sonra söylenen konumu, o yerin konumunu sorar. Konu belliyse yeniden hangi yer olduğunu sorma. " +
                     "Bilmediğini açıkça söyle. Gerçekte yapmadığın arama, alarm, araştırma veya telefon işlemini yaptığını söyleme. " +
                     "Bu sohbette telefon araçlarına ve güncel web bilgisine erişimin yok. Madde işaretleri yerine konuşma dilini kullan."
                 val istek = if (saglayici.yanitApi) {

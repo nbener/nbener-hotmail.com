@@ -29,6 +29,8 @@ class MainActivity : Activity() {
         runOnUiThread { ilerlemeyiGoster() }
     }
     private var sohbet: SohbetMotoru? = null
+    private var sohbetSaglayicisi: SohbetSaglayici? = null
+    private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?)
     private var sohbetAcik = false
     private var yaziliSohbetAcik = false
     private lateinit var mesajAlani: EditText
@@ -45,6 +47,9 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        (lastNonConfigurationInstance as? SohbetDevri)?.let {
+            sohbet = it.motor; sohbetSaglayicisi = it.saglayici
+        }
         val kutu = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(48, 96, 48, 48)
@@ -78,7 +83,12 @@ class MainActivity : Activity() {
         intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
         calistirici = KomutCalistirici(this)
 
-        sohbetDugmesi = dugme("Sohbet et") { if (sohbetAcik || yaziliSohbetAcik) sohbetBitir() else sohbetBaslat() }
+        sohbetDugmesi = dugme("Sesli sohbet et") {
+            if (sohbetAcik) {
+                sohbetDuraklat()
+                durumYazisi.append("\n\nDinleme durdu. Aynı sohbete yazarak veya konuşarak devam edebilirsiniz.")
+            } else sohbetBaslat()
+        }
         // Yanıt uzadığında da sohbeti bitirme düğmesi üstte erişilebilir kalsın.
         kutu.removeView(sohbetDugmesi)
         kutu.addView(sohbetDugmesi, kutu.indexOfChild(durumYazisi))
@@ -96,11 +106,15 @@ class MainActivity : Activity() {
             setOnClickListener { yaziliMesajGonder() }
         }
         kutu.addView(gonderDugmesi, LinearLayout.LayoutParams(-1, -2))
-        dugme("Sohbet bağlantısı") { sohbetBitir(false); baglantiAyarlariniAc() }
-        dugme("Konuş") { sohbetBitir(false); konusma.konus("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
-        dugme("Dinle") { sohbetBitir(false); dinle() }
+        kutu.addView(Button(this).apply {
+            text = "Yeni sohbet"; textSize = 20f
+            setOnClickListener { sohbetBitir(); mesajAlani.text.clear() }
+        }, LinearLayout.LayoutParams(-1, -2))
+        dugme("Sohbet bağlantısı") { sohbetDuraklat(); baglantiAyarlariniAc() }
+        dugme("Konuş") { sohbetDuraklat(); konusma.konus("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
+        dugme("Dinle") { sohbetDuraklat(); dinle() }
         dugme("Sesi değiştir") {
-            sohbetBitir(false)
+            sohbetDuraklat()
             if (sesler.isNotEmpty()) {
                 sesSirasi = (sesSirasi + 1) % sesler.size
                 konusma.sesSec(sesler[sesSirasi])
@@ -109,10 +123,12 @@ class MainActivity : Activity() {
             }
         }
         setContentView(ScrollView(this).apply { addView(kutu) })
+        savedInstanceState?.getString("mesaj_taslagi")?.let { mesajAlani.setText(it) }
+        savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
     }
 
     private fun komutVer(metin: String) {
-        sohbetBitir(false)
+        sohbetDuraklat()
         val cevap = calistirici.calistir(KomutYorumlayici.yorumla(metin))
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
         durumYazisi.text = cevap
@@ -156,6 +172,7 @@ class MainActivity : Activity() {
             .setNeutralButton("Bağlantıyı kaldır") { _, _ ->
                 try {
                     AnahtarKasasi(this, secilen.kasaAdi).sil()
+                    if (sohbetSaglayicisi == secilen) sohbetBitir(false)
                     durumYazisi.text = "${secilen.adi} bağlantısı kaldırıldı."
                 } catch (_: Exception) { durumYazisi.text = "Bağlantı ayarı kaldırılamadı." }
             }.create()
@@ -187,10 +204,10 @@ class MainActivity : Activity() {
         }
         if (!dinleme.kullanilabilirMi()) { durumYazisi.text = "Konuşma tanıma yok"; return }
         if (!konusma.hazirMi()) { durumYazisi.text = "Ses motoru hazırlanıyor. Biraz sonra tekrar deneyin."; return }
-        sohbetBitir(false)
-        sohbet = SohbetMotoru(kasa, saglayici)
+        sohbetDuraklat()
+        sohbetHazirla(kasa, saglayici)
         sohbetAcik = true; sohbetNesli++
-        sohbetDugmesi.text = "Sohbeti bitir"
+        sohbetDugmesi.text = "Dinlemeyi durdur"
         sohbetDinle(sohbetNesli)
     }
 
@@ -202,11 +219,10 @@ class MainActivity : Activity() {
             val saglayici = SohbetSaglayici.secili(this)
             val kasa = AnahtarKasasi(this, saglayici.kasaAdi)
             val anahtarVar = try { !kasa.oku().isNullOrBlank() } catch (_: Exception) { false }
-            if (!anahtarVar) { sohbetBitir(false); baglantiAyarlariniAc(); return }
-            sohbetBitir(false)
-            sohbet = SohbetMotoru(kasa, saglayici)
+            if (!anahtarVar) { sohbetDuraklat(); baglantiAyarlariniAc(); return }
+            sohbetDuraklat()
+            sohbetHazirla(kasa, saglayici)
             yaziliSohbetAcik = true
-            sohbetDugmesi.text = "Sohbeti bitir"
         }
         val motor = sohbet ?: return
         val nesil = sohbetNesli
@@ -238,7 +254,8 @@ class MainActivity : Activity() {
             sonuc = { metin -> runOnUiThread {
                 if (sohbetAcik && nesil == sohbetNesli) {
                     if (SohbetKomutlari.bitirMi(metin)) {
-                        sohbetBitir()
+                        sohbetDuraklat()
+                        durumYazisi.text = "Dinleme durdu. Sohbetin konusu korunuyor."
                         return@runOnUiThread
                     }
                     durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
@@ -250,29 +267,42 @@ class MainActivity : Activity() {
                                     bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },
                                     hata = { runOnUiThread {
                                         if (sohbetAcik && nesil == sohbetNesli) {
-                                            sohbetBitir(false)
+                                            sohbetDuraklat()
                                             durumYazisi.append("\n\nSes okunamadı. Yanıtı ekrandan okuyabilirsiniz.")
                                         }
                                     } })
                             }
                         },
                         hata = { mesaj ->
-                            if (sohbetAcik && nesil == sohbetNesli) { sohbetBitir(false); durumYazisi.text = mesaj }
+                            if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = mesaj }
                         })
                 }
             } },
             hata = { mesaj -> runOnUiThread {
-                if (sohbetAcik && nesil == sohbetNesli) { sohbetBitir(false); durumYazisi.text = "$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz." }
+                if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = "$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz." }
             } })
     }
 
-    private fun sohbetBitir(mesajGoster: Boolean = true) {
+    private fun sohbetHazirla(kasa: AnahtarKasasi, saglayici: SohbetSaglayici) {
+        if (sohbet == null || sohbetSaglayicisi != saglayici) {
+            sohbet?.kapat()
+            sohbet = SohbetMotoru(kasa, saglayici)
+            sohbetSaglayicisi = saglayici
+        }
+    }
+
+    private fun sohbetDuraklat() {
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
-        sohbet?.kapat(); sohbet = null; dinleme.kapat(); konusma.durdur()
-        if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sohbet et"
+        sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
+        if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
-        if (mesajGoster) durumYazisi.text = "Sohbet bitti."
+    }
+
+    private fun sohbetBitir(mesajGoster: Boolean = true) {
+        sohbetDuraklat()
+        sohbet?.kapat(); sohbet = null; sohbetSaglayicisi = null
+        if (mesajGoster) durumYazisi.text = "Yeni sohbet başladı. Size nasıl yardımcı olabilirim?"
     }
 
     private fun ilerlemeyiGoster() {
@@ -313,8 +343,19 @@ class MainActivity : Activity() {
 
     override fun onStop() {
         ilerleme.unregisterOnSharedPreferenceChangeListener(ilerlemeDinleyici)
-        sohbetBitir(false)
+        sohbetDuraklat()
         dinleme.durdur(); konusma.durdur(); super.onStop()
     }
-    override fun onDestroy() { sohbet?.kapat(); dinleme.kapat(); konusma.kapat(); super.onDestroy() }
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("mesaj_taslagi", mesajAlani.text.toString())
+        outState.putString("son_yanit", durumYazisi.text.toString())
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRetainNonConfigurationInstance(): Any = SohbetDevri(sohbet, sohbetSaglayicisi)
+
+    override fun onDestroy() {
+        if (!isChangingConfigurations) sohbet?.kapat()
+        dinleme.kapat(); konusma.kapat(); super.onDestroy()
+    }
 }
