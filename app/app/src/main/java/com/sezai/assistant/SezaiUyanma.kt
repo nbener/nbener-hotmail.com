@@ -58,6 +58,8 @@ internal class SezaiUyanma(private val context: Context, private val uyandi: () 
             if (!istenen || ses.mode != AudioManager.MODE_NORMAL) return
             kayit = mikrofon
             mikrofon.startRecording()
+            check(mikrofon.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "KAYIT" }
+            Log.i("Sezai", "UYANMA mikrofon basladi")
             val veri = ShortArray(1600)
             var tur = 0
             while (istenen) {
@@ -77,6 +79,7 @@ internal class SezaiUyanma(private val context: Context, private val uyandi: () 
             kayit = null
             try { mikrofon?.stop() } catch (_: RuntimeException) {}
             mikrofon?.release(); tanici?.close(); model?.close()
+            Log.i("Sezai", "UYANMA kaynaklar birakildi")
             anaIs.post {
                 calisiyor = false
                 if (duyuldu && istenen) { istenen = false; Log.i("Sezai", "UYANMA sezai duyuldu"); uyandi() }

@@ -300,7 +300,7 @@ class MainActivity : Activity() {
     // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
     private fun uyanmaAyariAcik() = sesAyari.getBoolean("uyanma", true)
     private fun uyanmaGuncelle() {
-        val olmali = gorunur && !sohbetAcik && !konusuyor && !elleDinliyor && uyanmaAyariAcik() &&
+        val olmali = gorunur && hasWindowFocus() && !sohbetAcik && !yaziliSohbetAcik && !konusuyor && !elleDinliyor && uyanmaAyariAcik() &&
             checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && uyanma.modelVarMi()
         if (olmali) uyanma.baslat() else uyanma.durdur()
     }
@@ -519,6 +519,8 @@ class MainActivity : Activity() {
     }
 
     private fun sohbetDuraklat() {
+        uyanma.durdur()
+        elleDinliyor = false; konusuyor = false
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
         sesOnceligi.durdur()
@@ -526,6 +528,8 @@ class MainActivity : Activity() {
         karakterDurumu(SezaiKarakterView.Durum.BEKLEME)
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
+        // Aynı olayda sohbet/konuşma başlatılabilir; son duruma göre boştaki dinlemeyi yenile.
+        anaIs.post { uyanmaGuncelle() }
     }
 
     private fun sohbetBitir(mesajGoster: Boolean = true) {
@@ -549,6 +553,23 @@ class MainActivity : Activity() {
         sesOnceligi.izle()
         ilerleme.registerOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         ilerlemeyiGoster()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        gorunur = true
+        uyanmaGuncelle()
+    }
+
+    override fun onPause() {
+        gorunur = false
+        uyanma.durdur()
+        super.onPause()
+    }
+
+    override fun onWindowFocusChanged(odakVar: Boolean) {
+        super.onWindowFocusChanged(odakVar)
+        uyanmaGuncelle()
     }
 
     private fun dinle() {
@@ -582,6 +603,8 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        gorunur = false
+        uyanma.durdur()
         karakter?.etkinlestir(false)
         ilerleme.unregisterOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         sohbetDuraklat()

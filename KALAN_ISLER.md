@@ -37,8 +37,8 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Ana hedefler — kapsamdan çıkarılmadı
 
-- [ ] Sezai'ye seslenerek uyandırma ve telefon genelinde eller serbest kullanım. Yerel uyandırma sözcüğü, gerekli Android rol/izinleri ve ölçülmüş pil bütçesi tasarlanacak; şu an sürekli dinleme yok.
-  - 29 Ekim kullanıcı isteği: kapalıyken de "Sezai" deyince devreye girsin. Pil/gizlilik çelişkisi nedeniyle seçenekler kullanıcıya sunuldu, onay bekliyor.
+- [ ] Sezai'ye seslenerek uyandırma ve telefon genelinde eller serbest kullanım. Yerel uyandırma sözcüğü, gerekli Android rol/izinleri ve ölçülmüş pil bütçesi tasarlanacak; yalnız uygulama görünür, odaklı ve boşta iken yerel uyanma dinlemesi var; uygulama kapalıyken dinleme yok.
+  - 29 Ekim kullanıcı isteği: kapalıyken de "Sezai" deyince devreye girsin. Kullanıcı uygulama açıkken uyanma seçeneğini seçti; kapalıyken uyanma ayrıca tasarlanacak.
 - [ ] Android'i sesle yönetme: uygulama açma, ses ayarı ve desteklenen telefon işlemleri; gereken yerde erişilebilirlik/varsayılan asistan rolü. Kullanıcı izinlerini aşmadan, yapılan işlemi doğrulayarak ilerle.
 - [ ] Araç Bluetooth'u ile sesli yardım ve navigasyon: hedef seçme, rota, dönüş talimatları, yeniden yönlendirme ve görüşmelere öncelik.
 - [ ] Araç güvenliği: hız, trafik/kavşak, hız sınırı/okul bölgesi, hız kamerası/koridoru; veri kaynağı, bölgesel kurallar ve doğruluk kontrolü gerekir.
@@ -67,3 +67,11 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - Uygulama bilgileri ekranı package:com.sezai.assistant ile açıldı; /sdcard/Download/sezai-ikon-ayarlar.png ekran görüntüsü incelendi. Sezai adı yanında yeşil zemin ve krem S doğru, kırpılmadan görünüyor.
 - Ana ekran görüntüsü girişiminde başlatıcı yerine başka uygulama görünüyordu; bu nedenle başlatıcı görünümü doğrulandı sayılmadı. Uygulama bilgileri ekranındaki gerçek Android adaptive ikon çizimi doğrulandı.
 - Uygulama kodu/APK değişmedi; yeniden derleme veya ses testi yapılmadı. Bu adımda yalnız DURUM.md, KALAN_ISLER.md ve TEST_DURUMU.md güncellendi. Yeni pil yükü yok.
+
+## 29 Ekim — uyanma düzeltmesi sonrası kalan doğrulama
+- [x] Eksik gorunur=true ve yaşam döngüsü bağlantısı düzeltildi; MainActivity.kt ve SezaiUyanma.kt derlendi, imza/hizalama doğrulandı ve kuruldu.
+- [x] İki gerçek ön plan/arka plan turunda uyanma motoru başlama/kaynak bırakma ve appops mikrofon açılış/kapanış doğrulandı. İlk eksik çıktı denemeleri başarısız sayıldı; dosya üzerinden son ölçüm geçti.
+- [x] Aynı APK'da 38 sessiz regresyon geçti: dinleme9, sohbet21 (sahte ağ), görüşme8. Ayrıntılar TEST_DURUMU.md son kaydında.
+- [ ] Kullanıcı hazır olduğunu bildirince gerçek Sezai çağrısı ve sonraki istek denenecek. Henüz insan sesi tanıma başarısı yok.
+- [ ] Fiziksel kilit, yanlış tetikleme ve gerçek pil maliyeti ölçülecek. Ön planda mikrofon+Vosk artık gerçekten çalışıyor; arka planda kapandığı doğrulandı. TTS sırasında söz kesme ve kapalı uygulamadan uyanma ayrı açık işlerdir.
+- Önceki 81e8a0d motor kabulü geçerli kanıt sayılmaz: o kaynakta gorunur bayrağı hiç true olmuyordu. Son iki tur doğrulama bu düzeltmeye aittir.
