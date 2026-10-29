@@ -136,6 +136,59 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                         check(yeni.getJSONObject(bas).getString("content") == "Yeni konu")
                     }
                 }
+                kontrol("Açık web isteği ve olumsuz ifadeler ayrılıyor") {
+                    for (metin in listOf("Webden bak", "Kayseri nüfusunu internetten araştır", "Webde Kayseri için bakabilir misin?"))
+                        check(WebIstegi.istendiMi(metin))
+                    for (metin in listOf("Kayseri nerede?", "Webden bakma", "İnternetten araştırma yapma", "Webden bak demedim", "Webde ne demek?"))
+                        check(!WebIstegi.istendiMi(metin))
+                }
+                kontrol("Groq web aracı zorunlu ve kaynaklı yanıt gösteriliyor") {
+                    val b = SahteBaglanti(yanit = """{"choices":[{"message":{"content":"Deneme yanıtı. https://example.org/kayseri"}}]}""")
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { b }.also { motorlar.add(it) }
+                    check(iste(motor, "Kayseri nüfusu", true) == "Deneme yanıtı. https://example.org/kayseri")
+                    val istek = JSONObject(b.giden.toString("UTF-8"))
+                    check(istek.getString("model") == SohbetSaglayici.GROQ.model)
+                    check(istek.getString("tool_choice") == "required")
+                    check(istek.getJSONArray("tools").getJSONObject(0).getString("type") == "browser_search")
+                    check(istek.getString("citation_options") == "enabled")
+                    check(istek.getString("reasoning_effort") == "low")
+                }
+                kontrol("Desteklenmeyen sağlayıcı web isteğinde başka sunucuya geçmiyor") {
+                    for (saglayici in SohbetSaglayici.entries.filter { it != SohbetSaglayici.GROQ }) {
+                        val adet = AtomicInteger()
+                        val motor = SohbetMotoru(kasa, saglayici) { adet.incrementAndGet(); SahteBaglanti() }
+                            .also { motorlar.add(it) }
+                        check(iste(motor, "Webden bak").startsWith("HATA:Bu bağlantıda web"))
+                        check(adet.get() == 0)
+                    }
+                }
+                kontrol("Web aracı reddedilirse arama yapılmış gibi yanıt dönmüyor") {
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { SahteBaglanti(400, """{"error":{"message":"citation_options reddedildi, OZEL_SORGU"}}""") }
+                        .also { motorlar.add(it) }
+                    val hata = iste(motor, "Webden bak")
+                    check(hata.startsWith("HATA:Web aracı"))
+                    check(hata.contains("HTTP 400") && hata.contains("citation_options"))
+                    check(!hata.contains("OZEL_SORGU"))
+                }
+                kontrol("Web sonrası normal mesajda arama tekrarlanmıyor, bağlam korunuyor") {
+                    val baglantilar = mutableListOf<SahteBaglanti>()
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) {
+                        SahteBaglanti(yanit = """{"choices":[{"message":{"content":"Deneme yanıtı"}}]}""")
+                            .also { baglantilar.add(it) }
+                    }.also { motorlar.add(it) }
+                    iste(motor, "Kayseri nüfusunu webden araştır")
+                    iste(motor, "Kısaltır mısın?")
+                    val ilk = JSONObject(baglantilar.first().giden.toString("UTF-8"))
+                    val son = JSONObject(baglantilar.last().giden.toString("UTF-8"))
+                    check(ilk.has("tools") && !son.has("tools"))
+                    check(son.getJSONArray("messages").length() == 4)
+                    check(son.getJSONArray("messages").getJSONObject(1).getString("content") == "Kayseri nüfusunu webden araştır")
+                }
+                kontrol("Aşırı büyük web yanıtı bellek sınırında durduruluyor") {
+                    val b = SahteBaglanti(yanit = "x".repeat(1_048_577))
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { b }.also { motorlar.add(it) }
+                    check(iste(motor, "Webden bak").startsWith("HATA:Yanıt işlenemeyecek kadar büyük"))
+                }
                 kontrol("İptal edilen yanıt kullanıcıya dönmüyor") {
                     val basladi = CountDownLatch(1)
                     val devam = CountDownLatch(1)
@@ -160,10 +213,10 @@ class SohbetTestAlicisi : BroadcastReceiver() {
         }.start()
     }
 
-    private fun iste(motor: SohbetMotoru, metin: String): String {
+    private fun iste(motor: SohbetMotoru, metin: String, web: Boolean = WebIstegi.istendiMi(metin)): String {
         val bitti = CountDownLatch(1)
         var cevap = ""
-        motor.gonder(metin, { cevap = it; bitti.countDown() }, { cevap = "HATA:$it"; bitti.countDown() })
+        motor.gonder(metin, { cevap = it; bitti.countDown() }, { cevap = "HATA:$it"; bitti.countDown() }, webAramasi = web)
         check(bitti.await(3, TimeUnit.SECONDS))
         return cevap
     }
@@ -183,5 +236,6 @@ class SohbetTestAlicisi : BroadcastReceiver() {
         override fun getInputStream() = ByteArrayInputStream(
             yanit.toByteArray()
         )
+        override fun getErrorStream() = ByteArrayInputStream(yanit.toByteArray())
     }
 }

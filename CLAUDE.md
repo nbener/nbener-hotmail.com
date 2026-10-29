@@ -88,3 +88,6 @@ Henüz kod yazma. Önce şunu yap:
 - Doğrulanan bilgiyi, çıkarımı ve bilinmeyeni açıkça ayır. Kanıt yoksa doğrulanmadığını söyle.
 - Yapılmayan işlemi yapıldı, geçmeyen testi geçti, sahte ağ testini gerçek model/gerçek görüşme testi olarak sunma.
 - Bir araç/derleme/test hatasını gizleme; sebebi doğrulanmadıysa tahmin olduğunu belirt.
+
+## Kısa devam komutu
+- Kullanıcı tek başına `~` gönderirse anlamı: devam et, geliştir ve test et. Mevcut görev, proje kuralları ve kota sınırı geçerlidir.

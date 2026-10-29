@@ -39,6 +39,7 @@ class MainActivity : Activity() {
     private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?)
     private var sohbetAcik = false
     private var yaziliSohbetAcik = false
+    private lateinit var webSecimi: android.widget.CheckBox
     private lateinit var mesajAlani: EditText
     private lateinit var gonderDugmesi: Button
     private var sohbetNesli = 0
@@ -94,6 +95,9 @@ class MainActivity : Activity() {
         durumYazisi = TextView(this).apply {
             text = "Merhaba, ben Sezai.\nSize nasıl yardımcı olabilirim?"
             textSize = 19f; setTextColor(Color.parseColor("#172E3D"))
+            autoLinkMask = android.text.util.Linkify.WEB_URLS
+            linksClickable = true
+            setLinkTextColor(Color.parseColor("#087F82"))
             setLineSpacing(dp(5).toFloat(), 1f)
             setPadding(dp(18), dp(20), dp(18), dp(20))
             background = kart("#FFFFFF", 20, "#DFE8ED")
@@ -128,6 +132,11 @@ class MainActivity : Activity() {
         // Uzun yanıtlarda sesli oturum düğmesi yanıtın üstünde kalır.
         kutu.removeView(sohbetDugmesi)
         kutu.addView(sohbetDugmesi, kutu.indexOfChild(durumYazisi))
+        webSecimi = android.widget.CheckBox(this).apply {
+            text = "Webde araştır · Groq (kota/ücret)"; textSize = 14f
+            setTextColor(Color.parseColor("#405B6A")); minHeight = dp(48)
+        }
+        kutu.addView(webSecimi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         mesajAlani = EditText(this).apply {
             hint = "Sezai’ye yazın"
             textSize = 17f
@@ -149,7 +158,7 @@ class MainActivity : Activity() {
         kutu.addView(gonderDugmesi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         val yeniSohbetDugmesi = Button(this).apply {
             text = "Yeni sohbet"; dugmeGorunumu(this, false)
-            setOnClickListener { sohbetBitir(); mesajAlani.text.clear() }
+            setOnClickListener { sohbetBitir(); mesajAlani.text.clear(); webSecimi.isChecked = false }
         }
         val baglantiDugmesi = dugme("Sohbet bağlantısı") { sohbetDuraklat(); baglantiAyarlariniAc() }
         kutu.removeView(baglantiDugmesi)
@@ -178,6 +187,7 @@ class MainActivity : Activity() {
             isFillViewport = true; clipToPadding = false
             addView(kutu)
         })
+        webSecimi.isChecked = savedInstanceState?.getBoolean("web_secimi", false) ?: false
         savedInstanceState?.getString("mesaj_taslagi")?.let { mesajAlani.setText(it) }
         savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
     }
@@ -321,13 +331,14 @@ class MainActivity : Activity() {
             sohbetHazirla(kasa, saglayici)
             yaziliSohbetAcik = true
         }
+        val web = webSecimi.isChecked || WebIstegi.istendiMi(metin)
         val motor = sohbet ?: return
         val nesil = sohbetNesli
         gonderDugmesi.isEnabled = false
         gonderDugmesi.text = "Yanıt bekleniyor..."
         (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
             .hideSoftInputFromWindow(mesajAlani.windowToken, 0)
-        durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
+        durumYazisi.text = "Siz: $metin\n\n" + if (web) "Web araştırması isteniyor..." else "Sezai düşünüyor..."
         motor.gonder(metin,
             sonuc = { cevap ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
@@ -341,7 +352,7 @@ class MainActivity : Activity() {
                     durumYazisi.text = "Siz: $metin\n\n$mesaj"
                     gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
                 }
-            })
+            }, webAramasi = web)
     }
 
     private fun sohbetDinle(nesil: Int) {
@@ -365,7 +376,8 @@ class MainActivity : Activity() {
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
                                 durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
-                                seslendir(cevap,
+                                val sesliCevap = if (cevap.length > 3000) cevap.take(2800) + "… Devamını ekrandan okuyabilirsiniz." else cevap
+                                seslendir(sesliCevap,
                                     bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },
                                     hata = { runOnUiThread {
                                         if (sohbetAcik && nesil == sohbetNesli) {
@@ -457,6 +469,7 @@ class MainActivity : Activity() {
         dinleme.durdur(); konusma.durdur(); super.onStop()
     }
     override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean("web_secimi", webSecimi.isChecked)
         outState.putString("mesaj_taslagi", mesajAlani.text.toString())
         outState.putString("son_yanit", durumYazisi.text.toString())
         super.onSaveInstanceState(outState)

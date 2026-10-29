@@ -144,3 +144,33 @@ Son güncelleme: 2026-10-29
 - Modern ekranın son hizalama/kontrast düzeltmesi derlendi, zipalign/apksigner geçti ve telefona Success ile kuruldu. Son otomatik hizalama kontrolü, Yeni sohbet düğmesi o andaki UI ağacında bulunamadığı için StopIteration ile başarısız oldu. Nedenin ekran değişimi/kaydırma olup olmadığı doğrulanmadı; son hizalama görsel olarak geçti sayılmaz. Otomatik dokunma yapılmadı.
 - Kullanıcı Sezai'nin web isteğine internete erişimim yok dediğini bildirdi. Gerçek eksik: SohbetMotoru yalnızca metin üretimi kullanıyor, web aracı bağlı değil ve talimat bunu açıkça söylüyor. Telefonun bağlantısının kesik olduğu sonucuna varma. Web araç bağlantısı ayrı geliştirme gerektiriyor.
 - Kullanıcı kota ve Claude'u sordu. Son kontrol Codex için beş saatlik %32 / haftalık %12; Claude'a ait değildir. Termux claude --help komutu native binary not installed hatası verdi; Claude kotası doğrulanamadı. Claude kurulumu değiştirilmedi.
+
+## Web araştırması bağlantısı — devam çalışması
+- Kullanıcı devam dedi. CLAUDE.md, DURUM.md, TEST_DURUMU.md ve KALAN_ISLER.md okundu; kota sınırı kontrol edildi.
+- Groq resmî belgeleri kontrol edildi: eski groq/compound ve compound-mini 21 Eylül 2026'da kapatılmış. Mevcut openai/gpt-oss-120b browser_search aracını destekliyor. Kaynaklar: https://console.groq.com/docs/deprecations ve https://console.groq.com/docs/tool-use/built-in-tools/browser-search
+- SohbetMotoru: açık web isteğinde aynı Groq sağlayıcısına browser_search + tool_choice=required + citation_options=enabled gönderir. Başka sağlayıcıya otomatik geçmez. Diğer sağlayıcıların web bağlantısı bu aşamada desteklenmez; açık hata verilir. Model/araç reddi ayrı işlenir.
+- MainActivity: web seçeneği ve kota/ücret notu eklendi. Bağlantı ekranındaki Groq açıklaması web koşulunu belirtir. Normal istekte web aracı kapalıdır. WebIstegi, açık web komutunu tanır; olumsuz ve yalnızca tanım soran bazı ifadeler için koruyucu kurallar vardır. Doğal dilin her biçimini tanıdığı iddia edilmez.
+- Yanıttaki URL'ler ekranda bağlantı olarak gösterilir; bağlantının kaynağını uygulama ayrıca doğrulamıyor. Uzun yanıtların sesli kısmı TTS giriş sınırının altında tutulur; devamı ekranda kalır. Kaynak adresi uydurmama talimatı var; bu tek başına doğruluk garantisi değildir.
+- Web aracının hesaba özel erişimi/ücreti ve gerçek arama henüz doğrulanmadı; ücretsiz olduğu iddia edilmedi. Yeni testler sahte ağ üzerinden istek/hata davranışını deneyecek.
+- Yedek: yedek/web-arastirma-oncesi-20261029.tar.gz. Derleme sürüyor; son kaynak henüz kurulup test edilmedi.
+
+- Web bağlantılı son APK derlendi, zipalign/apksigner doğrulandı, kurulum Success. APK içinde tek sorgu tekrar koruması ve büyük yanıt testi bulunduğu kontrol edildi. Sessiz testler: sohbet 21/21, görüşme 8/8, dinleme 6/6 PASS.
+- Kayıtlı sağlayıcı tercihi yalnızca enum kaydından GROQ olarak okundu; anahtar değeri dışarı okunmadı. Ayrı, DUMP izniyle korunan debug test Activity'si kullanıcının geçmişinden bağımsız sabit bir gerçek sorgu gönderir. Canlı test sürüyor; sonuç henüz başarı sayılmadı.
+
+- İlk gerçek web denemesi test Activity onStop nedeniyle IPTAL raporladı. HTTP/web sonucu doğrulanmadı; aramanın sunucuya ulaşıp ulaşmadığı bilinmiyor. Otomatik tekrar yapılmadı.
+- Sorun test düzeneğinde: test ekranı görünürlüğünü kaybedince isteği iptal ediyordu. Yalnızca debug Activity'de arka plana geçişte sabit kamu bilgisi sorgusunun sürmesine izin verildi; Activity yok edilirse yine iptal edilir. Üretim sohbetinin arka planda mikrofon/TTS/API durdurma davranışı değişmedi. Bu düzeltme derlenip yeni canlı deneme ayrıca raporlanacak.
+
+## 29 Ekim devam — canlı web reddi ve güvenli tanı
+- Kullanıcının tek başına `~` komutu “devam et, geliştir ve test et” anlamındadır; CLAUDE.md'ye kaydedildi.
+- Debug Activity onStop düzeltmesi derlendi, zipalign/apksigner geçti, pm install -r Success. Canlı web denemesi artık iptal yerine hizmet hatası döndürüyor; web başarı sayılmadı.
+- SohbetMotoru HTTP 400/404 için sınırlı (8192 karakter) hata okuma ve yalnızca sabit izin listesindeki parametre adlarını gösterme eklendi. Ham hata metni, anahtar veya sorgu gösterilmez. Yedek: yedek/web-hata-tanisi-oncesi-20261029-065834.tar.gz.
+- Bu sürüm derlendi, imza/hizalama doğrulandı, kurulum Success; cihazda sohbet 21/21 PASS. Hata testinde özel sunucu metninin kullanıcıya sızmadığı da doğrulandı.
+- Canlı deneme HTTP 400, ilgili alan model döndürdü. Model alanının hata gövdesinde geçmesi kesin kök neden kanıtı değildir. Ücretsiz/hesap erişimi veya istek uyumsuzluğu henüz ayrılmadı. Otomatik sağlayıcı/model değişimi yapılmadı.
+- Groq resmî browser_search ve API referansı tekrar okundu: istek biçimi ve openai/gpt-oss-120b belgeyle uyumlu. Kaynak: https://console.groq.com/docs/tool-use/built-in-tools/browser-search ve https://console.groq.com/docs/api-reference .
+- Standart hizmet hata kodlarını sabit izin listesinden gösteren ek tanı derleniyor; bu son kaynak için kurulum/test henüz tamamlanmadı. Yeni arka plan servisi veya mikrofon dinlemesi eklenmedi.
+
+## Son doğrulama — 29 Ekim 07.06 sonrası
+- Standart hata kodu tanısı dahil son kaynak derlendi, zipalign/apksigner doğrulandı ve pm install -r Success. Sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS; sahte ağ/olay kapsamıdır.
+- Son ayrı canlı web denemesi yine HTTP 400, ilgili alan model döndürdü; izin listesindeki standart hata kodlarından biri gelmedi. Yeni kanıt olmadan aynı canlı sorgu tekrarlanmayacak. Gerçek web hâlâ doğrulanmadı; kesin hata türünü güvenli debug tanısıyla ayırmak sonraki iştir.
+- test/ekran_kontrol.py geçti: yazı alanı, Gönder, web seçeneği ve iki ayar düğmesinin eşit sınırları doğrulandı. Görsel /sdcard/Download/sezai-ekran-dogrulama-1793246803794569500.png incelendi. Düğmeler aynı üst hizada; ekran görüntüsünde alt kısımları ekran sınırında kesiliyor, bu nedenle tam görünürlük ayrıca iyileştirilebilir.
+- Kullanıcının hataların da kaydedilmesi talebi doğrulandı; başarısızlıklar başarıdan ayrı tutuluyor. Son kota %53 / %15.

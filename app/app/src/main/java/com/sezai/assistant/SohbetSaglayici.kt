@@ -13,7 +13,7 @@ enum class SohbetSaglayici(
     OPENAI("OpenAI", "https://api.openai.com/v1/responses", "gpt-4.1-mini", "sohbet", true);
 
     fun aciklama(): String = when (this) {
-        GROQ -> "Groq ücretsiz kota sunar. Ücretsiz planındaki sınırlar hesabına bağlıdır."
+        GROQ -> "Groq ücretsiz kota sunar. Ücretsiz planındaki sınırlar hesabına bağlıdır. Web araması ayrıca kota/ücrete tabi olabilir; yalnızca açık web isteğinde kullanılır."
         GEMINI -> "Gemini ücretsiz kota sunar. Ücretsiz katmanda içerikler ürün geliştirmede kullanılabilir."
         OPENROUTER -> "Yalnızca openrouter/free üzerinden ücretsiz modeller istenir. Günlük kota uygulanır."
         OPENAI -> "OpenAI API kullanımı ücretli olabilir."
