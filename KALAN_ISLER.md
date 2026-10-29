@@ -4,7 +4,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Öncelikli
 
-- [ ] TTS arasında “dur/Sezai” ile söz alma: Cihaz ölçümü yapıldı: yerel Android tanıma yok; standart tanıma TTS odağını kesiyor. Vosk debug motoru cihazda açıldı; TTS+AudioRecord odağı kesmeden çalıştı, gerçek arka planda kaynak bırakma geçti. Son birlikte testinde çağrı algılanmadı (SURE_DOLDU); kullanıcının araya girip girmediği soruldu, yanıt bekleniyor. Yeni tanı APK’sı çağrı-herhangi-yerde ve doygunluk sayaçları içeriyor. Kullanıcının dur/Sezai sesi, güvenilir yankı ayrımı, devam isteği, pil ölçümü ve ana akışa bağlama gerekli (SOZ_KESME_TASARIMI.md). Şu an TTS sırasında mikrofon kapalı; bu hedef tamamlanmış değil.
+- [ ] TTS arasında “dur/Sezai” ile söz alma: Cihaz ölçümü yapıldı: yerel Android tanıma yok; standart tanıma TTS odağını kesiyor. Vosk debug motoru cihazda açıldı; TTS+AudioRecord odağı kesmeden çalıştı, gerçek arka planda kaynak bırakma geçti. Son birlikte testinde çağrı algılanmadı (SURE_DOLDU); kullanıcı “araya giremedim” dedi; söylemeye fırsat bulamama / söyleyip durduramama / ses gelmemesi ayrımı soruldu, açıklama bekleniyor. Yeni tanı APK’sı çağrı-herhangi-yerde ve doygunluk sayaçları içeriyor. Kullanıcının dur/Sezai sesi, güvenilir yankı ayrımı, devam isteği, pil ölçümü ve ana akışa bağlama gerekli (SOZ_KESME_TASARIMI.md). Şu an TTS sırasında mikrofon kapalı; bu hedef tamamlanmış değil.
 
 - [x] Özgün Canvas karakteri kaynak/olay bağlantıları, derleme-imza-kurulum ve altı durağan ifade doğrulandı; eski S simgesi tek sabitle korunur. Kurallar KARAKTER_TASARIMI.md içinde.
 - [x] Karakter canlı View kontrolü 6/6, ana ekran yerleşimi ve gerçek TTS sırasında farklı ağız açıklıkları 29 Ekim doğrulandı. İlk Dozing/FAIL geçmişi korundu.
