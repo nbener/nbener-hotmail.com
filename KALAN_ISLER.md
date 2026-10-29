@@ -102,3 +102,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 29 Ekim23.58 — ses karşılaştırması düzeltmesi
 - Yeni tanı APK derlendi/imzalandı/kuruldu; gerçek arka plan testi1793307469992191053 geçti. Asistanın volumeControlStream eşlemesi11 ve seviyesi15/15. Önceki medya3 üzerinde4→2 karşılaştırması TTS kısma kanıtı değildir.
 - Sonraki kullanıcı testi doğru akış11 üzerinde geçici azaltma ve eski değeri geri yükleme ile yapılmalı. Henüz TTS üzerinde söz kesme başarısı yok. Tanı süre/cihaz türü alanları debug raporunda hazır.
+
+
+## 30 Ekim00.01 — düşük asistan sesi henüz denenemedi
+- Akış11 set5 komutu yine15 döndürdü; yeni tur1793307677455105401 düşük ses karşılaştırması değildir. Süre doldu/çıkış1,kaynaklar bırakıldı,eski15 doğrulandı.
+- Sonraki teknik adım: debug cümlesine TTS PARAM_VOLUME uygulama; üretim sesini koru. Shell komutunun başarılı çıkışına güvenip sesin değiştiğini varsayma.
