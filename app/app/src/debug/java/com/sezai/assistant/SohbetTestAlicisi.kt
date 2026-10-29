@@ -58,6 +58,48 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     val motor = SohbetMotoru(kasa) { SahteBaglanti(429) }.also { motorlar.add(it) }
                     check(iste(motor, "Merhaba").startsWith("HATA:Yapay zekâ kullanım sınırına"))
                 }
+                for (saglayici in listOf(SohbetSaglayici.GROQ, SohbetSaglayici.GEMINI, SohbetSaglayici.OPENROUTER)) {
+                    kontrol("${saglayici.adi} istek biçimi ve sohbet bağlamı") {
+                        val baglantilar = mutableListOf<SahteBaglanti>()
+                        val motor = SohbetMotoru(kasa, saglayici) {
+                            SahteBaglanti(yanit = """{"choices":[{"message":{"content":"Merhaba","reasoning":"Gizli düşünce"}}]}""")
+                                .also { baglantilar.add(it) }
+                        }.also { motorlar.add(it) }
+                        check(iste(motor, "Adım Test") == "Merhaba")
+                        check(iste(motor, "Adımı hatırla") == "Merhaba")
+                        val b = baglantilar.last()
+                        val istek = JSONObject(b.giden.toString("UTF-8"))
+                        check(istek.getString("model") == saglayici.model)
+                        check(!istek.has("input") && !istek.has("tools"))
+                        val mesajlar = istek.getJSONArray("messages")
+                        check(mesajlar.length() == 4)
+                        check(mesajlar.getJSONObject(0).getString("role") == "system")
+                        check(mesajlar.getJSONObject(1).getString("content") == "Adım Test")
+                        check(mesajlar.getJSONObject(2).getString("role") == "assistant")
+                        check(!b.instanceFollowRedirects)
+                        check(b.getRequestProperty("Authorization") == "Bearer sezai-test-anahtari")
+                        if (saglayici == SohbetSaglayici.GROQ) check(!istek.getBoolean("include_reasoning"))
+                        if (saglayici == SohbetSaglayici.OPENROUTER) check(istek.getString("model") == "openrouter/free")
+                    }
+                }
+                kontrol("Parçalı yanıt okunuyor, düşünce alanı seslendirilmiyor") {
+                    val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) {
+                        SahteBaglanti(yanit = """{"choices":[{"message":{"content":[{"type":"text","text":"Selam"}],"reasoning":"Düşünce"}}]}""")
+                    }.also { motorlar.add(it) }
+                    check(iste(motor, "Merhaba") == "Selam")
+                }
+                kontrol("Ayrı anahtar kasaları birbirini etkilemiyor") {
+                    val diger = AnahtarKasasi(context, "sohbet_test_ikinci")
+                    try {
+                        diger.kaydet("ikinci-test-anahtari")
+                        check(kasa.oku() == "sezai-test-anahtari")
+                        diger.sil()
+                        check(!diger.varMi() && kasa.varMi())
+                        check(kasa.oku() == "sezai-test-anahtari")
+                        check(SohbetSaglayici.entries.map { it.kasaAdi }.distinct().size == 4)
+                        check(SohbetSaglayici.entries.all { URL(it.adres).protocol == "https" })
+                    } finally { diger.sil() }
+                }
                 kontrol("İptal edilen yanıt kullanıcıya dönmüyor") {
                     val basladi = CountDownLatch(1)
                     val devam = CountDownLatch(1)
@@ -92,6 +134,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
 
     private class SahteBaglanti(
         private val kod: Int = 200,
+        private val yanit: String = """{"output":[{"type":"message","content":[{"type":"output_text","text":"Merhaba, nasılsınız?"}]}]}""",
         private val basladi: CountDownLatch? = null,
         private val devam: CountDownLatch? = null
     ) : HttpURLConnection(URL("https://api.openai.com/v1/responses")) {
@@ -102,7 +145,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
         override fun getOutputStream() = giden
         override fun getResponseCode(): Int { basladi?.countDown(); devam?.await(2, TimeUnit.SECONDS); return kod }
         override fun getInputStream() = ByteArrayInputStream(
-            """{"output":[{"type":"message","content":[{"type":"output_text","text":"Merhaba, nasılsınız?"}]}]}""".toByteArray()
+            yanit.toByteArray()
         )
     }
 }

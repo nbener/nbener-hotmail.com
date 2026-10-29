@@ -34,6 +34,8 @@ class AnahtarKasasi(context: Context, ad: String = "sohbet") {
             .putString("veri", Base64.encodeToString(veri, Base64.NO_WRAP)).commit())
     }
 
+    fun varMi(): Boolean = tercih.contains("veri") && tercih.contains("iv")
+
     fun oku(): String? {
         val veri = tercih.getString("veri", null) ?: return null
         val iv = tercih.getString("iv", null) ?: return null

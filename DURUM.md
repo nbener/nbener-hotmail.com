@@ -1,7 +1,7 @@
 # GÜNCEL KULLANICI TALİMATI
 - Kullanıcı 29 Ekim sabahı 06.00 saat sınırını kaldırdı. Saat nedeniyle durma; %80 kota sınırı korunuyor.
 - Kullanıcı erken durmayı istemiyor: canlı API anahtarı olmayan aşamada bağımsız geliştirme ve sessiz testlerle devam et, durumu kaydet.
-- Saat gözcüsü iptal edilip yalnızca kota izleyen süreç başlatılıyor. Aşağıdaki eski 06.00 kayıtları geçmiş bilgidir; bu yeni talimat geçerlidir.
+- Saat gözcüsü iptal edildi; yalnızca kota izleyen süreç çalışıyor. Aşağıdaki eski 06.00 kayıtları geçmiş bilgidir; bu yeni talimat geçerlidir.
 
 # SEZAI - DURUM (her adımdan sonra güncelle, her oturumda ilk bunu oku)
 
@@ -93,3 +93,11 @@ Son güncelleme: 2026-10-29
 - Yeni debug APK derlendi; zipalign/apksigner doğrulandı; pm install -r Success. `python3 test/dinleme_test.py`: 6/6 PASS (mikrofon, ağ, gerçek anahtar kullanılmadı).
 - Kullanıcı ücretsiz güçlü/hızlı sağlayıcıları sordu. Groq, Gemini, OpenRouter, ModelScope, Cloudflare, Hugging Face ve Cerebras güncel resmî kaynaklarla karşılaştırıldı; yanıt verildi. Şimdi Groq/Gemini/OpenRouter'ın uygulamada seçilebilir olması hazırlanacak.
 - Beş saatlik kota penceresi yenilendi; son kontrol %6 / haftalık %8 idi. Sınır her aşamada yeniden okunur.
+
+## Ücretsiz kotalı sağlayıcılar (05.55 sonrası)
+- Groq, Gemini ve OpenRouter seçim ekranı eklendi; OpenAI korunuyor. Her sağlayıcının kasası ayrı, adresler sabit HTTPS, otomatik sağlayıcı veya ücretli modele geçiş yok. Açıklamalarda kota ve veri koşulları gösterilir.
+- Yeni motor yalnızca seçilen hizmete uygun istek gönderir. Mikrofon izni anahtar kontrolünden sonra istenir; izin reddinde açıklama gösterilir.
+- Debug APK derlendi, zipalign/apksigner başarılı, telefona kurulum Success. Sohbet testleri 11/11 ve dinleme testleri 6/6 PASS. Testler sahte ağ ve ayrı test anahtarlarıyla çalışır.
+- Bağlantı ekranında Groq varsayılanı ve password=true görüldü. Seçim değiştirme/iptal UI testi, kullanıcı telefonu kullanırken başka ekran öne geldiği için tamamlanmadı. Otomatik dokunuşlar durduruldu. Gerçek API denenmedi.
+- Resmî kaynakların karşılaştırması UCRETSIZ_AI_SECENEKLERI.md içinde.
+- Kullanıcı yazarak sohbet de istedi; sıradaki değişiklik mikrofon ve seslendirme kullanmadan metin gönderme/yanıt gösterme.

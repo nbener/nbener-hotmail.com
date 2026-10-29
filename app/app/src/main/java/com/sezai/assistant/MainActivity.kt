@@ -28,8 +28,7 @@ class MainActivity : Activity() {
     private val ilerlemeDinleyici = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
         runOnUiThread { ilerlemeyiGoster() }
     }
-    private val anahtarKasasi by lazy { AnahtarKasasi(this) }
-    private val sohbet by lazy { SohbetMotoru(anahtarKasasi) }
+    private var sohbet: SohbetMotoru? = null
     private var sohbetAcik = false
     private var sohbetNesli = 0
     private lateinit var sohbetDugmesi: Button
@@ -104,49 +103,75 @@ class MainActivity : Activity() {
     }
 
     private fun baglantiAyarlariniAc() {
+        val saglayicilar = SohbetSaglayici.entries
+        var secilen = SohbetSaglayici.secili(this)
         val alan = EditText(this).apply {
-            hint = "OpenAI API anahtarı"
             setSingleLine(true)
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             transformationMethod = android.text.method.PasswordTransformationMethod.getInstance()
             importantForAutofill = android.view.View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
         }
+        val aciklama = TextView(this)
+        fun yenile() {
+            alan.hint = "${secilen.adi} API anahtarı"
+            aciklama.text = "${secilen.aciklama()}\nKonuşmanızın yazıya çevrilmiş hali ${secilen.adi} hizmetine gönderilir. Anahtar bu telefonda şifreli saklanır. Ücretli hesaplarda ücret oluşabilir."
+        }
+        val secim = android.widget.Spinner(this).apply {
+            adapter = android.widget.ArrayAdapter(this@MainActivity,
+                android.R.layout.simple_spinner_dropdown_item, saglayicilar.map { it.adi })
+            setSelection(saglayicilar.indexOf(secilen))
+            onItemSelectedListener = object : android.widget.AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: android.widget.AdapterView<*>?, view: android.view.View?, position: Int, id: Long) {
+                    val yeni = saglayicilar[position]
+                    if (yeni != secilen) { alan.text.clear(); alan.error = null; secilen = yeni }
+                    yenile()
+                }
+                override fun onNothingSelected(parent: android.widget.AdapterView<*>?) {}
+            }
+        }
+        yenile()
         val kutu = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setPadding(36, 12, 36, 12)
-            addView(TextView(this@MainActivity).apply {
-                text = "Sohbet için OpenAI API bağlantısı kullanılır. Konuştuklarınızın yazıya çevrilmiş hali yanıt almak için OpenAI'ye gönderilir. API kullanımı ücretli olabilir. Anahtar bu telefonda şifreli saklanır."
-            })
-            addView(alan)
+            addView(secim); addView(aciklama); addView(alan)
         }
         val pencere = AlertDialog.Builder(this).setTitle("Sohbet bağlantısı").setView(kutu)
             .setPositiveButton("Kaydet", null).setNegativeButton("Vazgeç", null)
             .setNeutralButton("Bağlantıyı kaldır") { _, _ ->
-                try { anahtarKasasi.sil(); sohbet.sifirla(); durumYazisi.text = "Sohbet bağlantısı kaldırıldı." }
-                catch (_: Exception) { durumYazisi.text = "Bağlantı ayarı kaldırılamadı." }
+                try {
+                    AnahtarKasasi(this, secilen.kasaAdi).sil()
+                    durumYazisi.text = "${secilen.adi} bağlantısı kaldırıldı."
+                } catch (_: Exception) { durumYazisi.text = "Bağlantı ayarı kaldırılamadı." }
             }.create()
         pencere.show()
         pencere.window?.addFlags(android.view.WindowManager.LayoutParams.FLAG_SECURE)
         pencere.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
             val anahtar = alan.text.toString().trim()
-            if (anahtar.isBlank() || anahtar.any { it.isWhitespace() }) {
+            val kasa = AnahtarKasasi(this, secilen.kasaAdi)
+            if ((anahtar.isBlank() && !kasa.varMi()) || anahtar.any { it.isWhitespace() }) {
                 alan.error = "Geçerli bir API anahtarı girin."
             } else try {
-                anahtarKasasi.kaydet(anahtar); sohbet.sifirla(); alan.text.clear()
-                durumYazisi.text = "Bağlantı kaydedildi. Sohbet et düğmesine basabilirsiniz."
+                if (anahtar.isNotBlank()) kasa.kaydet(anahtar)
+                secilen.sec(this)
+                alan.text.clear()
+                durumYazisi.text = "${secilen.adi} bağlantısı kaydedildi. Sohbet et düğmesine basabilirsiniz."
                 pencere.dismiss()
-            } catch (_: Exception) { alan.error = "Anahtar güvenli biçimde kaydedilemedi." }
+            } catch (_: Exception) { alan.error = "Bağlantı güvenli biçimde kaydedilemedi." }
         }
+        pencere.setOnDismissListener { alan.text.clear() }
     }
 
     private fun sohbetBaslat() {
+        val saglayici = SohbetSaglayici.secili(this)
+        val kasa = AnahtarKasasi(this, saglayici.kasaAdi)
+        val anahtarVar = try { !kasa.oku().isNullOrBlank() } catch (_: Exception) { false }
+        if (!anahtarVar) { baglantiAyarlariniAc(); return }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 2); return
         }
         if (!dinleme.kullanilabilirMi()) { durumYazisi.text = "Konuşma tanıma yok"; return }
         if (!konusma.hazirMi()) { durumYazisi.text = "Ses motoru hazırlanıyor. Biraz sonra tekrar deneyin."; return }
-        val anahtarVar = try { !anahtarKasasi.oku().isNullOrBlank() } catch (_: Exception) { false }
-        if (!anahtarVar) { baglantiAyarlariniAc(); return }
-        dinleme.kapat(); konusma.durdur(); sohbet.sifirla()
+        dinleme.kapat(); konusma.durdur(); sohbet?.kapat()
+        sohbet = SohbetMotoru(kasa, saglayici)
         sohbetAcik = true; sohbetNesli++
         sohbetDugmesi.text = "Sohbeti bitir"
         sohbetDinle(sohbetNesli)
@@ -163,7 +188,7 @@ class MainActivity : Activity() {
                         return@runOnUiThread
                     }
                     durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
-                    sohbet.gonder(metin,
+                    sohbet?.gonder(metin,
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
                                 durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
@@ -190,7 +215,7 @@ class MainActivity : Activity() {
     private fun sohbetBitir(mesajGoster: Boolean = true) {
         sohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
-        sohbet.iptal(); dinleme.kapat(); konusma.durdur()
+        sohbet?.kapat(); sohbet = null; dinleme.kapat(); konusma.durdur()
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sohbet et"
         if (mesajGoster) durumYazisi.text = "Sohbet bitti."
     }
@@ -226,6 +251,8 @@ class MainActivity : Activity() {
         super.onRequestPermissionsResult(kod, i, s)
         if (s.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
             if (kod == 1) dinle() else if (kod == 2) sohbetBaslat()
+        } else if (kod == 1 || kod == 2) {
+            durumYazisi.text = "Sesli konuşma için mikrofon izni gerekiyor."
         }
     }
 
@@ -234,5 +261,5 @@ class MainActivity : Activity() {
         sohbetBitir(false)
         dinleme.durdur(); konusma.durdur(); super.onStop()
     }
-    override fun onDestroy() { sohbet.kapat(); dinleme.kapat(); konusma.kapat(); super.onDestroy() }
+    override fun onDestroy() { sohbet?.kapat(); dinleme.kapat(); konusma.kapat(); super.onDestroy() }
 }
