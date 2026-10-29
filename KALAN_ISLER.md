@@ -93,3 +93,7 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 
 ## 29 Ekim23.51 — yeni insan testi
 - Kullanıcı önceki turda konuşmadığını açıkladı; önceki tur insan çağrısını kaçırma kanıtı değildir. Yeni1793307067533502144 birlikte testi de süre doldu/çıkış1; kullanıcı işe yaramadı dedi. Doygun örnek0; yalnız kırpılma açıklaması yeterli değil. Düşük hoparlör karşılaştırması ve motor/yankı teşhisi açık.
+
+
+## 29 Ekim23.54 — düşük ses sonucu
+- STREAM_MUSIC4→2 karşılaştırması1793307203533605321 süre doldu/çıkış1; eski4 doğrulanarak geri yüklendi. Söz kesme çözülmedi. TTS akışı/ses yönlendirmesi ve kayıt kaynağı-AEC oturumu incelenecek; düşük medya ayarından kesin yankı nedeni çıkarma.

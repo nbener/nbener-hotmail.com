@@ -82,3 +82,10 @@ Kaynaklar: https://alphacephei.com/vosk/models , https://alphacephei.com/vosk/an
 - Kullanıcı “hadi” diyerek yeni testi başlatmayı istedi; TTS sırasında dur/Sezai demesi bildirildi. Kota%31/%34. `python3 test/vosk_ses_test.py --kip birlikte`, test_id1793307067533502144, çıkış1/SURE_DOLDU. Kullanıcı ardından “işe yaramadı” dedi; söz kesme kabulü geçmedi.
 - TTS/model/mikrofon/tanıma olayı/AEC mevcut-etkin=true; model1016ms; ses10200ms; çözüm thread CPU10027ms; tepe29434; doygun0; en uzun tanıma18 sözcük; kapanış PSS247873KB; kaynaklar_birakildi=true. Söz alma veya çağrı-herhangi-yerde bayrağı yok. Bu turda doygun örnek yok; sadece kırpılmaya bağlamak kanıtsızdır. Yüksek CPU maliyeti gözlendi; gerçek pil ölçümü değildir.
 - Üretim kodu/APK değişmedi. Sonraki teşhis düşük hoparlör seviyesinde kontrollü karşılaştırmadır; önceki ses seviyesini mutlaka geri yükle. Eşzamanlı algılamanın başarılı olduğu iddia edilmez.
+
+
+## 29 Ekim23.54 — düşük hoparlör karşılaştırması
+- Kullanıcı “dene bakalım” dedi; kota%32/%34. Gerçek başlangıç STREAM_MUSIC4/[0..15] okundu (eski15 kaydı bu test için geçerli değildir). Geçici2 ayarlandı, cihazdan2 okundu; try/finally ile sonunda4 geri yüklendi ve4 okundu.
+- Kullanıcıya TTS sırasında dur/Sezai demesi bildirildi. `python3 test/vosk_ses_test.py --kip birlikte`, test_id1793307203533605321: SURE_DOLDU, çıkış1. Söz alma/çağrı-herhangi-yerde bayrağı yok; kullanıcının bu turdaki çağrısı ayrıca teyit edilmedi.
+- TTS/model/mikrofon/tanıma olayı/AEC mevcut-etkin=true; model958ms, ses11360ms, çözüm thread CPU6986ms, tepe32768, doygun3, en uzun tanıma9 sözcük, kapanış PSS224581KB; kaynaklar_birakildi=true. Düşük medya ayarı bu denemede algılamayı sağlamadı. Kaynak/route/işleme veya model etkisi ayrıştırılmadı; kesin kök neden yok. AEC etkin bayrağı yankı başarısı değildir; tepe tek başına hoparlör kaynaklılığı kanıtlamaz.
+- Üretim kodu/APK değişmedi, yeni derleme yapılmadı. TTS sırasında söz kesme başarısız/açık. Sonraki teknik inceleme: testin kullandığı TTS ses akışı ve AudioRecord kaynağı/AEC oturumu; yalnız medya sesini değiştirmek gerçek TTS çıkış seviyesini doğrulamaz. Pil ölçülmedi; ham ses/metin saklanmadı.
