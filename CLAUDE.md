@@ -90,4 +90,4 @@ Henüz kod yazma. Önce şunu yap:
 - Bir araç/derleme/test hatasını gizleme; sebebi doğrulanmadıysa tahmin olduğunu belirt.
 
 ## Kısa devam komutu
-- Kullanıcı tek başına `~` gönderirse anlamı: devam et, geliştir ve test et. Mevcut görev, proje kuralları ve kota sınırı geçerlidir.
+- Kullanıcı tek başına `~` veya `..` gönderirse anlamı: devam et, geliştir ve test et. Mevcut görev, proje kuralları ve kota sınırı geçerlidir.

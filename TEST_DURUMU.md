@@ -10,7 +10,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve KALAN_ISLER.md ile birlik
 | APK | Web bağlantılı son APK: derleme, zipalign ve apksigner PASS; kurulum Success | Güncel kaynakta sonraki değişiklikler varsa yeniden derlenmesi gerekir. |
 | Yazılı ekran | Mesaj alanı ve Gönder cihazda görüldü | İlk hint-metin sorgusu hatalıydı; EditText sınıfı ve düğme üzerinden düzeltildi. Gerçek yazışma denenmedi. |
 | Görüşme önceliği | 29 Ekim 2026: 8/8 PASS | Sahte telefon/VoIP/odak olayları; gerçek cihazda mod dinleyicisi kaydı. Gerçek telefon/WhatsApp çağrısı denenmedi. |
-| Modern görünüm | 29 Ekim: düğme sınırları ve üst hiza PASS | Son görsel incelendi; alt düğmeler ekran sınırında kısmen kesiliyor, tam görünürlük iyileştirmesi açık. |
+| Modern görünüm | 29 Ekim: kaydırma sonrası tam düğme görünürlüğü ve hiza doğrulandı | Görsel incelendi; uygulama düzeni değişmedi. Aktif kullanım korumasındaki eksik düzeltildi; son koruma cihazda henüz denenmedi. |
 
 ## Doğrulama komutları
 
@@ -49,3 +49,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Kök neden sunucudan doğrulandı: `model openai/gpt-oss-120b does not support citations`. Açık citation_options alanı kaldırıldı. Önceki HTTP 400 kayıtları bu düzeltmeden önceki sürümlerdir.
 - Düzeltmeli APK derleme, zipalign, apksigner PASS; pm install -r Success. Aynı APK üzerinde sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS.
 - Canlı web testi YANIT_ALINDI, çıkış kodu 0. Tek sabit kamu sorgusunda üç desteklenen model kimliği ve resmî Browser Search adresi geldi. Sayfa ayrıca açılıp içerikle eşleştirildi. Ücretsiz erişim/maliyet ve bütün web soruları için genel başarı iddiası yok. Gerçek mikrofon/seslendirme kullanılmadı.
+
+## Ekran kontrolü — 29 Ekim devam
+- Önceki test, düğmelerin ekran sınırında kesilmiş olmasını ayıramıyordu. Sınır boşluğu kontrolü eklendi. Cihazda tek kaydırma sonrası tam görünürlük/hiza doğrulandı; görsel incelendi.
+- Görselde Dinliyorum... bulundu: testin boş taslak koruması aktif kullanımı engellememişti. Test sesi/mikrofonu başlatmadı fakat kaydırma yaptı. Bu eksik de hata olarak kaydedildi; aktif kullanımda otomatik etkileşim durduruldu.
+- Kaydırma öncesine boş başlangıç ekranı kontrolü eklendi. Son koruma py_compile + diff --check PASS; cihazda yeniden çalıştırılmadı. Önceki cihaz başarısı son korumanın kabul testi sayılmaz.
+- Uygulama kaynağı değişmedi; son imzalı/kurulu APK değişmedi.

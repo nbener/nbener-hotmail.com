@@ -188,3 +188,11 @@ Son güncelleme: 2026-10-29
 - Debug tanısı yalnızca sabit kamu sorgusu Activity'sinde bağlanır; normal sohbete ham hata aktarılmaz. Anahtar maskelenir, günlükte/repo/raporda anahtar yok. Kaynak yedeği yedek/web-ayrintili-tani-oncesi-* içindedir.
 - Pil: yeni arka plan servisi, konum veya mikrofon dinlemesi eklenmedi. Web araması yalnızca açık istekle; ek ağ/model işi kullanım ve pil tüketir.
 - Sonraki işler: gerçek Kayseri takip sohbeti ve kullanıcıyla sesli kabul testi; ekran altı düğmelerin tam görünürlüğü; diğer sağlayıcıların web desteği ayrı aşama.
+
+## 29 Ekim — `..` devam komutu ve ekran doğrulaması
+- Kullanıcı tek başına `..` için de “devam et, geliştir ve test et” anlamını onayladı; CLAUDE.md'ye kaydedildi. Kota kontrolü %0 / %16, %80 sınırı geçerli.
+- Ekran kontrolü eskiden kesilmiş UI XML sınırlarını görünür sayıyordu. test/ekran_kontrol.py düğmelerin kaydırma alanının üst/alt sınırlarından içeride olmasını denetleyecek şekilde düzeltildi; başlık kaydırılınca kaybolsa da kendi ana ekranını tanıyabiliyor.
+- İlk cihaz turu: yazı/Gönder/web kontrolü ve tam düğme görünürlüğü/hizası PASS. Görsel /sdcard/Download/sezai-ekran-dogrulama-1793260371354473751.png incelendi; tek kaydırma sonrasında her iki ayar düğmesi bütünüyle görünür. Düzen arızası doğrulanmadığından MainActivity değiştirilmedi.
+- ÖNEMLİ test sınırı: Görselde Dinliyorum... ve mikrofon göstergesi vardı. Test mikrofon/ses/API başlatmadı, ancak boş taslak kontrolü mevcut aktif kullanımı engellememişti; kaydırma yapılmıştı. Bundan sonra otomatik ekran etkileşimi durduruldu. Bu tur boş/etkisiz kullanım testi olarak sunulmaz.
+- Koruma düzeltmesi: kaydırmadan önce hem ilk okumada hem hemen öncesinde tam başlangıç karşılama metni + Sesli sohbet et + Gönder + boş taslak gerektirir. Aktif veya mevcut sohbet varsa kaydırmaz. Son koruma için py_compile ve git diff --check geçti; aktif kullanım nedeniyle cihazda yeniden çalıştırılmadı.
+- Yalnızca talimat/test/kayıt dosyaları değişti; uygulama kaynağı ve APK aynı. Yeniden APK derlemesi/kurulumu gerekmedi. Yeni servis, mikrofon veya pil yükü eklenmedi.

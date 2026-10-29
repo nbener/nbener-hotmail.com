@@ -9,7 +9,8 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 - [ ] Görüşme önceliği gerçek kabul testi: APK kuruldu, sessiz testler 8/8 geçti. Gerçek telefon ve WhatsApp çağrısında doğrula. Otomatik mikrofon açılmamalı.
 - [x] Modern ekran düğme hizalama kontrolü: 29 Ekim cihaz testi ve görselde aynı üst hiza doğrulandı.
-- [ ] Ekranın altındaki ayar düğmelerinin tam görünürlüğünü iyileştir; son görselde altları ekran sınırında kesiliyor.
+- [x] Alt ayar düğmelerinin tam görünürlüğü: 29 Ekim tek kaydırma sonrası cihaz/görsel kontrolünde doğrulandı; düzen değişikliği gerekmedi.
+- [ ] Ekran testinin yeni başlangıç ekranı korumasını uygun boş oturumda cihazda doğrula; aktif dinleme/sohbette otomatik kaydırma yapılmamalı.
 - [ ] Gerçek sağlayıcıyla Kayseri → konumu → nüfusu sohbeti. Sahte ağ testleri anlam doğrulaması değildir.
 - [ ] Sesli Türkçe konuşma → model → seslendirme → tekrar dinleme uçtan uca testi.
 - [ ] Sağlayıcı seçimi/değiştirme/iptal ekranının güvenli cihaz kontrolü; kullanıcı telefonu kullanırken otomatik dokunma yapma.
