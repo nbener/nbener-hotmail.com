@@ -89,3 +89,7 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 
 ## 29 Ekim23.50 — söz kesme hâlâ açık
 - Yeni birlikte testi1793306993313423058 SURE_DOLDU/çıkış1; kaynaklar bırakıldı. TTS+mikrofon çalışıyor, çağrı algılanmadı. İnsan çağrısı teyidi ve düşük-ses karşılaştırması gerekli; üretim değişmedi. Önceki uyanma ardından üç STT sonucu kaydı var, içerik/yanıt doğruluğu doğrulanmadı.
+
+
+## 29 Ekim23.51 — yeni insan testi
+- Kullanıcı önceki turda konuşmadığını açıkladı; önceki tur insan çağrısını kaçırma kanıtı değildir. Yeni1793307067533502144 birlikte testi de süre doldu/çıkış1; kullanıcı işe yaramadı dedi. Doygun örnek0; yalnız kırpılma açıklaması yeterli değil. Düşük hoparlör karşılaştırması ve motor/yankı teşhisi açık.
