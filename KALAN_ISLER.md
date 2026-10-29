@@ -85,3 +85,7 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 29 Ekim 23.39 — uyanma tetikleme kanıtı
 - Gerçek mikrofon yolunda Sezai algılama ve MainActivity uyanma callback kaydı görüldü; Termux’a dönüşte mikrofon kapandı. Kullanıcının söylediği an/metin doğrulanmadı, yanlış tetikleme dışlanmadı.
 - Sonraki kabul: kullanıcının gözlediği dinleme davranışı, uyanma sonrası isteğin ilk kelimeleri ve model yanıtı; yanlış tetikleme, pil ve kilit. TTS sırasında söz kesme henüz yok.
+
+
+## 29 Ekim23.50 — söz kesme hâlâ açık
+- Yeni birlikte testi1793306993313423058 SURE_DOLDU/çıkış1; kaynaklar bırakıldı. TTS+mikrofon çalışıyor, çağrı algılanmadı. İnsan çağrısı teyidi ve düşük-ses karşılaştırması gerekli; üretim değişmedi. Önceki uyanma ardından üç STT sonucu kaydı var, içerik/yanıt doğruluğu doğrulanmadı.
