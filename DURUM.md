@@ -218,3 +218,20 @@ Son güncelleme: 2026-10-29
 - Resmî uygulama kaynağı: https://developer.android.com/guide/topics/ui/accessibility/service .
 
 - Devretme: bad0322 commitinden sonra Android erişilebilirlik ayarları `am start -W -a android.settings.ACCESSIBILITY_SETTINGS` ile açıldı; Settings$AccessibilitySettingsActivity sonucu Status: ok. Hizmet açılmadı; kullanıcı onayı bekleniyor.
+
+## Özgün Canvas karakteri — geliştirme sürüyor
+- Kullanıcı özgün sıcak/insani, robot olmayan karakter istedi; önce analiz yapıldı ve dosya planı açıklandı. SEZAI.md, robot görseli ve ses dalgası paneli bulunmadı. Native View ekranındaki özgün S simgesi korunuyor.
+- SezaiKarakterView.kt yazıldı; MainActivity durumları ve AndroidKonusma görsel olayları bağlanıyor. Metne ve gerçek TTS başlangıç/bitişine dayalı yaklaşık ağız ritmi; ses yüksekliği ölçülmüyor.
+- Kullanıcı MD kayıtlarını Claude/Anthropic için de istedi. KARAKTER_TASARIMI.md ortak tasarım/devretme kaydı oluşturuldu, CLAUDE.md yönlendirmesi eklendi.
+- Kaynak yedeği yedek/karakter-oncesi-20261029-132319.tar.gz. Henüz bu kaynak için derleme/kurulum/test tamamlanmadı; önceki APK/testler yeni karakteri doğrulamaz.
+
+- Karakterli ilk APK ./build.sh ile derlendi; zipalign ve apksigner verify başarılı, pm install -r Success. İlk `python3 test/karakter_test.py` denemesi FAIL: Test görünürlüğünü kaybetmeden tamamlandı. Görsel siyahtı; `dumpsys power` mWakefulness=Dozing, mHoldingDisplaySuspendBlocker=false gösterdi. Bu bir görsel başarı değildir. Telefonun ekranının açılması/kilidin çözülmesi kullanıcıdan istendi; ekranı zorla açık tutma veya wake lock eklenmedi.
+
+## Canvas karakteri — son kurulu kaynak ve kabul sınırı
+- Son ./build.sh başarılı; zipalign -c 4 ve apksigner verify geçti. /sdcard/Download/Sezai-debug.apk telefona pm install -r Success ile kuruldu. Son kaynak TTS olaylarını ana iş parçacığında nesil ve benzersiz konuşma kimliğiyle ayırır; eski olay yeni görsel durumu değiştirmesin diye korunur.
+- Aynı son APK: `test/karakter_cizim_test.py` 6/6, `test/ekran_test.py` 9/9, sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS (toplam 50). Durağan Canvas çizimi Android cihazında üretildi. Bekleme/dinleme/düşünme/konuşma/mutlu/şefkat-gece çizimleri görsel olarak incelendi. Son görsel /sdcard/Download/sezai-karakter-duragan-1793270314030295687.png.
+- İlk `test/karakter_test.py` FAIL kaydı geçerli: telefon Dozing ve görsel siyahtı; test önizlemesi onStop aldı. Ekranı açıp kilidi çözmesi kullanıcıdan istendi. Canlı animasyon, gerçek TTS senkronu ve ana ekrandaki fiziksel yerleşim henüz kabul edildi sayılmaz. Ekranı zorla açık tutan bayrak, wake lock veya sistem animasyon ayarı değişikliği yapılmadı.
+- Uygulama dosyaları: yeni SezaiKarakterView.kt, MainActivity.kt başlık/durum bağlantısı, AndroidKonusma.kt görsel olayları. Debug manifest/önizleme Activity/Canvas test alıcısı ve iki Python test betiği eklendi. Yeni kütüphane, harici görsel, dosya silme veya mimari değişikliği yok. Gerçekte mevcut robot veya dalga paneli bulunmadı; önceki S TextView dalı korundu. MainActivity.YENI_KARAKTER_ACIK=false ile derlenince eski görünüm döner.
+- Hareket: tek Canvas; yaklaşık 15 fps bekleme, diğer durumlar en çok 24 fps; görünürlük/lifecycle/ekran/odak/animasyon azaltma koşullarıyla kare planlama kapatılır. Bu kod önlemleri gerçek pil tüketim ölçümü değildir. Araç modu henüz yok; sadeMod yalnız hazırlık.
+- Ağız: gerçek TTS başlangıç/bitişi + metne dayalı yaklaşık 95 ms/harf ritmi, ses seviyesi ölçümü yok. Duygu sınıflaması basit açık ifade eşleşmesi; genel duygu anlama/eksiksiz dudak senkronu iddia edilmez.
+- Kullanıcının MD isteği: CLAUDE.md ortak KARAKTER_TASARIMI.md kaydına yönlendirir; Codex, Claude/Anthropic ve diğer devralan ajanlar için kurallar ve tamamlanmamış işler yazılıdır.

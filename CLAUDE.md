@@ -95,3 +95,6 @@ Henüz kod yazma. Önce şunu yap:
 ## Telefon genelinde sesli yardım — kullanıcı önceliği
 - Sezai kullanıcının telefon genelinde, telefona dokunmadan sesle kumanda edeceği yardımcısı olacak. Ekran okuma ve yorumlama yalnızca tek sohbet uygulamasıyla sınırlandırılmış bir hedef değildir; kullanıcının istediği açık uygulama/ekran kapsam içindedir.
 - Kullanıcı ekran erişimini geliştirmeye açıkça izin verdi. Otomatik mesaj okuma ile açık istekle ekran inceleme ayrı davranışlardır. Android'in gereken kullanıcı izinleri ve mevcut teknik sınırlar dürüstçe belirtilir; henüz yapılmamış küresel sesli kumanda tamamlandı sayılmaz.
+
+## Özgün karakter — tüm ajanlar için
+- Karakter tasarımı, yasaklanan biçimler, pil/animasyon kuralları ve geri dönüş yolu KARAKTER_TASARIMI.md dosyasındadır. Claude/Anthropic, Codex ve devralan diğer ajanlar bu ortak kayda uyar. Kullanıcı bütün kararların ve gerçek test/hata sonuçlarının MD dosyalarında tutulmasını özellikle istedi.

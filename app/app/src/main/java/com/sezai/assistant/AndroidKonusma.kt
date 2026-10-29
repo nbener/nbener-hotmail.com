@@ -4,10 +4,16 @@ import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.UtteranceProgressListener
 import android.util.Log
+import android.os.Handler
+import android.os.Looper
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicInteger
 
 // Android'in kendi TTS motoru (Google/Samsung); ek boyut ve pil maliyeti yok
 class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -> Unit) : KonusmaMotoru {
+    internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
+    private val gorselNesil = AtomicInteger()
+    private val gorselAnaIs = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
     private var hazirlandi = false
     private val trTr = Locale("tr", "TR")
@@ -30,18 +36,36 @@ class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -
     override fun hazirMi() = hazirlandi
 
     override fun konus(metin: String, bitince: (() -> Unit)?, hata: (() -> Unit)?) {
+        val sira = gorselNesil.incrementAndGet()
+        val konusmaKimligi = "sezai-konus-$sira"
+        fun bildir(tur: KonusmaGorselOlayi.Tur, yazi: String = "") {
+            if (gorselOlayi != null) gorselAnaIs.post {
+                if (gorselNesil.get() == sira) gorselOlayi?.invoke(KonusmaGorselOlayi(tur, yazi))
+            }
+        }
         val t = tts
-        if (t == null || !hazirlandi) { hata?.invoke(); return }
+        if (t == null || !hazirlandi) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke(); return }
         t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
-            override fun onStart(id: String?) {}
-            override fun onDone(id: String?) { bitince?.invoke() }
+            override fun onStart(id: String?) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
+            override fun onDone(id: String?) {
+                if (id == konusmaKimligi) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() }
+            }
+            override fun onStop(id: String?, interrupted: Boolean) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.DURDU) }
             @Deprecated("Deprecated in Java")
-            override fun onError(id: String?) { Log.w("Sezai", "TTS hata"); hata?.invoke() }
+            override fun onError(id: String?) {
+                if (id == konusmaKimligi) { Log.w("Sezai", "TTS hata"); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
+            }
         })
-        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, null, "sezai-konus") == TextToSpeech.ERROR) hata?.invoke()
+        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, null, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
-    override fun durdur() { tts?.stop() }
+    override fun durdur() {
+        val sira = gorselNesil.incrementAndGet()
+        if (gorselOlayi != null) gorselAnaIs.post {
+            if (gorselNesil.get() == sira) gorselOlayi?.invoke(KonusmaGorselOlayi(KonusmaGorselOlayi.Tur.DURDU))
+        }
+        tts?.stop()
+    }
 
     private fun trMi(dil: String) = dil == "tr" || dil == "tur"
 
@@ -56,5 +80,10 @@ class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { tts?.stop(); tts?.shutdown(); tts = null }
+    override fun kapat() { durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+}
+
+// Yalnızca görsel geri bildirim; ses akışını ve ses odağını değiştirmez.
+internal data class KonusmaGorselOlayi(val tur: Tur, val metin: String = "") {
+    enum class Tur { BASLADI, BITTI, DURDU, HATA }
 }

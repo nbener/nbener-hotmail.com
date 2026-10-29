@@ -23,6 +23,11 @@ import java.time.format.DateTimeFormatter
 
 // Sezai ses deneme ekranı: konuş, dinle, ses değiştir
 class MainActivity : Activity() {
+    companion object {
+        // false yapınca özgün S simgesine dönülür; eski çizim aşağıda aynen korunur.
+        private const val YENI_KARAKTER_ACIK = true
+    }
+    private var karakter: SezaiKarakterView? = null
     private var calismaDurumu: TextView? = null
     private val ilerleme by lazy { getSharedPreferences("gelistirme_durumu", MODE_PRIVATE) }
     private val ilerlemeDinleyici = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
@@ -63,7 +68,10 @@ class MainActivity : Activity() {
             isFocusableInTouchMode = true
         }
         val baslik = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
-        baslik.addView(TextView(this).apply {
+        if (YENI_KARAKTER_ACIK) {
+            karakter = SezaiKarakterView(this)
+            baslik.addView(karakter, LinearLayout.LayoutParams(dp(104), dp(112)))
+        } else baslik.addView(TextView(this).apply {
             text = "S"; textSize = 27f; gravity = Gravity.CENTER
             setTypeface(typeface, android.graphics.Typeface.BOLD)
             setTextColor(Color.WHITE); background = kart("#087F82", 18)
@@ -117,6 +125,16 @@ class MainActivity : Activity() {
                 intent.getStringExtra("komut")?.let { komutVer(it) }
             }
         }
+        (konusma as AndroidKonusma).gorselOlayi = { olay -> runOnUiThread {
+            when (olay.tur) {
+                KonusmaGorselOlayi.Tur.BASLADI -> {
+                    karakterDurumu(SezaiKarakterView.Durum.KONUSUYOR, yanitDuygusu(olay.metin))
+                    karakter?.konusmaBasladi(olay.metin)
+                }
+                KonusmaGorselOlayi.Tur.HATA -> karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
+                KonusmaGorselOlayi.Tur.BITTI, KonusmaGorselOlayi.Tur.DURDU -> karakter?.konusmaBitti()
+            }
+        } }
         dinleme = AndroidDinleme(this)
         // test için: yalnızca yorumla, komutu çalıştırma (TTS'i beklemez)
         intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
@@ -196,6 +214,18 @@ class MainActivity : Activity() {
         savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
     }
 
+    private fun karakterDurumu(durum: SezaiKarakterView.Durum, his: SezaiKarakterView.Duygu = SezaiKarakterView.Duygu.DOGAL) {
+        karakter?.durumAyarla(durum, his)
+    }
+    private fun yanitDuygusu(metin: String): SezaiKarakterView.Duygu {
+        val yazi = metin.lowercase(java.util.Locale("tr", "TR"))
+        return when {
+            listOf("üzgünüm", "başınız sağ olsun", "kötü haber", "hata oluştu", "yanıt alınamadı").any { it in yazi } -> SezaiKarakterView.Duygu.SEFKATLI
+            listOf("tebrik", "sevindim", "güzel haber").any { it in yazi } && "değil" !in yazi -> SezaiKarakterView.Duygu.MUTLU
+            else -> SezaiKarakterView.Duygu.DOGAL
+        }
+    }
+
     private fun dp(deger: Int): Int = (deger * resources.displayMetrics.density + 0.5f).toInt()
 
     private fun kart(renk: String, yaricap: Int, cerceve: String? = null) =
@@ -234,6 +264,7 @@ class MainActivity : Activity() {
                 if (nesil == sohbetNesli) {
                     sesOnceligi.durdur()
                     hata?.invoke()
+                    karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
                 }
             } })
     }
@@ -342,10 +373,12 @@ class MainActivity : Activity() {
         gonderDugmesi.text = "Yanıt bekleniyor..."
         (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
             .hideSoftInputFromWindow(mesajAlani.windowToken, 0)
+        karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
         durumYazisi.text = "Siz: $metin\n\n" + if (web) "Web araştırması isteniyor..." else "Sezai düşünüyor..."
         motor.gonder(metin,
             sonuc = { cevap ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
+                    karakterDurumu(SezaiKarakterView.Durum.BEKLEME, yanitDuygusu(cevap))
                     durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
                     if (mesajAlani.text.toString().trim() == metin) mesajAlani.text.clear()
                     gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
@@ -353,6 +386,7 @@ class MainActivity : Activity() {
             },
             hata = { mesaj ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
+                    karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
                     durumYazisi.text = "Siz: $metin\n\n$mesaj"
                     gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
                 }
@@ -366,6 +400,7 @@ class MainActivity : Activity() {
             durumYazisi.text = "Görüşme sırasında mikrofon açılmıyor. Görüşmeden sonra tekrar başlatabilirsiniz."
             return
         }
+        karakterDurumu(SezaiKarakterView.Durum.DINLIYOR)
         durumYazisi.text = "Dinliyorum..."
         dinleme.dinle(
             sonuc = { metin -> runOnUiThread {
@@ -375,6 +410,7 @@ class MainActivity : Activity() {
                         durumYazisi.text = "Dinleme durdu. Sohbetin konusu korunuyor."
                         return@runOnUiThread
                     }
+                    karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     durumYazisi.text = "Siz: $metin\n\nSezai düşünüyor..."
                     sohbet?.gonder(metin,
                         sonuc = { cevap ->
@@ -392,12 +428,12 @@ class MainActivity : Activity() {
                             }
                         },
                         hata = { mesaj ->
-                            if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = mesaj }
+                            if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = mesaj }
                         })
                 }
             } },
             hata = { mesaj -> runOnUiThread {
-                if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = "$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz." }
+                if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = "$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz." }
             } })
     }
 
@@ -414,6 +450,7 @@ class MainActivity : Activity() {
         anaIs.removeCallbacksAndMessages(null)
         sesOnceligi.durdur()
         sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
+        karakterDurumu(SezaiKarakterView.Durum.BEKLEME)
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
     }
@@ -435,6 +472,7 @@ class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
+        karakter?.etkinlestir(true)
         sesOnceligi.izle()
         ilerleme.registerOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         ilerlemeyiGoster()
@@ -450,10 +488,11 @@ class MainActivity : Activity() {
             durumYazisi.text = "Görüşme sırasında mikrofon açılmıyor. Görüşmeden sonra tekrar başlatabilirsiniz."
             return
         }
+        karakterDurumu(SezaiKarakterView.Durum.DINLIYOR)
         durumYazisi.text = "Dinliyorum..."
         dinleme.dinle(
             sonuc = { runOnUiThread { durumYazisi.text = "Duydum: $it"; komutVer(it) } },
-            hata = { runOnUiThread { sesOnceligi.durdur(); durumYazisi.text = it } }
+            hata = { runOnUiThread { sesOnceligi.durdur(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = it } }
         )
     }
 
@@ -467,6 +506,7 @@ class MainActivity : Activity() {
     }
 
     override fun onStop() {
+        karakter?.etkinlestir(false)
         ilerleme.unregisterOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         sohbetDuraklat()
         sesOnceligi.kapat()

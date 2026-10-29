@@ -4,6 +4,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve KALAN_ISLER.md ile birlik
 
 | Alan | Son doğrulanan sonuç | Kapsam / sınır |
 | --- | --- | --- |
+| Yeni karakter | 29 Ekim: 6/6 durağan Canvas PASS; altı ifade görselde incelendi | Canlı önizleme FAIL (telefon Dozing). Hareket/gerçek TTS/ana ekran kabulü ekran açılınca yapılacak. |
 | Sohbet motoru | 29 Ekim 2026: 21/21 PASS | Gerçek cihaz + Keystore + sahte ağ. Dört sağlayıcıda Kayseri → konumu → nüfusu istek geçmişi; iptal/sıfırlama; açık web isteği, Groq aracı, sağlayıcı sınırı ve büyük yanıt kontrolü. Canlı model anlamlandırması denenmedi. |
 | Dinleme olayları | 29 Ekim 2026: 6/6 PASS | Sahte tanıma oturumu; eski/çift olay, izin hatası, sesli bitirme. Gerçek mikrofon kullanılmadı. |
 | Komut yorumlama | 29 Ekim 2026: 20/20 PASS | Yalnızca yorumlama; alarm/arama çalıştırılmaz. |
@@ -68,3 +69,14 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Ayar Activity'si açıldı; izin kapalı, otomatik anahtar kapalı/pasif olduğu UI XML ve görselde doğrulandı. Sistem erişim izni açılmadı.
 - Gerçek hizmet bağlanma, erişilebilirlik düğmesinden metin alma, Termux erişilebilir metni, ekran konuşması/yorum ve kilit/görüşme kabul testleri kullanıcı izninden sonra. Ekran fotoğrafı/görsel model ve küresel sesli kumanda kapsamı henüz uygulanmadı.
 - Mevcut eski APK ile kullanıcı gösteriminde gerçek yazılı istek/yanıt UI üzerinden doğrulandı ve ardından uygulama kullanıcı isteğiyle kapatıldı. Bu yeni APK'yı gerçek API açısından ayrıca doğrulamaz.
+
+## Yeni karakter — sürmekte
+- SezaiKarakterView ve TTS/durum bağlantısı yazılıyor. Yeni kaynak henüz derlenip kurulmadı; görsel durumlar ve hareketin durma koşulları doğrulanmadı. KARAKTER_TASARIMI.md sözleşme kaydıdır, başarı kanıtı değildir.
+
+- Karakterli ilk APK ./build.sh ile derlendi; zipalign ve apksigner verify başarılı, pm install -r Success. İlk `python3 test/karakter_test.py` denemesi FAIL: Test görünürlüğünü kaybetmeden tamamlandı. Görsel siyahtı; `dumpsys power` mWakefulness=Dozing, mHoldingDisplaySuspendBlocker=false gösterdi. Bu bir görsel başarı değildir. Telefonun ekranının açılması/kilidin çözülmesi kullanıcıdan istendi; ekranı zorla açık tutma veya wake lock eklenmedi.
+
+## Son karakter APK doğrulaması
+- Son kaynak ./build.sh, zipalign ve apksigner verify PASS; kurulum Success. Aynı APK üzerinde karakter durağan 6/6 + ekran 9/9 + sohbet 21/21 + dinleme 6/6 + görüşme 8/8 = 50 PASS.
+- Durağan Android Canvas görselinde bekleme, dinleme, düşünme, konuşma ağzı, mutluluk ve şefkat/gece paleti incelendi. Durağan/bağlanmamış View için kare kuyruğu kurulmadı. Son görsel /sdcard/Download/sezai-karakter-duragan-1793270314030295687.png.
+- Canlı `python3 test/karakter_test.py` hâlâ BAŞARILI DEĞİL: ilk tur görünürlüğü kaybetti, `dumpsys power` Dozing gösterdi, siyah ekran görüntüsü alındı. Telefonun açılması kullanıcıdan istendi. Canlı blink, kare hızı, azaltılmış hareket/sade mod, ekran-off/lifecycle duruş testleri henüz geçmedi.
+- Gerçek TTS ses yüksekliği ölçülmez; ağız ritmi metne dayanır. Kullanıcının konuşması veya gerçek TTS ile görsel senkron kabulü yapılmadı. Sessiz eski testler bunu doğrulamaz.
