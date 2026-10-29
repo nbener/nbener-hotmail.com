@@ -19,6 +19,7 @@ class KomutCalistirici(private val context: Context) {
         }
         is Komut.AlarmKur -> alarmKur(komut.saat, komut.dakika)
         is Komut.AlarmIptal -> alarmIptal()
+        is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }

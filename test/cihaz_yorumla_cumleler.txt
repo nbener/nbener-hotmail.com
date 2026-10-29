@@ -15,3 +15,6 @@ bir buçuk saat sonrası için sayaç başlat|ZamanlayiciKur(saniye=5400)
 otuz saniye zamanlayıcı kur|ZamanlayiciKur(saniye=30)
 alarmı iptal et|AlarmIptal
 bana bir fıkra anlat|Bilinmiyor
+konumumu göster|KonumGoster
+neredeyim|KonumGoster
+Kayseri nin konumu nedir|Bilinmiyor

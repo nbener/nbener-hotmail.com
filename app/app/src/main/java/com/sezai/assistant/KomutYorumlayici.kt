@@ -8,6 +8,7 @@ sealed class Komut {
     object TarihSor : Komut()
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
+    object KonumGoster : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
@@ -57,6 +58,7 @@ object KomutYorumlayici {
         val m = t.joinToString(" ")
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
 
+        if (t.any { it.startsWith("konumum") } || m.contains("neredeyim") || m.contains("bulunduğum yer")) return Komut.KonumGoster
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor
 

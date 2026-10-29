@@ -55,6 +55,7 @@ class MainActivity : Activity() {
     private lateinit var durumYazisi: TextView
     private var sesler: List<String> = emptyList()
     private var sesSirasi = 0
+    private val konum by lazy { KonumYardimcisi(this) }
     private val sesAyari by lazy { getSharedPreferences("ses_ayari", MODE_PRIVATE) }
     private val VARSAYILAN_SES = "tr-tr-x-ama-local"
     private lateinit var calistirici: KomutCalistirici
@@ -280,9 +281,27 @@ class MainActivity : Activity() {
             } })
     }
 
+    // Konumu tek seferlik alır, ekranda gösterir ve söyler; sohbet açıksa (nesil) dinlemeye döner
+    private fun konumGoster(nesil: Int?) {
+        if (!konum.izinVarMi()) {
+            durumYazisi.text = "Konumunuzu göstermek için izin gerekiyor. Açılan pencerede izin verin, sonra tekrar isteyin."
+            requestPermissions(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION), 3)
+            return
+        }
+        durumYazisi.text = "Konumunuzu alıyorum..."
+        konum.al { yazi, soz ->
+            durumYazisi.text = yazi
+            Log.i("Sezai", "KONUM sonuc alindi")
+            if (nesil == null) seslendir(soz)
+            else if (sohbetAcik && nesil == sohbetNesli) seslendir(soz, bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) })
+        }
+    }
+
     private fun komutVer(metin: String) {
         sohbetDuraklat()
-        val cevap = calistirici.calistir(KomutYorumlayici.yorumla(metin))
+        val komut = KomutYorumlayici.yorumla(metin)
+        if (komut is Komut.KonumGoster) { konumGoster(null); return }
+        val cevap = calistirici.calistir(komut)
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
         durumYazisi.text = cevap
         seslendir(cevap)
@@ -431,6 +450,7 @@ class MainActivity : Activity() {
                         }
                     }
                     val istekMetni = sozAlma ?: metin
+                    if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     durumYazisi.text = "Siz: $istekMetni\n\nSezai düşünüyor..."
                     sohbet?.gonder(istekMetni,
@@ -520,7 +540,9 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(kod: Int, i: Array<out String>, s: IntArray) {
         super.onRequestPermissionsResult(kod, i, s)
         if (s.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            if (kod == 1) dinle() else if (kod == 2) sohbetBaslat()
+            if (kod == 1) dinle() else if (kod == 2) sohbetBaslat() else if (kod == 3) konumGoster(null)
+        } else if (kod == 3) {
+            durumYazisi.text = "Konum izni verilmedi, konumunuzu gösteremem."
         } else if (kod == 1 || kod == 2) {
             durumYazisi.text = "Sesli konuşma için mikrofon izni gerekiyor."
         }
