@@ -58,22 +58,51 @@ class MainActivity : Activity() {
         }
         val kutu = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setPadding(48, 96, 48, 48)
+            setPadding(dp(20), dp(20), dp(20), dp(28))
+            isFocusableInTouchMode = true
         }
+        val baslik = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
+        baslik.addView(TextView(this).apply {
+            text = "S"; textSize = 27f; gravity = Gravity.CENTER
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setTextColor(Color.WHITE); background = kart("#087F82", 18)
+        }, LinearLayout.LayoutParams(dp(56), dp(56)))
+        baslik.addView(LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; setPadding(dp(14), 0, 0, 0)
+            addView(TextView(this@MainActivity).apply {
+                text = "Sezai"; textSize = 28f; setTextColor(Color.parseColor("#172E3D"))
+                setTypeface(typeface, android.graphics.Typeface.BOLD)
+            })
+            addView(TextView(this@MainActivity).apply {
+                text = "Sesli ve yazılı yol arkadaşınız"; textSize = 14f
+                setTextColor(Color.parseColor("#536B78"))
+            })
+        }, LinearLayout.LayoutParams(0, -2, 1f))
+        kutu.addView(baslik, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(20) })
         if (applicationInfo.flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0) {
             calismaDurumu = TextView(this).apply {
-                textSize = 17f
-                setTextColor(Color.rgb(225, 240, 255))
-                setBackgroundColor(Color.rgb(30, 55, 78))
-                setPadding(28, 22, 28, 22)
-            }.also { kutu.addView(it, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 24 }) }
+                textSize = 12f; maxLines = 3
+                ellipsize = android.text.TextUtils.TruncateAt.END
+                setTextColor(Color.parseColor("#405B6A"))
+                background = kart("#E6EFF3", 14)
+                setPadding(dp(14), dp(12), dp(14), dp(12))
+                contentDescription = "Son geliştirme durumu. Ayrıntıyı açmak için dokunun."
+                setOnClickListener { maxLines = if (maxLines == 3) Int.MAX_VALUE else 3 }
+            }.also { kutu.addView(it, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(14) }) }
             ilerlemeyiGoster()
         }
-        durumYazisi = TextView(this).apply { text = "Merhaba, ben Sezai"; textSize = 28f; setTextColor(Color.BLACK) }
-        kutu.addView(durumYazisi)
+        durumYazisi = TextView(this).apply {
+            text = "Merhaba, ben Sezai.\nSize nasıl yardımcı olabilirim?"
+            textSize = 19f; setTextColor(Color.parseColor("#172E3D"))
+            setLineSpacing(dp(5).toFloat(), 1f)
+            setPadding(dp(18), dp(20), dp(18), dp(20))
+            background = kart("#FFFFFF", 20, "#DFE8ED")
+            minHeight = dp(112); setTextIsSelectable(true)
+        }
+        kutu.addView(durumYazisi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
         fun dugme(yazi: String, tikla: () -> Unit) = Button(this).apply {
-            text = yazi; textSize = 22f; setOnClickListener { tikla() }
-        }.also { kutu.addView(it, LinearLayout.LayoutParams(-1, 220).apply { topMargin = 32 }) }
+            text = yazi; dugmeGorunumu(this, false); setOnClickListener { tikla() }
+        }.also { kutu.addView(it, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) }) }
 
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
@@ -95,28 +124,44 @@ class MainActivity : Activity() {
                 durumYazisi.append("\n\nDinleme durdu. Aynı sohbete yazarak veya konuşarak devam edebilirsiniz.")
             } else sohbetBaslat()
         }
-        // Yanıt uzadığında da sohbeti bitirme düğmesi üstte erişilebilir kalsın.
+        dugmeGorunumu(sohbetDugmesi, true)
+        // Uzun yanıtlarda sesli oturum düğmesi yanıtın üstünde kalır.
         kutu.removeView(sohbetDugmesi)
         kutu.addView(sohbetDugmesi, kutu.indexOfChild(durumYazisi))
         mesajAlani = EditText(this).apply {
             hint = "Sezai’ye yazın"
-            textSize = 20f
+            textSize = 17f
+            setTextColor(Color.parseColor("#172E3D"))
+            setHintTextColor(Color.parseColor("#607884"))
+            background = kart("#FFFFFF", 16, "#C6D7DF")
+            setPadding(dp(16), dp(12), dp(16), dp(12))
+            gravity = Gravity.TOP or Gravity.START
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
             minLines = 2; maxLines = 3
             filters = arrayOf(android.text.InputFilter.LengthFilter(2000))
             importantForAutofill = android.view.View.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
         }
-        kutu.addView(mesajAlani, LinearLayout.LayoutParams(-1, -2).apply { topMargin = 24 })
+        kutu.addView(mesajAlani, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(14) })
         gonderDugmesi = Button(this).apply {
-            text = "Gönder"; textSize = 22f
+            text = "Gönder"; dugmeGorunumu(this, true)
             setOnClickListener { yaziliMesajGonder() }
         }
-        kutu.addView(gonderDugmesi, LinearLayout.LayoutParams(-1, -2))
-        kutu.addView(Button(this).apply {
-            text = "Yeni sohbet"; textSize = 20f
+        kutu.addView(gonderDugmesi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        val yeniSohbetDugmesi = Button(this).apply {
+            text = "Yeni sohbet"; dugmeGorunumu(this, false)
             setOnClickListener { sohbetBitir(); mesajAlani.text.clear() }
-        }, LinearLayout.LayoutParams(-1, -2))
-        dugme("Sohbet bağlantısı") { sohbetDuraklat(); baglantiAyarlariniAc() }
+        }
+        val baglantiDugmesi = dugme("Sohbet bağlantısı") { sohbetDuraklat(); baglantiAyarlariniAc() }
+        kutu.removeView(baglantiDugmesi)
+        kutu.addView(LinearLayout(this).apply {
+            isBaselineAligned = false
+            addView(yeniSohbetDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginEnd = dp(5) })
+            addView(baglantiDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginStart = dp(5) })
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        kutu.addView(TextView(this).apply {
+            text = "Ses araçları"; textSize = 13f
+            setTextColor(Color.parseColor("#536B78"))
+        }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(22); bottomMargin = dp(2) })
         dugme("Konuş") { sohbetDuraklat(); seslendir("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
         dugme("Dinle") { sohbetDuraklat(); dinle() }
         dugme("Sesi değiştir") {
@@ -128,9 +173,33 @@ class MainActivity : Activity() {
                 seslendir("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
             }
         }
-        setContentView(ScrollView(this).apply { addView(kutu) })
+        setContentView(ScrollView(this).apply {
+            setBackgroundColor(Color.parseColor("#F3F7F8"))
+            isFillViewport = true; clipToPadding = false
+            addView(kutu)
+        })
         savedInstanceState?.getString("mesaj_taslagi")?.let { mesajAlani.setText(it) }
         savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
+    }
+
+    private fun dp(deger: Int): Int = (deger * resources.displayMetrics.density + 0.5f).toInt()
+
+    private fun kart(renk: String, yaricap: Int, cerceve: String? = null) =
+        android.graphics.drawable.GradientDrawable().apply {
+            setColor(Color.parseColor(renk)); cornerRadius = dp(yaricap).toFloat()
+            if (cerceve != null) setStroke(dp(1), Color.parseColor(cerceve))
+        }
+
+    private fun dugmeGorunumu(dugme: Button, ana: Boolean) {
+        dugme.isAllCaps = false; dugme.textSize = 16f
+        dugme.minHeight = dp(52); dugme.minimumHeight = dp(52)
+        dugme.setPadding(dp(12), dp(10), dp(12), dp(10))
+        dugme.setTextColor(android.content.res.ColorStateList(
+            arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
+            intArrayOf(Color.parseColor(if (ana) "#D8ECEC" else "#6D818C"), Color.parseColor(if (ana) "#FFFFFF" else "#234552"))))
+        dugme.background = android.graphics.drawable.RippleDrawable(
+            android.content.res.ColorStateList.valueOf(Color.parseColor(if (ana) "#334CFFF2" else "#18087F82")),
+            kart(if (ana) "#087F82" else "#FFFFFF", 14, if (ana) null else "#D8E4E9"), null)
     }
 
     private fun seslendir(metin: String, bitince: (() -> Unit)? = null, hata: (() -> Unit)? = null) {

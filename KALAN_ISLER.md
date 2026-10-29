@@ -4,8 +4,10 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Öncelikli
 
+- [ ] Gerçek web araştırması aracı bağlama: kullanıcı webden bak dediğinde model araca erişemedi. Mevcut uygulamada web aracı yok; telefon internetsiz diye raporlama. Sağlayıcı desteği, maliyet, kaynak bağlantısı ve gerçek sorgu testi gerekir.
+
 - [ ] Görüşme önceliği gerçek kabul testi: APK kuruldu, sessiz testler 8/8 geçti. Gerçek telefon ve WhatsApp çağrısında doğrula. Otomatik mikrofon açılmamalı.
-- [ ] Modern native ekran: kartlar, dengeli boyutlar, okunaklı mesaj ve kontroller, açık durum göstergesi. Mevcut ses/yazı işlevlerini koru; derle/kur/görsel kontrol.
+- [ ] Modern ekran son hizalama kontrolü: yeni tema kuruldu, ilk sürüm görsel olarak görüldü. Son iki düğme düzeltmesi kuruldu; son UI kontrolü aranan düğmeyi bulamadığı için geçmedi. Ekran durumunu doğrula, görünür düğmelerin hizasını kontrol et.
 - [ ] Gerçek sağlayıcıyla Kayseri → konumu → nüfusu sohbeti. Sahte ağ testleri anlam doğrulaması değildir.
 - [ ] Sesli Türkçe konuşma → model → seslendirme → tekrar dinleme uçtan uca testi.
 - [ ] Sağlayıcı seçimi/değiştirme/iptal ekranının güvenli cihaz kontrolü; kullanıcı telefonu kullanırken otomatik dokunma yapma.

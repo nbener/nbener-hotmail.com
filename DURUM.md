@@ -132,3 +132,15 @@ Son güncelleme: 2026-10-29
 - Kullanıcı modern, dengeli görünüm istedi. Mevcut native Android ekranı korunarak iyileştirilecek; CSS/WebView mimarisine geçilmedi.
 - CLAUDE.md bölüm 10, her başlangıçta DURUM.md + KALAN_ISLER.md + TEST_DURUMU.md okuma ve her aşamada güncelleme zorunluluğunu kaydeder. Yeni iki kayıt dosyası test kanıtlarını, başarısız/denenmemiş işleri ve çözüm yollarını ayırır.
 - Amaç tekrar açıklandı: Türkçe sıcak ve güvenilir sesli/yazılı yol arkadaşı; önce sağlam karşılıklı sohbet, sonra telefon araçları; düşük pil tüketimi, mahremiyet ve özel/ticari proje koşulları korunur.
+
+## Kesin doğruluk talimatı ve modern görünüm aşaması
+- Kullanıcı açıkça “asla yalan söyleme, asla uydurma” dedi. CLAUDE.md bölüm 11'e kaydedildi. Doğrulanmış sonuç, çıkarım ve bilinmeyen ayrılır.
+- Modern ekran kaynak değişikliği yapıldı: native tema, dp ölçüleri, kartlar, kontrastlı düğmeler, daha küçük/açılır durum kutusu. Tema/manifest/MainActivity değişti. Yeni paket veya CSS/WebView eklenmedi.
+- Yedek: yedek/modern-ekran-oncesi-20261029.tar.gz. Derleme sürüyor; kurulum ve görsel doğrulama henüz yapılmadı.
+
+- Modern ekranın ilk derlemesi, zipalign/apksigner ve kurulumu başarılı. Cihazda açıldı; mesaj alanı/Gönder/yeni sohbet/bağlantı görüldü. Görsel: /sdcard/Download/sezai-modern-1793244041538835397.png.
+- İlk görsel kontrolde iki satırlı bağlantı düğmesinin diğer düğmeyle hizası farklıydı. Yatay yerleşimin baseline hizası kapatıldı, düğmeler eşit yüksekliğe ayarlandı. Bekleyen isteğin düğme yazısı kontrastı artırıldı. Bu son düzeltme yeniden derleniyor; son APK henüz kurulmadı.
+
+- Modern ekranın son hizalama/kontrast düzeltmesi derlendi, zipalign/apksigner geçti ve telefona Success ile kuruldu. Son otomatik hizalama kontrolü, Yeni sohbet düğmesi o andaki UI ağacında bulunamadığı için StopIteration ile başarısız oldu. Nedenin ekran değişimi/kaydırma olup olmadığı doğrulanmadı; son hizalama görsel olarak geçti sayılmaz. Otomatik dokunma yapılmadı.
+- Kullanıcı Sezai'nin web isteğine internete erişimim yok dediğini bildirdi. Gerçek eksik: SohbetMotoru yalnızca metin üretimi kullanıyor, web aracı bağlı değil ve talimat bunu açıkça söylüyor. Telefonun bağlantısının kesik olduğu sonucuna varma. Web araç bağlantısı ayrı geliştirme gerektiriyor.
+- Kullanıcı kota ve Claude'u sordu. Son kontrol Codex için beş saatlik %32 / haftalık %12; Claude'a ait değildir. Termux claude --help komutu native binary not installed hatası verdi; Claude kotası doğrulanamadı. Claude kurulumu değiştirilmedi.

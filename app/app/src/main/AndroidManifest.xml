@@ -7,7 +7,7 @@
         <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>
         <intent><action android:name="android.speech.RecognitionService"/></intent>
     </queries>
-    <application android:label="Sezai" android:allowBackup="false">
+    <application android:label="Sezai" android:allowBackup="false" android:theme="@style/SezaiTema">
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

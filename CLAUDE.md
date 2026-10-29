@@ -82,3 +82,9 @@ Henüz kod yazma. Önce şunu yap:
 - Her anlamlı aşamanın sonunda ilerlemeyi, kalan işi, bilinen sorunu ve çözüm yolunu güncelle; yerel commit oluştur.
 - Geçen testi, tarihini ve kapsamını yaz. Denenmemiş, başarısız veya sürmekte olan işi açıkça ayır; sahte ağ testini canlı yapay zekâ başarısı sayma.
 - Kaynak değişince eski APK/test sonucu otomatik olarak yeni kaynağı doğrulamaz. Değişikliğe uygun derleme, imza, kurulum ve test yap.
+
+## 11. Doğruluk — kullanıcının kesin talimatı
+- Asla yalan söyleme, asla bilgi veya sonuç uydurma.
+- Doğrulanan bilgiyi, çıkarımı ve bilinmeyeni açıkça ayır. Kanıt yoksa doğrulanmadığını söyle.
+- Yapılmayan işlemi yapıldı, geçmeyen testi geçti, sahte ağ testini gerçek model/gerçek görüşme testi olarak sunma.
+- Bir araç/derleme/test hatasını gizleme; sebebi doğrulanmadıysa tahmin olduğunu belirt.
