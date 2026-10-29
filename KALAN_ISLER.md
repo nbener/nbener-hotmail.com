@@ -112,3 +112,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 30 Ekim00.07 — doğrudan TTS katsayısı
 - Cümleye özel KEY_PARAM_VOLUME ve debug --tts-genlik eklendi; derleme/imza/kurulum tamam. Normal çağrılar null parametreyle önceki davranışı korur.
 - Katsayı0.2 turu1793307976850923985 süre doldu/çıkış1; tepe10950,doygun0,kaynaklar bırakıldı. Aynı APK38 sessiz regresyon geçti. İnsan çağrısı teyidi ve eş koşullarda sessiz-asistan karşılaştırması gerekli; söz kesme tamamlanmadı.
+
+
+## Kullanıcının son0.2 denemesi teyidi
+- Kullanıcı hem dur hem Sezai söyledi; son1793307976850923985 turu gerçek çağrıyı kaçırdı, söz kesme kabulü başarısız. Aynı düşük-ses denemesini yeni kanıt olmadan tekrarlama.
+- Sonraki teknik ayrıştırma: debug kayıt kaynağı/AEC etkisi, aynı mesafede sessiz-asistan kontrolü. Bastırma/yankı/model olasılıkları henüz kesin kök neden değildir.

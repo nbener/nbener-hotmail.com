@@ -223,3 +223,10 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Aynı SON APK'da dinleme9/9,sohbet21/21,görüşme8/8 çıktı0 (38 sessiz regresyon). Sahte ağ/tanıma/görüşme kapsamı; gerçek API/telefon görüşmesi ve fonem/insan sesi kabulü değil. Termux'a dönüşte appops RECORD_AUDIO running yok; STREAM_ASSISTANT15/15 korundu.
 - Üretimde TTS sırasında söz kesme hâlâ yok. Sonraki teşhis: kullanıcının gerçekten çağrı söylediğini teyit et; sessiz asistan kontrolüyle aynı mikrofon mesafesinde karşılaştır; gerekiyorsa kayıt kaynağı/AEC etkisini yalnız debug testte ayrı değişkenlerle ayır. Genel metin aramasını üretime bağlama. Yeni servis/kütüphane/wake lock yok, gerçek pil ölçümü yapılmadı.
 - Resmî kaynak: https://developer.android.com/reference/android/speech/tts/TextToSpeech.Engine#KEY_PARAM_VOLUME .
+
+
+## 30 Ekim — kullanıcı son0.2 turunda iki çağrıyı da söylediğini doğruladı
+- Kullanıcı açıkça “dur dedim sezai dedim durmadı dinlemedi kesmedi” dedi. Bu geri bildirim son1793307976850923985 TTS katsayısı0.2 turuna aittir. O turda insanın çağrı söylediği artık teyitlidir; önceki “ayrıca teyit edilmedi” sınırı bu tur için güncellenir.
+- Gerçek TTS üzerinde hem dur hem Sezai ile söz kesme kabulü BAŞARISIZ. Ses katsayısı düşürmek çözmedi. Mikrofonun genel erişimi/AEC etkin bayrağı/tanıma olayı kullanıcı çağrısını duyduğunun kanıtı değildir. Üretim entegrasyonu yapılmaz, özellik tamamlandı sayılmaz.
+- Sonraki teşhis aynı denemeyi tekrarlamak yerine debug kayıt kaynağı ve AEC etkisini ayrı değişkenlerle karşılaştırmak. VOICE_COMMUNICATION işleme zincirinin kullanıcı sesini bastırması yalnız hipotezdir; gerçek cihaz deneyi olmadan neden diye yazılmaz. Aynı mesafe/çağrı ile sessiz-asistan kontrolü ve TTS üzeri karşılaştırma gerekir. Üretimin görüşme/odak korumalarını kaldırma; varsayılan normal motoru değiştirme.
+- Bu geri bildirim adımında ses/mikrofon testi başlatılmadı ve uygulama kaynağı/APK değiştirilmedi; yalnız ortak devir kayıtları güncellendi. Yeni pil yükü yok.
