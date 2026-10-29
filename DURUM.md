@@ -348,3 +348,10 @@ Son güncelleme: 2026-10-29
 - Mevcut kurulu APK üzerinde `python3 test/dinleme_test.py` 9/9, `python3 test/sohbet_test.py` 21/21, `python3 test/gorusme_test.py` 8/8 PASS; her betik bu çalışmanın test kimliğini doğruladı. Toplam 38 sessiz kontrol, çıkış kodları 0. Gerçek mikrofon/TTS, canlı API veya gerçek telefon görüşmesi testi değildir.
 - Uyanma kaynağı ve MainActivity yaşam döngüsü bağlantısı okundu; uygulama kaynağı/APK değiştirilmedi, yeniden derleme/kurulum yapılmadı. Yeni servis veya pil yükü eklenmedi.
 - Gerçek uygulama içi uyanma testi için kullanıcıya hazır oluş sorusu gönderildi. Henüz insan sesiyle uyanma, yanlış tetikleme, devam isteği ve pil kabulü doğrulanmadı. TTS sırasında söz kesme ve kapalı uygulamadan uyanma açık işlerdir.
+
+
+## 29 Ekim 2026 23.39 — ön planda gerçek mikrofonla uyanma tetiklemesi
+- Kullanıcının `~` talimatıyla kota kontrolü %28/%33, Shizuku shell bağlantısı ve MainActivity açılışı Status: ok doğrulandı. Pencere odağı Sezai idi.
+- Kullanıcıya Sezai demesi bildirildi. PID18886 günlükleri: 23:37:57.812 mikrofon başladı; 23:38:31.821 kaynaklar bırakıldı, `UYANMA sezai duyuldu` ve `UYANMA tetiklendi`; 23:38:37.887 uyanma mikrofonu tekrar başladı. Bu gerçek mikrofon yolunda çağrı algılama ve ana ekran callback kanıtıdır. Kullanıcının hangi anda ne söylediği bağımsız doğrulanmadı; yanlış tetikleme dışlanmaz. Söyleme anı bilinmediğinden gecikme ölçümü değildir.
+- Takip isteğinin metni/işlenmesi ve canlı API yanıtı incelenmedi; uçtan uca sohbet başarısı sayılmaz. TTS sırasında söz kesme veya uygulama kapalıyken uyanma testi yapılmadı.
+- Test sonunda Termux açıldı (Status: ok); appops RECORD_AUDIO çıktısında running yok, son süre24s751ms. Kullanıcının uyanma ayarı değiştirilmedi. Kaynak/APK değişmedi; yeniden derleme gerekmedi. Pil tüketimi ölçülmedi.
