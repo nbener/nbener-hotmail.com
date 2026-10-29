@@ -107,3 +107,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 30 Ekim00.01 — düşük asistan sesi henüz denenemedi
 - Akış11 set5 komutu yine15 döndürdü; yeni tur1793307677455105401 düşük ses karşılaştırması değildir. Süre doldu/çıkış1,kaynaklar bırakıldı,eski15 doğrulandı.
 - Sonraki teknik adım: debug cümlesine TTS PARAM_VOLUME uygulama; üretim sesini koru. Shell komutunun başarılı çıkışına güvenip sesin değiştiğini varsayma.
+
+
+## 30 Ekim00.07 — doğrudan TTS katsayısı
+- Cümleye özel KEY_PARAM_VOLUME ve debug --tts-genlik eklendi; derleme/imza/kurulum tamam. Normal çağrılar null parametreyle önceki davranışı korur.
+- Katsayı0.2 turu1793307976850923985 süre doldu/çıkış1; tepe10950,doygun0,kaynaklar bırakıldı. Aynı APK38 sessiz regresyon geçti. İnsan çağrısı teyidi ve eş koşullarda sessiz-asistan karşılaştırması gerekli; söz kesme tamamlanmadı.

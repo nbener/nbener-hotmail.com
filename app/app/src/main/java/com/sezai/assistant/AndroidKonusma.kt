@@ -6,11 +6,15 @@ import android.speech.tts.UtteranceProgressListener
 import android.util.Log
 import android.os.Handler
 import android.os.Looper
+import android.os.Bundle
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
 // Android'in kendi TTS motoru (Google/Samsung); ek boyut ve pil maliyeti yok
-class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -> Unit) : KonusmaMotoru {
+class AndroidKonusma(context: Context, motor: String? = null, private val cumleSesDuzeyi: Float? = null, hazir: (Boolean) -> Unit) : KonusmaMotoru {
+    init {
+        require(cumleSesDuzeyi == null || (cumleSesDuzeyi.isFinite() && cumleSesDuzeyi in 0f..1f))
+    }
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     private val gorselNesil = AtomicInteger()
     private val gorselAnaIs = Handler(Looper.getMainLooper())
@@ -56,7 +60,9 @@ class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -
                 if (id == konusmaKimligi) { Log.w("Sezai", "TTS hata"); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
             }
         })
-        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, null, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
+        // Varsayılan çağrılar aynı null parametreyi kullanır; sistem ses ayarı değiştirilmez.
+        val parametre = cumleSesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
+        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
     override fun durdur() {

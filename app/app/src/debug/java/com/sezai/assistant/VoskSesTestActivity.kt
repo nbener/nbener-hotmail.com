@@ -38,6 +38,7 @@ class VoskSesTestActivity : Activity() {
     private var ttsBaslangici = 0L
     private var ilkSoz = false
     private var kip = "bilgi"
+    private var ttsGenlik = 1f
     private lateinit var yazi: TextView
     private val odak by lazy { GorusmeOnceligi(this) { bitir("SES_ODAGI_KESILDI") } }
 
@@ -45,10 +46,13 @@ class VoskSesTestActivity : Activity() {
         super.onCreate(state)
         kip = intent.getStringExtra("kip") ?: "bilgi"
         rapor.put("test_id", intent.getStringExtra("test_id") ?: "elle").put("kip", kip)
+        ttsGenlik = intent.getFloatExtra("tts_genlik", 1f)
         yazi = TextView(this).apply {
             text = "Yerel Vosk denemesi: $kip. Hazırlanıyor…"; textSize = 18f; setPadding(32,48,32,32)
         }
         setContentView(yazi)
+        if (!ttsGenlik.isFinite() || ttsGenlik !in 0f..1f) { bitir("GECERSIZ_TTS_GENLIK"); return }
+        rapor.put("tts_istenen_genlik", ttsGenlik.toDouble())
         if (state != null) { bitir("YENIDEN_OLUSTURULDU"); return }
         if (kip !in setOf("bilgi", "dinle", "birlikte", "yanki")) { bitir("GECERSIZ_KIP"); return }
         if (kip != "bilgi" && checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -194,7 +198,7 @@ class VoskSesTestActivity : Activity() {
         yazi.text = "Mikrofon açık: $kip. En çok 12 saniye. Dur veya Sezai diyebilirsiniz."
         anaIs.postDelayed({ bitir("SURE_DOLDU") }, 12000)
         if (kip == "dinle") return
-        tts = AndroidKonusma(this, "com.google.android.tts") { hazir -> anaIs.post {
+        tts = AndroidKonusma(this, "com.google.android.tts", cumleSesDuzeyi = ttsGenlik) { hazir -> anaIs.post {
             if (!etkin.get()) return@post
             if (!hazir) { bitir("TTS_HAZIR_DEGIL"); return@post }
             tts!!.gorselOlayi = { olay ->
