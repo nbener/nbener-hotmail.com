@@ -129,3 +129,10 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 30 Ekim00.37 — ilk referans adımı geçti
 - [x] TTS onAudioAvailable/onBeginSynthesis: son APK mikrofonsuz katsayı0 test1793309848188549596 PASS;24kHz mono PCM16,132 parça132624 bayt. Ham ses tutulmadı. Aynı APK38 sessiz regresyon PASS.
 - [ ] Yerel AEC bağımlılık/ARM64 uyumu ve kontrollü çalma-referans senkronu. Termux clang Android24 hedefli çalışıyor; NDK/cmake/ninja bulunmadı, paket kurulmadı. TTS24kHz/mikrofon16kHz uyumu gerekir. Söz kesme henüz tamamlanmadı.
+
+
+## Sessiz bekleme ve kilit araştırması
+- Kaynaklı rapor SESSIZ_DINLEME_KILIT_PIL.md. Düşük güç yalnız tasarım önerisi; mevcut Vosk pil maliyeti ölçülmedi.
+- [ ] Ön planda söz kesme sonrası hafif Türkçe bekleme/enerji karşılaştırması.
+- [ ] Açık kullanıcı başlatması ve bildirimli microphone FGS için ayrı tasarım; gerçek fiziksel kilit/uzun süre/izin-görüşme-kapatma kabulü. Mevcut kod kilitte dinlemeyi bırakır.
+- [ ] SoundTrigger/varsayılan asistan yolu için gerçek donanım ve Türkçe model erişimi araştırması. Sistem servisinin varlığı yeterli kanıt değildir; rol değiştirilmedi.
