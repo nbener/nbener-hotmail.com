@@ -316,3 +316,10 @@ Son güncelleme: 2026-10-29
 - MainActivity: ekran görünür + sohbet kapalı + Sezai konuşmuyor + el ile dinleme yok + ayar açık + mikrofon izni + model var iken çalışır. Konuşma başlayınca, onStop'ta, görüşme modunda durur (kendi sesini duymasın). "Sezai deyince uyan: Açık/Kapalı" düğmesi (varsayılan Açık, ses_ayari/uyanma). Duyulunca: sohbet anahtarı varsa sesli sohbeti, yoksa tek komut dinlemeyi başlatır.
 - Cihaz doğrulaması: derleme/imza/kurulum Success; uygulama ön plandayken appops RECORD_AUDIO "running"; ana ekrana geçince kapandı. Sessiz regresyon: dinleme 9/9, sohbet 21/21, görüşme 8/8, ekran 9/9, yorumlama 23/23 PASS.
 - DENENMEDİ: gerçek insan sesiyle "Sezai" algılama (45 sn bekleme sırasında kullanıcı uygulamada değildi), yanlış tetiklenme oranı, pil ölçümü (ekran açıkken sürekli mikrofon+Vosk CPU; önceki ölçüm ~0,4 sn CPU / sn ses), uyanma sonrası sohbetin ilk kelimelerinin kaybı. TTS sırasında "dur" hâlâ çalışmıyor (uyanma konuşurken kapalı).
+
+## 29 Ekim 2026 — uygulama ikonu
+- Kullanıcı uygulama ikonunun basit Android simgesi olduğunu bildirdi. Manifestte android:icon tanımı ve launcher kaynağı yoktu.
+- Yeşil (#176B52) zemin, krem S çizgisi içeren yerel vector ve adaptive ikon eklendi. Manifest icon/roundIcon aynı kaynağa bağlı. Ek kütüphane, animasyon, servis veya pil yükü yok.
+- Değişen kaynaklar: AndroidManifest.xml; res/drawable/ikon_onplan.xml; res/mipmap-anydpi-v26/ic_launcher.xml; res/values/ikon.xml. Yedek: yedek/ikon-oncesi-20261029.tar.gz.
+- Ubuntu proot ./build.sh başarılı. İlk hizalama/imza komut zinciri çıkış1 verdi; ara APK imza kontrolünde Missing META-INF/MANIFEST.MF görüldü. Ardından açık apksigner sign Signed döndü; zipalign -c 4 ve apksigner verify başarılı (v2/v3). APK manifestindeki icon/roundIcon kaynak kimlikleri aapt ile doğrulandı.
+- /sdcard/Download/Sezai-debug.apk güncellendi, Shizuku/rish pm install -r: Success; lastUpdateTime=2026-10-29 19:28:27. Ana ekran ikonunun gerçek görünümü henüz görsel olarak doğrulanmadı. Ses/mikrofon testi yapılmadı; değişiklik yalnız ikon kaynaklarıdır.

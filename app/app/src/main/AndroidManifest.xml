@@ -34,7 +34,7 @@
         <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>
         <intent><action android:name="android.speech.RecognitionService"/></intent>
     </queries>
-    <application android:label="Sezai" android:allowBackup="false" android:theme="@style/SezaiTema">
+    <application android:label="Sezai" android:icon="@mipmap/ic_launcher" android:roundIcon="@mipmap/ic_launcher" android:allowBackup="false" android:theme="@style/SezaiTema">
         <service android:name=".EkranOkuyucuServisi" android:exported="true"
             android:label="@string/ekran_erisim_adi"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
