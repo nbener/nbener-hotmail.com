@@ -136,3 +136,9 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [ ] Ön planda söz kesme sonrası hafif Türkçe bekleme/enerji karşılaştırması.
 - [ ] Açık kullanıcı başlatması ve bildirimli microphone FGS için ayrı tasarım; gerçek fiziksel kilit/uzun süre/izin-görüşme-kapatma kabulü. Mevcut kod kilitte dinlemeyi bırakır.
 - [ ] SoundTrigger/varsayılan asistan yolu için gerçek donanım ve Türkçe model erişimi araştırması. Sistem servisinin varlığı yeterli kanıt değildir; rol değiştirilmedi.
+
+
+## 30 Ekim00.47 — bağımsız AEC hazır
+- [x] SpeexDSP1.2.1 yerel AndroidARM64 statik derleme ve kontrollü yapay yankı testi geçti; son test1793310420046423805. Tekrarlama python3 scripts/speex_yerel_dene.py, kaynak/lisans/kabul kaydı SPEEX_DENEY_KAYDI.md.
+- [ ] Debug native köprü/APK yükleme ve kontrollü gerçek çalma/mikrofon referans hattı. CLI ikilisi Termux RUNPATH içerir; Android uygulama namespace uyumu ayrıca doğrulanmalı.
+- [ ] Gerçek TTS kendi-sesinden tetikleme, dur/Sezai, ilk kelime/bağlam ve pil kabulü. Yapay58dB sonucu gerçek oda veya Türkçe başarı garantisi değildir.
