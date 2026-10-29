@@ -16,6 +16,9 @@ class AndroidKonusma(context: Context, motor: String? = null, hazir: (Boolean) -
         tts = TextToSpeech(context.applicationContext, { durum ->
             hazirlandi = durum == TextToSpeech.SUCCESS &&
                 tts?.setLanguage(trTr).let { it != TextToSpeech.LANG_MISSING_DATA && it != TextToSpeech.LANG_NOT_SUPPORTED }
+            tts?.setAudioAttributes(android.media.AudioAttributes.Builder()
+                .setUsage(android.media.AudioAttributes.USAGE_ASSISTANT)
+                .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
             Log.i("Sezai", "TTS hazir=$hazirlandi motor=${tts?.defaultEngine} sesler=${sesListesi()}")
             tts?.voices?.filter { trMi(it.locale.language) }?.forEach {
                 Log.i("Sezai", "TRSES ${it.name} ozellik=${it.features} kalite=${it.quality} cevrimici=${it.isNetworkConnectionRequired}")

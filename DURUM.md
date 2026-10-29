@@ -120,3 +120,15 @@ Son güncelleme: 2026-10-29
 - Resmî doküman: OpenAI previous_response_id ile devamı destekler; önceki bağlam tokenları yine giriş tokenı olarak faturalandırılır. Sunucuda saklama koşulları ayrıca ele alınmalı, mevcut store=false kendiliğinden değiştirilmedi. Kaynak: https://developers.openai.com/api/docs/guides/conversation-state
 - Groq Responses belgesindeki Unsupported Features bölümü previous_response_id ve store desteklenmediğini açıkça belirtiyor; girişteki genel stateful ifadesine güvenip geçiş yapma. Kaynak: https://console.groq.com/docs/responses-api
 - Tasarım seçeneği: aktif konu + gerektiğinde güncellenen kısa özet + son mesajlar. Bu yalnızca öneri; henüz uygulanmadı. Konu çözümleme genel olmalı, Kayseri'ye özel kelime kuralıyla belirti gizlenmemeli. Belirsiz takip mesajlarında açıklama istenir.
+
+## Telefon / WhatsApp görüşmesine öncelik
+- AndroidKonusma daha önce ses odağı kullanmıyordu. MainActivity yalnızca onStop ile duruyordu; aynı ekran üstünde başlayan görüşmeler için açık kesinti kontrolü yoktu.
+- GorusmeOnceligi eklendi: Android ses modu (zil/telefon/VoIP) sesli işlemi keser. TTS öncesi geçici ses odağı alınır; kayıp ve duck isteklerinde durulur. Ses odağı geri gelince otomatik başlama yoktur.
+- Tanıma hizmetinin kendi odağıyla çakışmamak için mikrofon dinlerken ayrıca ses odağı istenmez; görüşme modu izlenir ve başlamadan kontrol edilir. Telefonun API seviyesi 31 olarak ölçüldü, OnModeChangedListener desteklenir. Daha eski Android sürümlerinin izleme desteği sınırlıdır.
+- Görüşmede mikrofon/TTS ve sesli sohbetin bekleyen yanıtı durur; konu geçmişi korunur. Yazılı sohbet mikrofon açmaz. Yeni telefon/WhatsApp okuma izni eklenmedi; arka plan servisi ve sürekli sorgulama yoktur.
+- Yedek: yedek/gorusme-onceligi-oncesi-20261029.tar.gz. Derleme, zipalign/apksigner başarılı; kurulum Success. Görüşme testleri 8/8 ve dinleme testleri 6/6 PASS. Gerçek telefon/WhatsApp görüşmesi yapılmadı.
+
+## Kayıt disiplini ve görünüm talebi
+- Kullanıcı modern, dengeli görünüm istedi. Mevcut native Android ekranı korunarak iyileştirilecek; CSS/WebView mimarisine geçilmedi.
+- CLAUDE.md bölüm 10, her başlangıçta DURUM.md + KALAN_ISLER.md + TEST_DURUMU.md okuma ve her aşamada güncelleme zorunluluğunu kaydeder. Yeni iki kayıt dosyası test kanıtlarını, başarısız/denenmemiş işleri ve çözüm yollarını ayırır.
+- Amaç tekrar açıklandı: Türkçe sıcak ve güvenilir sesli/yazılı yol arkadaşı; önce sağlam karşılıklı sohbet, sonra telefon araçları; düşük pil tüketimi, mahremiyet ve özel/ticari proje koşulları korunur.

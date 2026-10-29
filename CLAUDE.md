@@ -76,3 +76,9 @@ Henüz kod yazma. Önce şunu yap:
 - Her oturumun başında DURUM.md oku. Her adımdan sonra git commit at ve DURUM.md'yi güncelle. Başka bir ajan devralabilsin diye hiçbir bilgiyi sadece sohbette bırakma.
 - Git deposu yerel kalır: uzak depo ekleme, public yapma (bkz. Bölüm 1). Anahtar, şifre ve yedek/ klasörü git'e girmez (.gitignore).
 - Derleme: ./build.sh (kurulum için ./build.sh kur).
+
+## 10. Güncel kayıt ve doğrulama (kullanıcı talimatı)
+- Her çalışma başlangıcında bu dosyayla birlikte DURUM.md, KALAN_ISLER.md ve TEST_DURUMU.md oku.
+- Her anlamlı aşamanın sonunda ilerlemeyi, kalan işi, bilinen sorunu ve çözüm yolunu güncelle; yerel commit oluştur.
+- Geçen testi, tarihini ve kapsamını yaz. Denenmemiş, başarısız veya sürmekte olan işi açıkça ayır; sahte ağ testini canlı yapay zekâ başarısı sayma.
+- Kaynak değişince eski APK/test sonucu otomatik olarak yeni kaynağı doğrulamaz. Değişikliğe uygun derleme, imza, kurulum ve test yap.

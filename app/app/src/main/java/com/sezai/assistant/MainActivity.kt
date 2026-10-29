@@ -28,6 +28,12 @@ class MainActivity : Activity() {
     private val ilerlemeDinleyici = SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
         runOnUiThread { ilerlemeyiGoster() }
     }
+    private val sesOnceligi by lazy {
+        GorusmeOnceligi(this) {
+            sohbetDuraklat()
+            durumYazisi.text = "Görüşme veya başka ses kullanımı nedeniyle Sezai duraklatıldı. Sohbetin konusu korunuyor."
+        }
+    }
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
     private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?)
@@ -73,7 +79,7 @@ class MainActivity : Activity() {
             runOnUiThread {
                 sesler = konusma.sesListesi()
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
-                intent.getStringExtra("oto")?.let { konusma.konus(it) }
+                intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
                 intent.getStringExtra("komut")?.let { komutVer(it) }
             }
@@ -111,7 +117,7 @@ class MainActivity : Activity() {
             setOnClickListener { sohbetBitir(); mesajAlani.text.clear() }
         }, LinearLayout.LayoutParams(-1, -2))
         dugme("Sohbet bağlantısı") { sohbetDuraklat(); baglantiAyarlariniAc() }
-        dugme("Konuş") { sohbetDuraklat(); konusma.konus("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
+        dugme("Konuş") { sohbetDuraklat(); seslendir("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
         dugme("Dinle") { sohbetDuraklat(); dinle() }
         dugme("Sesi değiştir") {
             sohbetDuraklat()
@@ -119,7 +125,7 @@ class MainActivity : Activity() {
                 sesSirasi = (sesSirasi + 1) % sesler.size
                 konusma.sesSec(sesler[sesSirasi])
                 durumYazisi.text = "Ses ${sesSirasi + 1}/${sesler.size}: ${sesler[sesSirasi]}"
-                konusma.konus("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
+                seslendir("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
             }
         }
         setContentView(ScrollView(this).apply { addView(kutu) })
@@ -127,12 +133,34 @@ class MainActivity : Activity() {
         savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
     }
 
+    private fun seslendir(metin: String, bitince: (() -> Unit)? = null, hata: (() -> Unit)? = null) {
+        if (!sesOnceligi.hazirlan(true)) {
+            sohbetDuraklat()
+            durumYazisi.text = "Görüşme veya başka ses kullanımı sırasında Sezai seslendirme yapmıyor."
+            return
+        }
+        val nesil = sohbetNesli
+        konusma.konus(metin,
+            bitince = { runOnUiThread {
+                if (nesil == sohbetNesli) {
+                    if (sohbetAcik) sesOnceligi.birakOdak() else sesOnceligi.durdur()
+                    bitince?.invoke()
+                }
+            } },
+            hata = { runOnUiThread {
+                if (nesil == sohbetNesli) {
+                    sesOnceligi.durdur()
+                    hata?.invoke()
+                }
+            } })
+    }
+
     private fun komutVer(metin: String) {
         sohbetDuraklat()
         val cevap = calistirici.calistir(KomutYorumlayici.yorumla(metin))
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
         durumYazisi.text = cevap
-        konusma.konus(cevap)
+        seslendir(cevap)
     }
 
     private fun baglantiAyarlariniAc() {
@@ -249,6 +277,11 @@ class MainActivity : Activity() {
 
     private fun sohbetDinle(nesil: Int) {
         if (!sohbetAcik || nesil != sohbetNesli) return
+        if (!sesOnceligi.hazirlan(false)) {
+            sohbetDuraklat()
+            durumYazisi.text = "Görüşme sırasında mikrofon açılmıyor. Görüşmeden sonra tekrar başlatabilirsiniz."
+            return
+        }
         durumYazisi.text = "Dinliyorum..."
         dinleme.dinle(
             sonuc = { metin -> runOnUiThread {
@@ -263,7 +296,7 @@ class MainActivity : Activity() {
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
                                 durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
-                                konusma.konus(cevap,
+                                seslendir(cevap,
                                     bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },
                                     hata = { runOnUiThread {
                                         if (sohbetAcik && nesil == sohbetNesli) {
@@ -294,6 +327,7 @@ class MainActivity : Activity() {
     private fun sohbetDuraklat() {
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
+        sesOnceligi.durdur()
         sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
@@ -316,6 +350,7 @@ class MainActivity : Activity() {
 
     override fun onStart() {
         super.onStart()
+        sesOnceligi.izle()
         ilerleme.registerOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         ilerlemeyiGoster()
     }
@@ -325,10 +360,15 @@ class MainActivity : Activity() {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 1); return
         }
         if (!dinleme.kullanilabilirMi()) { durumYazisi.text = "Konuşma tanıma yok"; return }
+        if (!sesOnceligi.hazirlan(false)) {
+            sohbetDuraklat()
+            durumYazisi.text = "Görüşme sırasında mikrofon açılmıyor. Görüşmeden sonra tekrar başlatabilirsiniz."
+            return
+        }
         durumYazisi.text = "Dinliyorum..."
         dinleme.dinle(
             sonuc = { runOnUiThread { durumYazisi.text = "Duydum: $it"; komutVer(it) } },
-            hata = { runOnUiThread { durumYazisi.text = it } }
+            hata = { runOnUiThread { sesOnceligi.durdur(); durumYazisi.text = it } }
         )
     }
 
@@ -344,6 +384,7 @@ class MainActivity : Activity() {
     override fun onStop() {
         ilerleme.unregisterOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         sohbetDuraklat()
+        sesOnceligi.kapat()
         dinleme.durdur(); konusma.durdur(); super.onStop()
     }
     override fun onSaveInstanceState(outState: Bundle) {
