@@ -55,6 +55,8 @@ class MainActivity : Activity() {
     private lateinit var durumYazisi: TextView
     private var sesler: List<String> = emptyList()
     private var sesSirasi = 0
+    private val sesAyari by lazy { getSharedPreferences("ses_ayari", MODE_PRIVATE) }
+    private val VARSAYILAN_SES = "tr-tr-x-ama-local"
     private lateinit var calistirici: KomutCalistirici
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -119,6 +121,12 @@ class MainActivity : Activity() {
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
                 sesler = konusma.sesListesi()
+                // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
+                val kayitli = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
+                val sira = sesler.indexOf(kayitli)
+                val uygulandi = sira >= 0 && konusma.sesSec(kayitli)
+                if (uygulandi) sesSirasi = sira
+                Log.i("Sezai", "SES varsayilan=$kayitli sira=${sira + 1} uygulandi=$uygulandi")
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
                 intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
@@ -202,6 +210,7 @@ class MainActivity : Activity() {
             if (sesler.isNotEmpty()) {
                 sesSirasi = (sesSirasi + 1) % sesler.size
                 konusma.sesSec(sesler[sesSirasi])
+                sesAyari.edit().putString("ses_adi", sesler[sesSirasi]).apply()
                 durumYazisi.text = "Ses ${sesSirasi + 1}/${sesler.size}: ${sesler[sesSirasi]}"
                 seslendir("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
             }
