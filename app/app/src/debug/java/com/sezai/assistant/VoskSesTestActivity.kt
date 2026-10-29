@@ -72,6 +72,7 @@ class VoskSesTestActivity : Activity() {
         var cpu = 0L
         var ornek = 0L
         var tepe = 0
+        var doygun = 0L
         try {
             LibVosk.vosk_set_log_level(-1)
             model = Model(yol.absolutePath)
@@ -102,7 +103,11 @@ class VoskSesTestActivity : Activity() {
                         val n = mikrofon.read(veri, 0, veri.size)
                         if (n <= 0) { if (etkin.get()) anaIs.post { bitir("MIKROFON_OKUMA_HATASI") }; break }
                         ornek += n
-                        for (i in 0 until n) tepe = maxOf(tepe, abs(veri[i].toInt()))
+                        for (i in 0 until n) {
+                            val genlik = abs(veri[i].toInt())
+                            tepe = maxOf(tepe, genlik)
+                            if (genlik >= 32760) doygun++
+                        }
                         val once = Debug.threadCpuTimeNanos()
                         val tam = tanici.acceptWaveForm(veri, n)
                         val metin = JSONObject(if (tam) tanici.result else tanici.partialResult)
@@ -110,9 +115,18 @@ class VoskSesTestActivity : Activity() {
                         cpu += Debug.threadCpuTimeNanos() - once
                         if (metin.isNotBlank()) {
                             val soz = SohbetKomutlari.sozAlmaMetni(metin)
+                            val sozcukler = KomutYorumlayici.normalize(metin)
+                            val durVar = "dur" in sozcukler
+                            val sezaiVar = "sezai" in sozcukler
+                            val sayi = sozcukler.size
                             anaIs.post {
                                 if (etkin.get()) {
                                     rapor.put("tanima_olayi_var", true)
+                                    // Çağrı birleşik TTS+insan sonucunun ortasında kalmış olabilir.
+                                    // Metin yerine yalnız bu ayrımı gösteren bayrakları sakla.
+                                    if (durVar) rapor.put("dur_herhangi_yerde", true)
+                                    if (sezaiVar) rapor.put("sezai_herhangi_yerde", true)
+                                    rapor.put("en_uzun_tanima_sozcuk_sayisi", maxOf(sayi, rapor.optInt("en_uzun_tanima_sozcuk_sayisi")))
                                     if (soz != null && !ilkSoz) {
                                         ilkSoz = true
                                         rapor.put("soz_alma_duyuldu", true).put("tts_sirasinda", ttsSuruyor)
@@ -138,7 +152,8 @@ class VoskSesTestActivity : Activity() {
             try { mikrofon?.stop() } catch (_: RuntimeException) {}
             yanki?.release(); mikrofon?.release(); tanici?.close(); model?.close()
             olcum.put("ses_suresi_ms", ornek * 1000 / 16000).put("cozum_cpu_ms", cpu/1000000)
-                .put("tepe_genlik", tepe).put("pss_kb", Debug.getPss()).put("kaynaklar_birakildi", true)
+                .put("tepe_genlik", tepe).put("doygun_ornek_sayisi", doygun)
+                .put("pss_kb", Debug.getPss()).put("kaynaklar_birakildi", true)
             anaIs.post {
                 for (ad in olcum.keys()) rapor.put(ad, olcum.get(ad))
                 calisan = false

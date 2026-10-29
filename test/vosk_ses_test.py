@@ -44,6 +44,10 @@ try:
             beklenen = ['GORUNURLUK_KAYBI'] if a.arka_plan else ['DENEME_TAMAMLANDI', 'SOZ_ALMA_DUYULDU', 'SURE_DOLDU']
             if a.kip != 'bilgi' and (not rapor.get('mikrofon_basladi') or rapor.get('sonuc') not in beklenen):
                 raise SystemExit('Ses denemesi tamamlanamadı')
+            if a.kip == 'birlikte' and not (rapor.get('soz_alma_duyuldu') and rapor.get('tts_sirasinda')):
+                raise SystemExit('TTS sırasında söz alma doğrulanmadı; süre dolması başarı değildir')
+            if a.kip == 'dinle' and not a.arka_plan and not rapor.get('soz_alma_duyuldu'):
+                raise SystemExit('Dur/Sezai tanıması doğrulanmadı; süre dolması başarı değildir')
             break
         time.sleep(.8)
     else: raise SystemExit('Bu denemenin raporu alınamadı; başarı sayılmaz')
