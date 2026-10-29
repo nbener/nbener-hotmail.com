@@ -141,3 +141,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Değişen kaynaklar: AndroidManifest.xml; res/drawable/ikon_onplan.xml; res/mipmap-anydpi-v26/ic_launcher.xml; res/values/ikon.xml. Yedek: yedek/ikon-oncesi-20261029.tar.gz.
 - Ubuntu proot ./build.sh başarılı. İlk hizalama/imza komut zinciri çıkış1 verdi; ara APK imza kontrolünde Missing META-INF/MANIFEST.MF görüldü. Ardından açık apksigner sign Signed döndü; zipalign -c 4 ve apksigner verify başarılı (v2/v3). APK manifestindeki icon/roundIcon kaynak kimlikleri aapt ile doğrulandı.
 - /sdcard/Download/Sezai-debug.apk güncellendi, Shizuku/rish pm install -r: Success; lastUpdateTime=2026-10-29 19:28:27. Ana ekran ikonunun gerçek görünümü henüz görsel olarak doğrulanmadı. Ses/mikrofon testi yapılmadı; değişiklik yalnız ikon kaynaklarıdır.
+
+## 29 Ekim 2026 — ikonun cihazda görsel kontrolü
+- Kullanıcının ~ devam talimatıyla kurulu ikon doğrulandı. Shizuku/rish bağlantısı çalışıyor.
+- Uygulama bilgileri ekranı package:com.sezai.assistant ile açıldı; /sdcard/Download/sezai-ikon-ayarlar.png ekran görüntüsü incelendi. Sezai adı yanında yeşil zemin ve krem S doğru, kırpılmadan görünüyor.
+- Ana ekran görüntüsü girişiminde başlatıcı yerine başka uygulama görünüyordu; bu nedenle başlatıcı görünümü doğrulandı sayılmadı. Uygulama bilgileri ekranındaki gerçek Android adaptive ikon çizimi doğrulandı.
+- Uygulama kodu/APK değişmedi; yeniden derleme veya ses testi yapılmadı. Bu adımda yalnız DURUM.md, KALAN_ISLER.md ve TEST_DURUMU.md güncellendi. Yeni pil yükü yok.
