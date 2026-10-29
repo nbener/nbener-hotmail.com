@@ -10,6 +10,8 @@
             android:permission="android.permission.DUMP"/>
         <receiver android:name=".GorusmeTestAlicisi" android:exported="true"
             android:permission="android.permission.DUMP"/>
+        <receiver android:name=".EkranTestAlicisi" android:exported="true"
+            android:permission="android.permission.DUMP"/>
         <activity android:name=".WebCanliTestActivity" android:exported="true"
             android:permission="android.permission.DUMP"/>
     </application>

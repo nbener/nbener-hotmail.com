@@ -4,6 +4,10 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 
 ## Öncelikli
 
+- [ ] Kullanıcı Android erişilebilirlik ayarından Sezai ekran yardımcısını açacak. Yeni APK kurulu; 9/9 politika/sentetik test ve izin kapalı ayar UI doğrulandı.
+- [ ] Erişim açılınca gerçek açık ekran metnini alma/okuma/yorumlama ve Termux metin görünürlüğünü doğrula; kilit/uygulama değişimi/görüşme kesintisini test et.
+- [ ] Telefon genelinde sesli uyandırma ve kullanıcı konuşarak ekranı inceletme/telefonu yönetme: bu aşamada yalnız ekran erişimi temeli eklendi. Tam eller serbest kullanım henüz yok.
+
 - [x] Groq web araştırması bağlantısı: citation_options kaynaklı HTTP 400 düzeltildi. 29 Ekim canlı sabit sorgu kaynak adresiyle yanıt verdi; içerik resmî sayfayla karşılaştırıldı.
 - [ ] Web kullanımının hesaba özel maliyet/kota koşulları ve farklı sorularda kaynak kalitesi; diğer sağlayıcıların web desteği.
 

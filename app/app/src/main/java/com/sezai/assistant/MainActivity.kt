@@ -167,6 +167,10 @@ class MainActivity : Activity() {
             addView(yeniSohbetDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginEnd = dp(5) })
             addView(baglantiDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginStart = dp(5) })
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        dugme("Ekran yardımcısı") {
+            sohbetDuraklat()
+            startActivity(android.content.Intent(this, EkranOkumaAyarActivity::class.java))
+        }
         kutu.addView(TextView(this).apply {
             text = "Ses araçları"; textSize = 13f
             setTextColor(Color.parseColor("#536B78"))

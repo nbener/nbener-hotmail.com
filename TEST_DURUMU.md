@@ -10,6 +10,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve KALAN_ISLER.md ile birlik
 | APK | Web bağlantılı son APK: derleme, zipalign ve apksigner PASS; kurulum Success | Güncel kaynakta sonraki değişiklikler varsa yeniden derlenmesi gerekir. |
 | Yazılı ekran | Mesaj alanı ve Gönder cihazda görüldü | İlk hint-metin sorgusu hatalıydı; EditText sınıfı ve düğme üzerinden düzeltildi. Gerçek yazışma denenmedi. |
 | Görüşme önceliği | 29 Ekim 2026: 8/8 PASS | Sahte telefon/VoIP/odak olayları; gerçek cihazda mod dinleyicisi kaydı. Gerçek telefon/WhatsApp çağrısı denenmedi. |
+| Ekran yardımcısı | 29 Ekim: 9/9 sessiz test PASS, ayar UI PASS | Gerçek hizmet izni kapalı. Ekran/ses/API kabul testi henüz yapılmadı. |
 | Modern görünüm | 29 Ekim: kaydırma sonrası tam düğme görünürlüğü ve hiza doğrulandı | Görsel incelendi; uygulama düzeni değişmedi. Aktif kullanım korumasındaki eksik düzeltildi; son koruma cihazda henüz denenmedi. |
 
 ## Doğrulama komutları
@@ -55,3 +56,15 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Görselde Dinliyorum... bulundu: testin boş taslak koruması aktif kullanımı engellememişti. Test sesi/mikrofonu başlatmadı fakat kaydırma yaptı. Bu eksik de hata olarak kaydedildi; aktif kullanımda otomatik etkileşim durduruldu.
 - Kaydırma öncesine boş başlangıç ekranı kontrolü eklendi. Son koruma py_compile + diff --check PASS; cihazda yeniden çalıştırılmadı. Önceki cihaz başarısı son korumanın kabul testi sayılmaz.
 - Uygulama kaynağı değişmedi; son imzalı/kurulu APK değişmedi.
+
+## 29 Ekim — ekran erişimi geliştirmesi sürüyor
+- Kullanıcı ekran erişimi, istekle herhangi bir açık ekranı okuma/yorumlama ve telefon genelinde eller serbest sesli yardım hedefini onayladı; CLAUDE.md'ye kaydedildi.
+- EkranOkuyucuServisi, ekran ayarları/inceleme ekranı ve EkranMetni/EkranAkisi yazıldı. Otomatik okuma ayrı anahtarla seçilen uygulamada; açık istekle erişilebilirlik düğmesinden herhangi bir ekran metni incelemesi. Metinler bellekte, yapay zekâ aktarımı yalnızca Yorumla ve oku seçimiyle. Parola/taslak atlanır. Genel sesli uyandırma/uzaktan sesle başlatma henüz yok.
+- İlk ./build.sh derlemesi Kotlin'de yorumla düğmesi/metodu ad çakışması ve ekleme sırasında eksik görülen otomatikHedefMi ile başarısız oldu. Düğme yeniden adlandırıldı; yardımcı tanımı kaynakta mevcut. Yeniden derleme/test gerekiyor. Kaynak yedeği: yedek/ekran-okuma-oncesi-20261029-112050.tar.gz.
+
+## Ekran yardımcısı yeni APK — 29 Ekim 2026
+- İlk derleme başarısız (yorumla ad çakışması, düzenleme esnasında eksik yardımcı tanımı); kaynak düzeltildi. Son derleme, zipalign, apksigner ve kurulum başarılı.
+- Son aynı APK: ekran 9/9, sohbet 21/21, dinleme 6/6, görüşme 8/8 PASS. Toplam 44 sessiz test. Ekran testleri sentetik metinler/politika ve Android hizmet metadatasıdır; gerçek başka uygulama ekranını okuma testi sayılmaz.
+- Ayar Activity'si açıldı; izin kapalı, otomatik anahtar kapalı/pasif olduğu UI XML ve görselde doğrulandı. Sistem erişim izni açılmadı.
+- Gerçek hizmet bağlanma, erişilebilirlik düğmesinden metin alma, Termux erişilebilir metni, ekran konuşması/yorum ve kilit/görüşme kabul testleri kullanıcı izninden sonra. Ekran fotoğrafı/görsel model ve küresel sesli kumanda kapsamı henüz uygulanmadı.
+- Mevcut eski APK ile kullanıcı gösteriminde gerçek yazılı istek/yanıt UI üzerinden doğrulandı ve ardından uygulama kullanıcı isteğiyle kapatıldı. Bu yeni APK'yı gerçek API açısından ayrıca doğrulamaz.

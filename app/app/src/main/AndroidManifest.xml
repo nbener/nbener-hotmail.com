@@ -4,10 +4,24 @@
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
     <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN"/>
+            <category android:name="android.intent.category.LAUNCHER"/>
+        </intent>
         <intent><action android:name="android.intent.action.TTS_SERVICE"/></intent>
         <intent><action android:name="android.speech.RecognitionService"/></intent>
     </queries>
     <application android:label="Sezai" android:allowBackup="false" android:theme="@style/SezaiTema">
+        <service android:name=".EkranOkuyucuServisi" android:exported="true"
+            android:label="@string/ekran_erisim_adi"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService"/>
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice" android:resource="@xml/ekran_erisim"/>
+        </service>
+        <activity android:name=".EkranOkumaAyarActivity" android:exported="true" android:label="Ekran yardımcısı"/>
+        <activity android:name=".EkranIncelemeActivity" android:exported="false" android:label="Ekranı incele"/>
         <activity android:name=".MainActivity" android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -1,0 +1,4 @@
+<resources>
+    <string name="ekran_erisim_adi">Sezai ekran yardımcısı</string>
+    <string name="ekran_erisim_aciklama">Sezai ekran metnini seslendirmenize ve isteğinizle yorumlamanıza yardımcı olur. Erişilebilirlik düğmesi açık ekranı incelemeye alır. Otomatik okuma ayrıca açılır ve seçtiğiniz uygulamada çalışır. Parola ve yazı giriş alanları atlanır. Metinler kaydedilmez; yalnızca Yorumla ve oku seçerseniz seçili yapay zekâ sağlayıcınıza gönderilir. Dokunma veya kaydırma yapmaz.</string>
+</resources>

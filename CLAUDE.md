@@ -91,3 +91,7 @@ Henüz kod yazma. Önce şunu yap:
 
 ## Kısa devam komutu
 - Kullanıcı tek başına `~` veya `..` gönderirse anlamı: devam et, geliştir ve test et. Mevcut görev, proje kuralları ve kota sınırı geçerlidir.
+
+## Telefon genelinde sesli yardım — kullanıcı önceliği
+- Sezai kullanıcının telefon genelinde, telefona dokunmadan sesle kumanda edeceği yardımcısı olacak. Ekran okuma ve yorumlama yalnızca tek sohbet uygulamasıyla sınırlandırılmış bir hedef değildir; kullanıcının istediği açık uygulama/ekran kapsam içindedir.
+- Kullanıcı ekran erişimini geliştirmeye açıkça izin verdi. Otomatik mesaj okuma ile açık istekle ekran inceleme ayrı davranışlardır. Android'in gereken kullanıcı izinleri ve mevcut teknik sınırlar dürüstçe belirtilir; henüz yapılmamış küresel sesli kumanda tamamlandı sayılmaz.
