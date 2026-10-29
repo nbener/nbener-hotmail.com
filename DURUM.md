@@ -309,3 +309,10 @@ Son güncelleme: 2026-10-29
 - Manifest: telefon özellikleri için izinler bildirildi (arama, telefon durumu, kişiler, SMS, kamera, bildirim, Bluetooth, ses ayarı, foreground service mikrofon/konum vb.). Bildirmek izin vermek değildir; çalışma zamanında istenir. ACCESS_BACKGROUND_LOCATION, WAKE_LOCK, QUERY_ALL_PACKAGES, RECEIVE_BOOT_COMPLETED bilerek eklenmedi (pil kuralı, mağaza kısıtı); gerekince eklenir.
 - Testler (kurulu son APK): yorumlama 23/23, dinleme 9/9, sohbet 21/21 (sahte ağ), görüşme 8/8 PASS.
 - Sıradaki: uygulama açıkken "Sezai" ile uyanma (kullanıcı önerimi seçti). Motor Vosk (şu an yalnız debug bağımlılığı); release'e almak ayrı karar, henüz yapılmadı.
+
+## 29 Ekim — "Sezai deyince uyan" (uygulama açıkken) — canlı insan testi BEKLİYOR
+- Kullanıcı seçenek 1'i seçti (`~` ile devam). Yedek yedek/uyanma-oncesi-20261029-184552.tar.gz.
+- Yeni SezaiUyanma.kt: yalnız "sezai" ve [unk] içeren Vosk dilbilgisiyle (düşük CPU) mikrofonu dinler; ses/metin saklanmaz. Vosk 0.3.75 + JNA artık `implementation` (release'e de girer; model APK'ya girmez, files/vosk-model-small-tr-0.3 içinde). Taze kurulumda model yoksa özellik sessizce kapalı kalır: satış öncesi modelin dağıtımı çözülmeli.
+- MainActivity: ekran görünür + sohbet kapalı + Sezai konuşmuyor + el ile dinleme yok + ayar açık + mikrofon izni + model var iken çalışır. Konuşma başlayınca, onStop'ta, görüşme modunda durur (kendi sesini duymasın). "Sezai deyince uyan: Açık/Kapalı" düğmesi (varsayılan Açık, ses_ayari/uyanma). Duyulunca: sohbet anahtarı varsa sesli sohbeti, yoksa tek komut dinlemeyi başlatır.
+- Cihaz doğrulaması: derleme/imza/kurulum Success; uygulama ön plandayken appops RECORD_AUDIO "running"; ana ekrana geçince kapandı. Sessiz regresyon: dinleme 9/9, sohbet 21/21, görüşme 8/8, ekran 9/9, yorumlama 23/23 PASS.
+- DENENMEDİ: gerçek insan sesiyle "Sezai" algılama (45 sn bekleme sırasında kullanıcı uygulamada değildi), yanlış tetiklenme oranı, pil ölçümü (ekran açıkken sürekli mikrofon+Vosk CPU; önceki ölçüm ~0,4 sn CPU / sn ses), uyanma sonrası sohbetin ilk kelimelerinin kaybı. TTS sırasında "dur" hâlâ çalışmıyor (uyanma konuşurken kapalı).

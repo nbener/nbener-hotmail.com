@@ -55,6 +55,10 @@ class MainActivity : Activity() {
     private lateinit var durumYazisi: TextView
     private var sesler: List<String> = emptyList()
     private var sesSirasi = 0
+    private val uyanma by lazy { SezaiUyanma(this) { sezaiDendi() } }
+    private var gorunur = false
+    private var elleDinliyor = false
+    private var konusuyor = false
     private val konum by lazy { KonumYardimcisi(this) }
     private val sesAyari by lazy { getSharedPreferences("ses_ayari", MODE_PRIVATE) }
     private val VARSAYILAN_SES = "tr-tr-x-ama-local"
@@ -140,8 +144,9 @@ class MainActivity : Activity() {
                     karakterDurumu(SezaiKarakterView.Durum.KONUSUYOR, yanitDuygusu(olay.metin))
                     karakter?.konusmaBasladi(olay.metin)
                 }
-                KonusmaGorselOlayi.Tur.HATA -> karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
+                KonusmaGorselOlayi.Tur.HATA -> { konusuyor = false; uyanmaGuncelle(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI) }
                 KonusmaGorselOlayi.Tur.BITTI, KonusmaGorselOlayi.Tur.DURDU -> {
+                    konusuyor = false; uyanmaGuncelle()
                     if (karakter?.durum == SezaiKarakterView.Durum.KONUSUYOR) karakter?.konusmaBitti()
                 }
             }
@@ -204,6 +209,15 @@ class MainActivity : Activity() {
             text = "Ses araçları"; textSize = 13f
             setTextColor(Color.parseColor("#536B78"))
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(22); bottomMargin = dp(2) })
+        val uyanmaDugmesi = dugme("") {}
+        fun uyanmaYazisi() { uyanmaDugmesi.text = "Sezai deyince uyan: " + (if (uyanmaAyariAcik()) "Açık" else "Kapalı") }
+        uyanmaYazisi()
+        uyanmaDugmesi.setOnClickListener {
+            sesAyari.edit().putBoolean("uyanma", !uyanmaAyariAcik()).apply()
+            uyanmaYazisi(); uyanmaGuncelle()
+            durumYazisi.text = if (uyanmaAyariAcik()) "Uygulama açıkken Sezai dediğinizde sizi dinlerim. Bu sırada mikrofon açık kalır."
+                else "Sezai deyince uyanma kapatıldı. Mikrofon kapalı."
+        }
         dugme("Konuş") { sohbetDuraklat(); seslendir("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
         dugme("Dinle") { sohbetDuraklat(); dinle() }
         dugme("Sesi değiştir") {
@@ -259,7 +273,9 @@ class MainActivity : Activity() {
     }
 
     private fun seslendir(metin: String, bitince: (() -> Unit)? = null, hata: (() -> Unit)? = null) {
+        konusuyor = true; uyanma.durdur() // kendi sesini "Sezai" diye duymasın
         if (!sesOnceligi.hazirlan(true)) {
+            konusuyor = false
             sohbetDuraklat()
             durumYazisi.text = "Görüşme veya başka ses kullanımı sırasında Sezai seslendirme yapmıyor."
             return
@@ -279,6 +295,22 @@ class MainActivity : Activity() {
                     karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
                 }
             } })
+    }
+
+    // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
+    private fun uyanmaAyariAcik() = sesAyari.getBoolean("uyanma", true)
+    private fun uyanmaGuncelle() {
+        val olmali = gorunur && !sohbetAcik && !konusuyor && !elleDinliyor && uyanmaAyariAcik() &&
+            checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && uyanma.modelVarMi()
+        if (olmali) uyanma.baslat() else uyanma.durdur()
+    }
+    private fun sezaiDendi() {
+        if (!gorunur) return
+        Log.i("Sezai", "UYANMA tetiklendi")
+        durumYazisi.text = "Buyurun, sizi dinliyorum."
+        val saglayici = SohbetSaglayici.secili(this)
+        val anahtarVar = try { !AnahtarKasasi(this, saglayici.kasaAdi).oku().isNullOrBlank() } catch (_: Exception) { false }
+        if (anahtarVar && !sohbetAcik) sohbetBaslat() else dinle()
     }
 
     // Konumu tek seferlik alır, ekranda gösterir ve söyler; sohbet açıksa (nesil) dinlemeye döner
@@ -529,11 +561,12 @@ class MainActivity : Activity() {
             durumYazisi.text = "Görüşme sırasında mikrofon açılmıyor. Görüşmeden sonra tekrar başlatabilirsiniz."
             return
         }
+        elleDinliyor = true; uyanma.durdur()
         karakterDurumu(SezaiKarakterView.Durum.DINLIYOR)
         durumYazisi.text = "Dinliyorum..."
         dinleme.dinle(
-            sonuc = { runOnUiThread { durumYazisi.text = "Duydum: $it"; komutVer(it) } },
-            hata = { runOnUiThread { sesOnceligi.durdur(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = it } }
+            sonuc = { runOnUiThread { elleDinliyor = false; durumYazisi.text = "Duydum: $it"; komutVer(it) } },
+            hata = { runOnUiThread { elleDinliyor = false; uyanmaGuncelle(); sesOnceligi.durdur(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = it } }
         )
     }
 
