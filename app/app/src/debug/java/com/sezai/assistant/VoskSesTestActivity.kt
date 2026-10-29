@@ -4,6 +4,8 @@ import android.Manifest
 import android.app.Activity
 import android.content.pm.PackageManager
 import android.media.AudioFormat
+import android.media.AudioAttributes
+import android.media.AudioManager
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.media.audiofx.AcousticEchoCanceler
@@ -73,6 +75,9 @@ class VoskSesTestActivity : Activity() {
         var ornek = 0L
         var tepe = 0
         var doygun = 0L
+        var cozumDuvarNs = 0L
+        var enUzunCozumNs = 0L
+        var kayitBaslangici = 0L
         try {
             LibVosk.vosk_set_log_level(-1)
             model = Model(yol.absolutePath)
@@ -96,7 +101,22 @@ class VoskSesTestActivity : Activity() {
                     if (etkin.get()) { kayit = mikrofon; mikrofon.startRecording() }
                 }
                 if (etkin.get()) {
+                    kayitBaslangici = SystemClock.elapsedRealtime()
                     olcum.put("mikrofon_basladi", mikrofon.recordingState == AudioRecord.RECORDSTATE_RECORDING)
+                    olcum.put("kayit_kaynagi", mikrofon.audioSource)
+                        .put("kayit_ornekleme_hz", mikrofon.sampleRate)
+                        .put("kayit_tampon_kare", mikrofon.bufferSizeInFrames)
+                    // Kimlik/adres/ham ses yerine yalnız cihaz türü ve sayısal ses ayarları.
+                    mikrofon.routedDevice?.let { olcum.put("giris_cihaz_turu", it.type) }
+                    val sesYonetimi = getSystemService(AUDIO_SERVICE) as AudioManager
+                    val nitelik = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_ASSISTANT)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build()
+                    val akis = nitelik.volumeControlStream
+                    olcum.put("tts_ses_akisi", akis).put("ses_modu", sesYonetimi.mode)
+                    if (akis >= 0) {
+                        olcum.put("tts_ses_duzeyi", sesYonetimi.getStreamVolume(akis))
+                            .put("tts_ses_en_yuksek", sesYonetimi.getStreamMaxVolume(akis))
+                    }
                     anaIs.post { if (etkin.get()) sesHazir() }
                     val veri = ShortArray(1600)
                     while (etkin.get()) {
@@ -109,10 +129,14 @@ class VoskSesTestActivity : Activity() {
                             if (genlik >= 32760) doygun++
                         }
                         val once = Debug.threadCpuTimeNanos()
+                        val duvarOnce = SystemClock.elapsedRealtimeNanos()
                         val tam = tanici.acceptWaveForm(veri, n)
                         val metin = JSONObject(if (tam) tanici.result else tanici.partialResult)
                             .optString(if (tam) "text" else "partial")
                         cpu += Debug.threadCpuTimeNanos() - once
+                        val cozumNs = SystemClock.elapsedRealtimeNanos() - duvarOnce
+                        cozumDuvarNs += cozumNs
+                        enUzunCozumNs = maxOf(enUzunCozumNs, cozumNs)
                         if (metin.isNotBlank()) {
                             val soz = SohbetKomutlari.sozAlmaMetni(metin)
                             val sozcukler = KomutYorumlayici.normalize(metin)
@@ -148,10 +172,13 @@ class VoskSesTestActivity : Activity() {
             olcum.put("hata_turu", e.javaClass.simpleName)
             anaIs.post { bitir("YEREL_KUTUPHANE_HATASI") }
         } finally {
+            val kayitDuvarMs = if (kayitBaslangici == 0L) 0L else SystemClock.elapsedRealtime() - kayitBaslangici
             synchronized(etkin) { kayit = null }
             try { mikrofon?.stop() } catch (_: RuntimeException) {}
             yanki?.release(); mikrofon?.release(); tanici?.close(); model?.close()
             olcum.put("ses_suresi_ms", ornek * 1000 / 16000).put("cozum_cpu_ms", cpu/1000000)
+                .put("kayit_duvar_ms", kayitDuvarMs).put("cozum_duvar_ms", cozumDuvarNs/1000000)
+                .put("en_uzun_cozum_ms", enUzunCozumNs/1000000)
                 .put("tepe_genlik", tepe).put("doygun_ornek_sayisi", doygun)
                 .put("pss_kb", Debug.getPss()).put("kaynaklar_birakildi", true)
             anaIs.post {

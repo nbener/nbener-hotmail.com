@@ -97,3 +97,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 
 ## 29 Ekim23.54 — düşük ses sonucu
 - STREAM_MUSIC4→2 karşılaştırması1793307203533605321 süre doldu/çıkış1; eski4 doğrulanarak geri yüklendi. Söz kesme çözülmedi. TTS akışı/ses yönlendirmesi ve kayıt kaynağı-AEC oturumu incelenecek; düşük medya ayarından kesin yankı nedeni çıkarma.
+
+
+## 29 Ekim23.58 — ses karşılaştırması düzeltmesi
+- Yeni tanı APK derlendi/imzalandı/kuruldu; gerçek arka plan testi1793307469992191053 geçti. Asistanın volumeControlStream eşlemesi11 ve seviyesi15/15. Önceki medya3 üzerinde4→2 karşılaştırması TTS kısma kanıtı değildir.
+- Sonraki kullanıcı testi doğru akış11 üzerinde geçici azaltma ve eski değeri geri yükleme ile yapılmalı. Henüz TTS üzerinde söz kesme başarısı yok. Tanı süre/cihaz türü alanları debug raporunda hazır.
