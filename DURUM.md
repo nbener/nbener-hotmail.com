@@ -491,3 +491,8 @@ Son güncelleme: 2026-10-29
 - Salt okunur Shizuku/rish ekran/odak sorgusu çıktı1: `Server is not running`. Ekran durumu veya mikrofon erişimi bu tur doğrulanamadı; fiziksel test başlatılmadı. Kullanıcıdan Shizuku'yu başlatıp ekran kilidini açması istendi; rol/izin/ekran ayarı değiştirilmedi.
 - Native kaynak/çıktı SHA256 kontrolü, fiziksel test betiği AST ve git diff--check PASS. Bunlar yeni cihaz/söz kesme kabulü değildir. Uygulama kaynağı ve kurulu APK değişmedi; tekrar derleme/kurulum yapılmadı.
 - Sıradaki adım bağlantı sağlanınca `python3 test/yanki_hat_test.py`, sonra `--arka-plan`. Gerçek yankı/insan çağrısı, tanıyıcı bağlantısı, pil ve kilit kabulü hâlâ açık.
+
+
+## 30.10.2026 19:34 — bağlantı yeniden kontrolü
+- `..` devamı: kota %3/%46. rish yeniden `Server is not running`/çıkış1 verdi. Alternatif yerel `adb devices -l` kontrolünde daemon başlatıldı ancak bağlı cihaz listesi boş; kullanılabilir ikinci köprü bulunamadı. Eşleştirme/debug ayarı değiştirilmedi.
+- Gerçek mikrofon testi başlatılmadı; kaynak/APK değişmedi. Devam için Shizuku kullanıcı tarafından başlatılmalı; ardından ekran açıkken mevcut sessiz hat testi çalıştırılacak.
