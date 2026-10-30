@@ -386,3 +386,10 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Tanıyıcı CPU1026ms,max59ms;AEC+dönüşümCPU279ms;mikrofon tepe22936,kırpılan0;model/mikrofon kaynak bırakma true. Son appops running yok. Ham ses/metin dosya-ağ yok;pil ölçülmedi.
 - Kullanıcıya ikisini mi,yalnız Sezai mi,hiçbirini mi söylediği soruldu;henüz yanıt yok. Otomatik Sezai bayrağı tek başına doğrulanmış insan kabulü veya dur başarısı değildir. Kullanıcı ikisini söylediyse bu tur dur kaçırma olarak kaydedilmeli;hiç söylemediyse yanlış tetikleme olarak ayrıştırılmalı. Otomatik çalma kesme bu testte yok.
 - Sıradaki adım kullanıcı teyidine bağlı: hedefleri ayrı sessiz kontrol ve ardından duyulur TTS altında çağrı/yanlış tetikleme. Üretimde söz kesme,takip isteği,kilit/pil açık.
+
+
+## 31 Ekim02.48 — gece koşulu ve10.00 tekrar planı
+- Kullanıcı son insan sesi turunda gece herkes uyuduğu için mikrofona yaklaşıp çok kısık sesle konuştuğunu açıkladı; dur sözcüğü duyulmayacak kadar düşük kalmış olabilir dedi. Hangi sözcüğün hangi düzeyde söylendiği ölçülmedi.1793403862792989753 içindeki dur=false kesin motor başarısızlığı diye sınıflandırılmayacak;Sezai=true bulgusu korunur.
+- Kullanıcı testi saat10.00'da tekrarlamak istedi. Yerel tarih31.10.2026,saat02.48 Europe/Istanbul;plan bugün10.00. O zamana kadar insan sesi/hoparlör denemesi yapılmayacak.
+- Kullanılabilir araçlarda bağımsız hatırlatıcı/ajanı saatinde başlatan zamanlayıcı bulunmadı;takvim etkinliği oluşturulmadı,otomatik mikrofon/çalma başlatılmayacak. Kullanıcı10.00'da yazınca önce sessiz çıkışta normal konuşma düzeyinde ayrı dur/Sezai kontrolü yapılacak.
+- Kaynak/APK değişmedi;yeni ses testi yapılmadı. Üretim söz kesme,pil/kilit hâlâ açık.
