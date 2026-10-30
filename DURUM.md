@@ -484,3 +484,10 @@ Son güncelleme: 2026-10-29
 - Aynı SON APK dinleme9/9,sohbet21/21,görüşme8/8 PASS(38 sessiz regresyon),native kaynak/çıktı kontrolü ve diff--check PASS. Sohbet sahte ağdır. Son appops RECORD_AUDIO running yok. Yeni wake lock/servis/arka plan mikrofonu yok; gerçek pil ölçülmedi.
 - Sıradaki gerekli cihaz kabulü: ekranı kullanıcı açık tutarken python3 test/yanki_hat_test.py (çıkış0,gerçek mikrofon), sonra --arka-plan. Ardından haber vererek gerçek sesli yankı/kendi-sesinden tetikleme ve kullanıcı çağrısı. Kayıt/çalma eşlemesi doğru ölçülmeden üretim söz kesme entegrasyonuna geçme. Kilit ve sürekli hafif bekleme ayrıca açık.
 - Son kota%6/%45; %80 sınırı korunuyor. Sabah talebinin ardından günün ilerlemesine ilişkin süreklilik iddiası yapılmadı.
+
+
+## 30 Ekim18.22 — devam: cihaz köprüsü kapalı
+- Kullanıcının `..` devamıyla kota %8/%46; CLAUDE ve güncel durum/kalan/test kayıtları okundu.
+- Salt okunur Shizuku/rish ekran/odak sorgusu çıktı1: `Server is not running`. Ekran durumu veya mikrofon erişimi bu tur doğrulanamadı; fiziksel test başlatılmadı. Kullanıcıdan Shizuku'yu başlatıp ekran kilidini açması istendi; rol/izin/ekran ayarı değiştirilmedi.
+- Native kaynak/çıktı SHA256 kontrolü, fiziksel test betiği AST ve git diff--check PASS. Bunlar yeni cihaz/söz kesme kabulü değildir. Uygulama kaynağı ve kurulu APK değişmedi; tekrar derleme/kurulum yapılmadı.
+- Sıradaki adım bağlantı sağlanınca `python3 test/yanki_hat_test.py`, sonra `--arka-plan`. Gerçek yankı/insan çağrısı, tanıyıcı bağlantısı, pil ve kilit kabulü hâlâ açık.

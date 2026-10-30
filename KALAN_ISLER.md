@@ -160,3 +160,10 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [x]16/24/48→16kHz dönüşüm1s=16000örnek/frekans/RMS/boyut-kapatma test1793350603706639412 PASS;filtre24örnek=1.5ms. Aynı APK38 sessiz regresyon geçti.
 - [ ] GERCEK_AEC_HATTI.md fiziksel kayıt/çalma kabulü: ekran-Awake şartı nedeniyle yeni test başlatılmadı; önceki görünürlük kaybı başarı değildir. Kullanıcı ekran açıkken sessiz hattı ve gerçek arka plan bırakmayı denemek gerekli.
 - [ ]16kHz temiz sesin tanıyıcıya bağlanması,kendi-TTS yanlış tetikleme,insan dur/Sezai ve devam isteği,pil/kilit. Henüz üretimde TTS sırasında söz kesme yok.
+
+
+## 30 Ekim18.22 — devam: cihaz köprüsü kapalı
+- Kullanıcının `..` devamıyla kota %8/%46; CLAUDE ve güncel durum/kalan/test kayıtları okundu.
+- Salt okunur Shizuku/rish ekran/odak sorgusu çıktı1: `Server is not running`. Ekran durumu veya mikrofon erişimi bu tur doğrulanamadı; fiziksel test başlatılmadı. Kullanıcıdan Shizuku'yu başlatıp ekran kilidini açması istendi; rol/izin/ekran ayarı değiştirilmedi.
+- Native kaynak/çıktı SHA256 kontrolü, fiziksel test betiği AST ve git diff--check PASS. Bunlar yeni cihaz/söz kesme kabulü değildir. Uygulama kaynağı ve kurulu APK değişmedi; tekrar derleme/kurulum yapılmadı.
+- Sıradaki adım bağlantı sağlanınca `python3 test/yanki_hat_test.py`, sonra `--arka-plan`. Gerçek yankı/insan çağrısı, tanıyıcı bağlantısı, pil ve kilit kabulü hâlâ açık.
