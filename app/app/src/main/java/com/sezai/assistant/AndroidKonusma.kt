@@ -18,6 +18,9 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.
     @Volatile internal var pcmTanisi: ((PcmTaniOlayi) -> Unit)? = null
+    // Yalnız açıkça bağlanan tüketiciye, callback süresinde kullanılmak üzere PCM.
+    // Normal uygulama tüketici bağlamaz; debug hat belleği sınırlayıp diske yazmaz.
+    @Volatile internal var pcmAkisi: ((ByteArray) -> Unit)? = null
     private val gorselNesil = AtomicInteger()
     private val gorselAnaIs = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
@@ -59,7 +62,10 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
                 if (id == konusmaKimligi && pcmTanisi != null) pcmBildir(PcmTaniOlayi(hz, bicim, kanal))
             }
             override fun onAudioAvailable(id: String?, audio: ByteArray?) {
-                if (id == konusmaKimligi && audio != null && pcmTanisi != null) pcmBildir(PcmTaniOlayi(bayt = audio.size))
+                if (id == konusmaKimligi && audio != null && gorselNesil.get() == sira) {
+                    if (pcmTanisi != null) pcmBildir(PcmTaniOlayi(bayt = audio.size))
+                    pcmAkisi?.invoke(audio)
+                }
             }
             override fun onStart(id: String?) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
             override fun onDone(id: String?) {
@@ -97,7 +103,7 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+    override fun kapat() { pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
 }
 
 internal data class PcmTaniOlayi(val hz: Int = 0, val bicim: Int = 0, val kanal: Int = 0, val bayt: Int = 0)

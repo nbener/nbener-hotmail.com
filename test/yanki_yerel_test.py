@@ -28,8 +28,11 @@ try:
             rapor = {}
         if rapor.get('test_id') == kimlik:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
-            if not (rapor.get('sonuc') == 'PASS' and rapor.get('mikrofon_kullanildi') is False
+            if not (rapor.get('sonuc') == 'PASS' and rapor.get('akis_kare_boyutu_ve_kapatma') is True
+                    and rapor.get('mikrofon_kullanildi') is False
                     and rapor.get('gercek_insan_sesi') is False
+                    and 0.75 < rapor.get('akis24_yakin_katsayi', 0) < 1.25
+                    and rapor.get('akis24_artik_azalma_db', 0) > 6
                     and rapor.get('yapay_yanki_azalma_db', 0) > 15
                     and abs(rapor.get('referanssiz_kontrol_db', 2)) < 1
                     and 0.75 < rapor.get('yapay_ikinci_ses_katsayisi', 0) < 1.25

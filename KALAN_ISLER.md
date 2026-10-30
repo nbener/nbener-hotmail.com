@@ -148,3 +148,9 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [x] Debug APK native yükleme ve yapay AEC testi1793310897691974925 PASS;56KB kütüphane,özelRUNPATH yok,lisans/derleme kayıtları APK içinde. Aynı APK38 sessiz regresyon PASS.
 - Derleme ön koşulu: Termux python3 scripts/speex_android_derle.py; sonra proot ./build.sh. preDebugBuild eski/eksik native çıktıyı reddeder.
 - [ ] Gerçek mikrofon/kontrollü AudioTrack referans hattı ve örnekleme/çalma gecikmesi/genlik eşlemesi. JNI yapay başarı gerçek TTS üzerinde kesme değildir; insan çağrısı/yanlış tetikleme/devam isteği/pil/kilit açık.
+
+
+## 30 Ekim05.27 — gerçek hat prototipi/ekran engeli
+- [x] JNI kare/hız/kapatma ve24kHz yapay ikinci sinyal testi1793327159043386594 PASS; aynı APK38 sessiz regresyon geçti.
+- [ ] Ekran-açık gerçek kayıt/çalma/senkron kabulü: ilk1793326719234322710 görünürlük kaybı; cihazDozing. Ön plan testi artık kapalı ekranda başlatılmaz. Arka plan testi gerçek mikrofon/native başlangıcını bekler; son koruma cihazda bekliyor.
+- [ ]24→16kHz ses dönüşümü, çağrı ve devam isteği; gerçek yankı/insan/pil/kilit kabulü. GERCEK_AEC_HATTI.md ayrıntılı kayıt.
