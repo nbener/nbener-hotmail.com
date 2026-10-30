@@ -236,3 +236,11 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - SON APK sessiz çıkış testi1793403731814836418 PASS/HAT_BITTI:627kare/6270ms,100320temiz16kHz örneğin tamamı Vosk'a verildi ve çözümlendi;dur=false,sezai=false. Tanıyıcı CPU545ms,en uzun çağrı83ms;AEC+dönüşüm CPU153ms,underrun1;model/mikrofon/tüm kaynaklar bırakıldı. Bu örnek aktarımı kabulüdür;insan komutu söylendiğine dair teyit yok,çağrı duyma başarısı değildir.
 - SON APK gerçek arka plan testi1793403776341034109 PASS/GORUNURLUK_KAYBI:304kare/3040ms,48640temiz16kHz örneğin tamamı çözümlendi;dur/sezai=false;tanıyıcıCPU380ms,max57ms;model/mikrofon kaynakları bırakıldı. Son appops running yok. Fiziksel kilit/arka plan dinleme testi değildir.
 - Kullanıcıdan insan sesi testine hazır olup olmadığı soruldu. Sıradaki: ekran açıkken sessiz --cagri-tanisi turunda dur ve Sezai söylediğini kullanıcı teyit etsin;ardından duyulur hoparlörde yanlış tetikleme/gerçek çağrı testi. Çalma kesme ve aynı mikrofonla devam isteği daha sonra;üretim/kilit/pil henüz tamamlanmadı. Yeni servis/wake lock yok;CPU enerji ölçümü değildir.
+
+
+## 31.10.2026 02:45 — insan çağrısı denemesi: Sezai bayrağı var, teyit bekliyor
+- `~` devamı,kota%15/%50; kullanıcıya ekran mikrofon-açık yazısını görünce dur,ardından Sezai söylemesi bildirildi. Kaynak/APK değişmedi.
+- Son APK sessiz çıkış/çağrı tanısı1793403862792989753 HAT_BITTI:625kare/6250ms,100000 temiz16kHz örneğin tamamı tanıyıcıya verildi/çözüldü. sezai_duyuldu=true,dur_duyuldu=false,ilk_cagri_ses_ms1400. Bu işlenen ses konumudur,gerçek söz başlangıcından gecikme ölçümü değildir.
+- Tanıyıcı CPU1026ms,max59ms;AEC+dönüşümCPU279ms;mikrofon tepe22936,kırpılan0;model/mikrofon kaynak bırakma true. Son appops running yok. Ham ses/metin dosya-ağ yok;pil ölçülmedi.
+- Kullanıcıya ikisini mi,yalnız Sezai mi,hiçbirini mi söylediği soruldu;henüz yanıt yok. Otomatik Sezai bayrağı tek başına doğrulanmış insan kabulü veya dur başarısı değildir. Kullanıcı ikisini söylediyse bu tur dur kaçırma olarak kaydedilmeli;hiç söylemediyse yanlış tetikleme olarak ayrıştırılmalı. Otomatik çalma kesme bu testte yok.
+- Sıradaki adım kullanıcı teyidine bağlı: hedefleri ayrı sessiz kontrol ve ardından duyulur TTS altında çağrı/yanlış tetikleme. Üretimde söz kesme,takip isteği,kilit/pil açık.
