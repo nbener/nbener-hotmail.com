@@ -22,11 +22,11 @@ if a.kip == 'sessiz': a.genlik = 0.0
 rish = Path(__file__).resolve().parents[2] / 'rish/rish'
 env = dict(os.environ, RISH_APPLICATION_ID='com.termux')
 
-def cihaz(komut):
+def cihaz(komut, iki_akis=False):
     r = subprocess.run(['sh', str(rish), '-c', komut], env=env, text=True,
                        capture_output=True, timeout=20)
     if r.returncode: raise SystemExit('Cihaz komutu başarısız: ' + str(r.returncode))
-    return r.stdout
+    return r.stdout + r.stderr if iki_akis else r.stdout
 
 kimlik = str(time.time_ns())
 ekran_son = time.monotonic() + a.ekran_bekle
@@ -40,7 +40,7 @@ while 'mWakefulness=Awake' not in guc and time.monotonic() < ekran_son:
 if 'mWakefulness=Awake' not in guc:
     raise SystemExit('Ön plan testi başlatılmadı: ekran Awake değil veya durumu doğrulanamadı. Ekran zorla açılmadı.')
 if a.kip == 'yanki':
-    ses = cihaz('cmd media_session volume --stream 11 --get')
+    ses = cihaz('cmd media_session volume --stream 11 --get', iki_akis=True)
     duzey = re.search(r'volume is (\d+) in range \[(\d+)\.\.(\d+)\]', ses)
     if not duzey or int(duzey.group(1)) == 0:
         raise SystemExit('Sesli test başlatılmadı: STREAM_ASSISTANT düzeyi sıfır veya doğrulanamadı. Ses ayarı değiştirilmedi.')
