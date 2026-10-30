@@ -12,11 +12,14 @@ import time
 p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--kip', choices=['sessiz', 'yanki'], default='sessiz')
 p.add_argument('--genlik', type=float, default=0.2)
+p.add_argument('--cikis', choices=['asistan', 'medya'], default='asistan')
+p.add_argument('--referans-gecikme-ms', type=int, default=0)
 p.add_argument('--arka-plan', action='store_true')
 p.add_argument('--ekran-bekle', type=int, default=0, metavar='SANIYE',
                help='Ekranın kullanıcı tarafından açılmasını en çok 60 saniye bekle; ekranı açmaz')
 a = p.parse_args()
 if not 0 <= a.ekran_bekle <= 60: p.error('--ekran-bekle 0 ile 60 arasında olmalı')
+if not 0 <= a.referans_gecikme_ms <= 200: p.error('--referans-gecikme-ms 0 ile 200 arasında olmalı')
 if not 0 <= a.genlik <= 0.3: p.error('--genlik 0 ile 0.3 arasında olmalı')
 if a.kip == 'sessiz': a.genlik = 0.0
 rish = Path(__file__).resolve().parents[2] / 'rish/rish'
@@ -40,14 +43,16 @@ while 'mWakefulness=Awake' not in guc and time.monotonic() < ekran_son:
 if 'mWakefulness=Awake' not in guc:
     raise SystemExit('Ön plan testi başlatılmadı: ekran Awake değil veya durumu doğrulanamadı. Ekran zorla açılmadı.')
 if a.kip == 'yanki':
-    ses = cihaz('cmd media_session volume --stream 11 --get', iki_akis=True)
+    akis = 3 if a.cikis == 'medya' else 11
+    ses = cihaz('cmd media_session volume --stream ' + str(akis) + ' --get', iki_akis=True)
     duzey = re.search(r'volume is (\d+) in range \[(\d+)\.\.(\d+)\]', ses)
     if not duzey or int(duzey.group(1)) == 0:
-        raise SystemExit('Sesli test başlatılmadı: STREAM_ASSISTANT düzeyi sıfır veya doğrulanamadı. Ses ayarı değiştirilmedi.')
-    print('Asistan sistem ses düzeyi:', duzey.group(1), '/', duzey.group(3), flush=True)
+        raise SystemExit('Sesli test başlatılmadı: ' + a.cikis + ' ses düzeyi sıfır veya doğrulanamadı. Ses ayarı değiştirilmedi.')
+    print(a.cikis, 'sistem ses düzeyi:', duzey.group(1), '/', duzey.group(3), flush=True)
 print('Test:', kimlik, a.kip, 'çıkış katsayısı:', a.genlik, flush=True)
 cihaz('am start -W -f 0x18000000 -n com.sezai.assistant/.YankiHatTestActivity --es kip ' + a.kip +
-      ' --es test_id ' + kimlik + ' --ef genlik ' + str(a.genlik))
+      ' --es test_id ' + kimlik + ' --ef genlik ' + str(a.genlik) + ' --es cikis ' + a.cikis +
+      ' --ei referans_gecikme_ms ' + str(a.referans_gecikme_ms))
 dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_' + kimlik + '.json')
 hazir_dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_HAZIR_' + kimlik + '.json')
 try:
@@ -70,6 +75,10 @@ try:
         except (OSError, ValueError): rapor = {}
         if rapor.get('test_id') == kimlik:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
+            if (rapor.get('cikis_turu') != a.cikis
+                    or rapor.get('referans_gecikme_ms') != a.referans_gecikme_ms
+                    or rapor.get('audiotrack_usage') != (1 if a.cikis == 'medya' else 16)):
+                raise SystemExit('İstenen AudioTrack kullanımı doğrulanmadı')
             if not rapor.get('kaynaklar_birakildi') or rapor.get('kisisel_ses_saklandi') is not False:
                 raise SystemExit('Kaynak bırakma/ham ses politikası geçmedi')
             if (rapor.get('korelasyon_ornek', -1) != rapor.get('native_kare', 0) * 30

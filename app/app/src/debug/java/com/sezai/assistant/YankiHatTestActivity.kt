@@ -36,6 +36,8 @@ class YankiHatTestActivity : Activity() {
     private var bicim = 0
     private var kanal = 0
     private var genlik = 0f
+    private var cikisKullanimi = AudioAttributes.USAGE_ASSISTANT
+    private var referansGecikmeMs = 0
     private var calisan = false
     private var bitis = ""
     private var tts: AndroidKonusma? = null
@@ -47,13 +49,19 @@ class YankiHatTestActivity : Activity() {
     override fun onCreate(state: Bundle?) {
         super.onCreate(state)
         val kip = intent.getStringExtra("kip") ?: "sessiz"
+        val cikisTuru = intent.getStringExtra("cikis") ?: "asistan"
+        referansGecikmeMs = intent.getIntExtra("referans_gecikme_ms", 0)
+        cikisKullanimi = if (cikisTuru == "medya") AudioAttributes.USAGE_MEDIA else AudioAttributes.USAGE_ASSISTANT
         genlik = if (kip == "sessiz") 0f else intent.getFloatExtra("genlik", 0.2f)
         rapor.put("test_id", intent.getStringExtra("test_id") ?: "elle").put("kip", kip)
+            .put("cikis_turu", cikisTuru)
+            .put("referans_gecikme_ms", referansGecikmeMs)
             .put("cikis_genlik", if (genlik.isFinite()) genlik.toDouble() else JSONObject.NULL).put("kisisel_ses_saklandi", false)
         yazi = TextView(this).apply { text = "Referanslı ses hattı hazırlanıyor…"; textSize = 18f }
         setContentView(yazi)
         if (state != null) { bitir("YENIDEN_OLUSTURULDU"); return }
-        if (kip !in setOf("sessiz", "yanki") || !genlik.isFinite() || genlik !in 0f..0.3f) {
+        if (kip !in setOf("sessiz", "yanki") || cikisTuru !in setOf("asistan", "medya") ||
+            referansGecikmeMs !in 0..200 || !genlik.isFinite() || genlik !in 0f..0.3f) {
             bitir("GECERSIZ_KIP_GENLIK"); return
         }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -133,7 +141,7 @@ class YankiHatTestActivity : Activity() {
             mikrofon = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, hz,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(recMin * 2, kare * 8))
             hoparlor = AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_ASSISTANT).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
+                .setUsage(cikisKullanimi).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
                 .setAudioFormat(AudioFormat.Builder().setSampleRate(hz).setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
                     .setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
                 .setBufferSizeInBytes(maxOf(outMin * 2, kare * 8)).setTransferMode(AudioTrack.MODE_STREAM).build()
@@ -149,6 +157,7 @@ class YankiHatTestActivity : Activity() {
                 track.play()
             }
             olcum.put("mikrofon_basladi", true).put("audiotrack_basladi", true)
+                .put("audiotrack_usage", track.audioAttributes.usage)
                 .put("kayit_hz", rec.sampleRate).put("kayit_kaynagi", rec.audioSource)
             rec.routedDevice?.let { olcum.put("giris_cihaz_turu", it.type) }
             yazici = Thread({
@@ -182,7 +191,8 @@ class YankiHatTestActivity : Activity() {
                 ref.fill(0)
                 if (rec.getTimestamp(recTs, AudioTimestamp.TIMEBASE_MONOTONIC) == AudioRecord.SUCCESS && track.getTimestamp(trackTs)) {
                     val yakalamaNs = recTs.nanoTime + (okunan - recTs.framePosition) * 1000000000L / hz
-                    val konum = trackTs.framePosition + (yakalamaNs - trackTs.nanoTime) * hz / 1000000000L
+                    val konum = trackTs.framePosition + (yakalamaNs - trackTs.nanoTime) * hz / 1000000000L -
+                        referansGecikmeMs * hz / 1000L
                     if (konum >= 0 && konum + kare <= pcmSayisi) {
                         pcm.copyInto(ref, 0, konum.toInt(), konum.toInt() + kare)
                         eslesen++
