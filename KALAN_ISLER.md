@@ -172,3 +172,9 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 ## 30.10.2026 19:34 — bağlantı yeniden kontrolü
 - `..` devamı: kota %3/%46. rish yeniden `Server is not running`/çıkış1 verdi. Alternatif yerel `adb devices -l` kontrolünde daemon başlatıldı ancak bağlı cihaz listesi boş; kullanılabilir ikinci köprü bulunamadı. Eşleştirme/debug ayarı değiştirilmedi.
 - Gerçek mikrofon testi başlatılmadı; kaynak/APK değişmedi. Devam için Shizuku kullanıcı tarafından başlatılmalı; ardından ekran açıkken mevcut sessiz hat testi çalıştırılacak.
+
+
+## 30.10.2026 19:36 — köprü açıldı, ekran kabulü bekliyor
+- `..` devamı kota %3/%46. Shizuku salt okunur sorgusu başarılı ve ilk mWakefulness=Awake; ardından gerçek hat betiğinin iki ayrı ön kontrolü Awake doğrulayamadı/çıkış1. Activity ve mikrofon başlatılmadı; ekran zorla açılmadı. Kullanıcıdan ekranı açık tutması istendi.
+- Kurulu APK mikrofonsuz JNI testi1793378114545628221 PASS: yapay yankı58.1672228dB,24kHz ikinci sinyal0.96213916;16/24/48→16kHz her biri16000örnek,1000Hz,gecikme24örnek. Gerçek insan/yankı/pil kabulü değildir. Kaynak/APK değişmedi.
+- Sıradaki: kullanıcı ekranı açık tuttuğunda sessiz fiziksel hat, sonra arka plan kaynak bırakma. Üretim söz kesme hâlâ tamamlanmadı.
