@@ -154,3 +154,9 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - [x] JNI kare/hız/kapatma ve24kHz yapay ikinci sinyal testi1793327159043386594 PASS; aynı APK38 sessiz regresyon geçti.
 - [ ] Ekran-açık gerçek kayıt/çalma/senkron kabulü: ilk1793326719234322710 görünürlük kaybı; cihazDozing. Ön plan testi artık kapalı ekranda başlatılmaz. Arka plan testi gerçek mikrofon/native başlangıcını bekler; son koruma cihazda bekliyor.
 - [ ]24→16kHz ses dönüşümü, çağrı ve devam isteği; gerçek yankı/insan/pil/kilit kabulü. GERCEK_AEC_HATTI.md ayrıntılı kayıt.
+
+
+## 30 Ekim11.58 — son kurulu kaynak
+- [x]16/24/48→16kHz dönüşüm1s=16000örnek/frekans/RMS/boyut-kapatma test1793350603706639412 PASS;filtre24örnek=1.5ms. Aynı APK38 sessiz regresyon geçti.
+- [ ] GERCEK_AEC_HATTI.md fiziksel kayıt/çalma kabulü: ekran-Awake şartı nedeniyle yeni test başlatılmadı; önceki görünürlük kaybı başarı değildir. Kullanıcı ekran açıkken sessiz hattı ve gerçek arka plan bırakmayı denemek gerekli.
+- [ ]16kHz temiz sesin tanıyıcıya bağlanması,kendi-TTS yanlış tetikleme,insan dur/Sezai ve devam isteği,pil/kilit. Henüz üretimde TTS sırasında söz kesme yok.

@@ -28,3 +28,7 @@ Kayıt/çalma en çok12s, dış watchdog15s; hazırlık30s. Odak/görüşme/gör
 Sonraki adımlar: gerçek ekran-açık sessiz hat kabulü, fiziksel referans/çalma gecikmesi kontrolü,24→16kHz dönüşüm ve çağrı tanıma. Üretimde TTS sırasında dinleme/söz kesme ve kilit desteği tamamlanmadı. Yeni servis veya wake lock eklenmedi; pil ölçülmedi.
 
 API dayanakları: [AudioRecord timestamp](https://developer.android.com/reference/android/media/AudioRecord#getTimestamp(android.media.AudioTimestamp,%20int)), [AudioTrack timestamp ve write](https://developer.android.com/reference/android/media/AudioTrack).
+
+
+##16kHz dönüşüm aşaması
+Son APK testi1793350603706639412:16/24/48kHz girişlerin her1s için16000 örneğe dönüşümü,1000Hz/RMS ve hatalı tampon-kapatma kabulü geçti. Speex quality3,gecikme24çıkışörneği(1.5ms);skip_zeros yok. Debug fiziksel hatta dönüşüm kodu var,tanıyıcı tüketicisi yok. Fiziksel hat hâlâ ekran-Awake engeli nedeniyle doğrulanmadı. Son38 sessiz regresyon geçti.

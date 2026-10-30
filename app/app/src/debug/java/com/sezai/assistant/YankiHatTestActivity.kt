@@ -123,6 +123,7 @@ class YankiHatTestActivity : Activity() {
         var kareSayisi = 0
         var cpuNs = 0L
         var okunan = 0L
+        var tanimaOrnek = 0L
         try {
             val kare = hz / 100
             val recMin = AudioRecord.getMinBufferSize(hz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -164,6 +165,8 @@ class YankiHatTestActivity : Activity() {
             val mic = ShortArray(kare)
             val ref = ShortArray(kare)
             val temiz = ShortArray(kare)
+            val tanima16 = ShortArray(160)
+            olcum.put("ornekleme_gecikme16", aec.orneklemeGecikmesi())
             val recTs = AudioTimestamp()
             val trackTs = AudioTimestamp()
             val bas = SystemClock.elapsedRealtime()
@@ -186,6 +189,7 @@ class YankiHatTestActivity : Activity() {
                 } else zamanYok++
                 val once = Debug.threadCpuTimeNanos()
                 aec.isle(mic, ref, temiz)
+                tanimaOrnek += aec.donustur(temiz, tanima16)
                 cpuNs += Debug.threadCpuTimeNanos() - once
                 for (i in 0 until kare) {
                     girisEnerji += mic[i].toDouble() * mic[i]
@@ -206,6 +210,7 @@ class YankiHatTestActivity : Activity() {
                 .put("aec_thread_cpu_ms", cpuNs / 1000000).put("yazma_bitti", yazmaBitti.get())
                 .put("calinan_ornek", track.playbackHeadPosition.toLong() and 0xffffffffL)
                 .put("cikis_underrun", track.underrunCount)
+                .put("tanima16_ornek", tanimaOrnek)
             if (!yazmaBitti.get() || (track.playbackHeadPosition.toLong() and 0xffffffffL) < pcmSayisi) sonuc = "SURE_DOLDU"
             track.routedDevice?.let { olcum.put("cikis_cihaz_turu", it.type) }
             if (girisEnerji > 0 && cikisEnerji > 0) olcum.put("toplam_enerji_farki_db", 10 * log10(girisEnerji / cikisEnerji))

@@ -28,6 +28,13 @@ try:
             rapor = {}
         if rapor.get('test_id') == kimlik:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
+            donusum = rapor.get('ornekleme', [])
+            if len(donusum) != 3 or {s.get('giris_hz') for s in donusum} != {16000, 24000, 48000}:
+                raise SystemExit('Örnekleme hızları doğrulanmadı')
+            if any(s.get('cikis_hz') != 16000 or s.get('toplam_ornek') != 16000
+                   or abs(s.get('frekans_hz', 0) - 1000) >= 5 or not 6300 <= s.get('rms', 0) <= 7800
+                   for s in donusum):
+                raise SystemExit('Örnekleme süre/frekans/genlik kabulü geçmedi')
             if not (rapor.get('sonuc') == 'PASS' and rapor.get('akis_kare_boyutu_ve_kapatma') is True
                     and rapor.get('mikrofon_kullanildi') is False
                     and rapor.get('gercek_insan_sesi') is False

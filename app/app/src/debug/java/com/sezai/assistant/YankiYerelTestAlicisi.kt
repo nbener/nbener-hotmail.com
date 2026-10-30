@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import org.json.JSONObject
+import org.json.JSONArray
 import kotlin.math.abs
 
 // DUMP ile korunan mikrofonsuz JNI yükleme ve yapay AEC kabul testi.
@@ -34,8 +35,11 @@ class YankiYerelTestAlicisi : BroadcastReceiver() {
             try { YankiOturumu(0) } catch (_: IllegalArgumentException) { hizReddi = true }
             check(hizReddi)
             val akis = YankiAkisDeneyi.dene()
-            check(akis.all { it.isFinite() } && akis[0] > 0.75 && akis[0] < 1.25 && akis[1] > 6)
             rapor.put("akis24_yakin_katsayi", akis[0]).put("akis24_artik_azalma_db", akis[1])
+            check(akis.all { it.isFinite() } && akis[0] > 0.75 && akis[0] < 1.25 && akis[1] > 6)
+            val ornekleme = JSONArray()
+            rapor.put("ornekleme", ornekleme)
+            SesOrneklemeDeneyi.dene(ornekleme)
             rapor.put("akis_kare_boyutu_ve_kapatma", true)
             rapor.put("yapay_yanki_azalma_db", d[0]).put("referanssiz_kontrol_db", d[1])
                 .put("yapay_ikinci_ses_katsayisi", d[2]).put("birlikte_artik_azalma_db", d[3])
