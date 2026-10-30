@@ -3,6 +3,7 @@
 import argparse
 import json
 import os
+import re
 from pathlib import Path
 import shlex
 import subprocess
@@ -12,7 +13,10 @@ p = argparse.ArgumentParser(description=__doc__)
 p.add_argument('--kip', choices=['sessiz', 'yanki'], default='sessiz')
 p.add_argument('--genlik', type=float, default=0.2)
 p.add_argument('--arka-plan', action='store_true')
+p.add_argument('--ekran-bekle', type=int, default=0, metavar='SANIYE',
+               help='Ekranın kullanıcı tarafından açılmasını en çok 60 saniye bekle; ekranı açmaz')
 a = p.parse_args()
+if not 0 <= a.ekran_bekle <= 60: p.error('--ekran-bekle 0 ile 60 arasında olmalı')
 if not 0 <= a.genlik <= 0.3: p.error('--genlik 0 ile 0.3 arasında olmalı')
 if a.kip == 'sessiz': a.genlik = 0.0
 rish = Path(__file__).resolve().parents[2] / 'rish/rish'
@@ -25,9 +29,22 @@ def cihaz(komut):
     return r.stdout
 
 kimlik = str(time.time_ns())
+ekran_son = time.monotonic() + a.ekran_bekle
+if a.ekran_bekle:
+    print('Ekranın açılması bekleniyor (en çok', a.ekran_bekle, 'saniye). Ekran zorla açılmaz.', flush=True)
 guc = cihaz('dumpsys power | grep mWakefulness=')
+while 'mWakefulness=Awake' not in guc and time.monotonic() < ekran_son:
+    time.sleep(min(1, max(0, ekran_son - time.monotonic())))
+    if time.monotonic() >= ekran_son: break
+    guc = cihaz('dumpsys power | grep mWakefulness=')
 if 'mWakefulness=Awake' not in guc:
     raise SystemExit('Ön plan testi başlatılmadı: ekran Awake değil veya durumu doğrulanamadı. Ekran zorla açılmadı.')
+if a.kip == 'yanki':
+    ses = cihaz('cmd media_session volume --stream 11 --get')
+    duzey = re.search(r'volume is (\d+) in range \[(\d+)\.\.(\d+)\]', ses)
+    if not duzey or int(duzey.group(1)) == 0:
+        raise SystemExit('Sesli test başlatılmadı: STREAM_ASSISTANT düzeyi sıfır veya doğrulanamadı. Ses ayarı değiştirilmedi.')
+    print('Asistan sistem ses düzeyi:', duzey.group(1), '/', duzey.group(3), flush=True)
 print('Test:', kimlik, a.kip, 'çıkış katsayısı:', a.genlik, flush=True)
 cihaz('am start -W -f 0x18000000 -n com.sezai.assistant/.YankiHatTestActivity --es kip ' + a.kip +
       ' --es test_id ' + kimlik + ' --ef genlik ' + str(a.genlik))
