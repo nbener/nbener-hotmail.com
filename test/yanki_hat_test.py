@@ -55,6 +55,10 @@ try:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
             if not rapor.get('kaynaklar_birakildi') or rapor.get('kisisel_ses_saklandi') is not False:
                 raise SystemExit('Kaynak bırakma/ham ses politikası geçmedi')
+            if (rapor.get('korelasyon_ornek', -1) != rapor.get('native_kare', 0) * 30
+                    or not 0 <= rapor.get('mikrofon_tepe', -1) <= 32768
+                    or rapor.get('mikrofon_kirpilan_ornek', -1) < 0):
+                raise SystemExit('Gecikme tanısı/tepe ölçümü eksik veya kare sayısıyla uyumsuz')
             if a.arka_plan:
                 if not (rapor.get('sonuc') == 'GORUNURLUK_KAYBI' and rapor.get('mikrofon_basladi')
                         and rapor.get('native_kare', 0) > 0): raise SystemExit('Gerçek kayıt sonrası arka plan kesintisi doğrulanmadı')

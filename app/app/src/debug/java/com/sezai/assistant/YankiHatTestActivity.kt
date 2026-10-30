@@ -116,6 +116,7 @@ class YankiHatTestActivity : Activity() {
         val yazmaBitti = AtomicBoolean(false)
         var sonuc = "HAT_BITTI"
         val olcum = JSONObject()
+        val gecikmeTanisi = YankiGecikmeOlcumu()
         var girisEnerji = 0.0
         var cikisEnerji = 0.0
         var eslesen = 0
@@ -187,6 +188,7 @@ class YankiHatTestActivity : Activity() {
                         eslesen++
                     }
                 } else zamanYok++
+                gecikmeTanisi.ekle(mic, ref)
                 val once = Debug.threadCpuTimeNanos()
                 aec.isle(mic, ref, temiz)
                 tanimaOrnek += aec.donustur(temiz, tanima16)
@@ -227,6 +229,8 @@ class YankiHatTestActivity : Activity() {
             val yaziciDurdu = yazici?.isAlive != true
             if (yaziciDurdu) hoparlor?.release()
             mikrofon?.release(); aec?.close()
+            val gecikme = gecikmeTanisi.bitir()
+            for (ad in gecikme.keys()) olcum.put(ad, gecikme.get(ad))
             synchronized(pcmKilidi) { if (yaziciDurdu) pcm.fill(0) }
             olcum.put("kaynaklar_birakildi", yaziciDurdu)
             val son = sonuc

@@ -13,6 +13,7 @@ class YankiYerelTestAlicisi : BroadcastReceiver() {
         val rapor = JSONObject().put("test_id", intent.getStringExtra("test_id"))
             .put("mikrofon_kullanildi", false).put("gercek_insan_sesi", false)
         try {
+            rapor.put("gecikme_tanisi_testi", YankiGecikmeOlcumu.dene())
             val d = YankiYerel.yapayOlc()
             check(d.size == 5 && d.all { it.isFinite() })
             check(d[0] > 15 && abs(d[1]) < 1 && d[2] > 0.75 && d[2] < 1.25 && d[3] > 6)

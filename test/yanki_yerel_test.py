@@ -36,6 +36,7 @@ try:
                    for s in donusum):
                 raise SystemExit('Örnekleme süre/frekans/genlik kabulü geçmedi')
             if not (rapor.get('sonuc') == 'PASS' and rapor.get('akis_kare_boyutu_ve_kapatma') is True
+                    and rapor.get('gecikme_tanisi_testi') is True
                     and rapor.get('mikrofon_kullanildi') is False
                     and rapor.get('gercek_insan_sesi') is False
                     and 0.75 < rapor.get('akis24_yakin_katsayi', 0) < 1.25
