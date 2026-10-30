@@ -16,6 +16,7 @@ import android.os.Looper
 import android.os.SystemClock
 import android.widget.TextView
 import org.json.JSONObject
+import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.log10
@@ -121,6 +122,7 @@ class YankiHatTestActivity : Activity() {
         var hoparlor: AudioTrack? = null
         var aec: YankiOturumu? = null
         var yazici: Thread? = null
+        var cagriTanisi: YankiCagriTanisi? = null
         val yazmaBitti = AtomicBoolean(false)
         var sonuc = "HAT_BITTI"
         val olcum = JSONObject()
@@ -134,6 +136,9 @@ class YankiHatTestActivity : Activity() {
         var okunan = 0L
         var tanimaOrnek = 0L
         try {
+            if (intent.getBooleanExtra("cagri_tanisi", false)) {
+                cagriTanisi = YankiCagriTanisi(File(filesDir, "vosk-model-small-tr-0.3"))
+            }
             val kare = hz / 100
             val recMin = AudioRecord.getMinBufferSize(hz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
             val outMin = AudioTrack.getMinBufferSize(hz, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -201,8 +206,10 @@ class YankiHatTestActivity : Activity() {
                 gecikmeTanisi.ekle(mic, ref)
                 val once = Debug.threadCpuTimeNanos()
                 aec.isle(mic, ref, temiz)
-                tanimaOrnek += aec.donustur(temiz, tanima16)
+                val tanimaAdet = aec.donustur(temiz, tanima16)
+                tanimaOrnek += tanimaAdet
                 cpuNs += Debug.threadCpuTimeNanos() - once
+                cagriTanisi?.ekle(tanima16, tanimaAdet)
                 for (i in 0 until kare) {
                     girisEnerji += mic[i].toDouble() * mic[i]
                     cikisEnerji += temiz[i].toDouble() * temiz[i]
@@ -217,6 +224,7 @@ class YankiHatTestActivity : Activity() {
                 if (yazmaBitti.get() && (track.playbackHeadPosition.toLong() and 0xffffffffL) >= pcmSayisi &&
                     SystemClock.elapsedRealtime() - bas > pcmSayisi * 1000L / hz + 300) break
             }
+            cagriTanisi?.tamamla()
             olcum.put("native_kare", kareSayisi).put("zaman_eslesen_kare", eslesen)
                 .put("zaman_yok_kare", zamanYok).put("kayit_ses_ms", okunan * 1000 / hz)
                 .put("aec_thread_cpu_ms", cpuNs / 1000000).put("yazma_bitti", yazmaBitti.get())
@@ -239,6 +247,10 @@ class YankiHatTestActivity : Activity() {
             val yaziciDurdu = yazici?.isAlive != true
             if (yaziciDurdu) hoparlor?.release()
             mikrofon?.release(); aec?.close()
+            cagriTanisi?.let {
+                it.close()
+                olcum.put("cagri_tanisi", it.rapor())
+            }
             val gecikme = gecikmeTanisi.bitir()
             for (ad in gecikme.keys()) olcum.put(ad, gecikme.get(ad))
             synchronized(pcmKilidi) { if (yaziciDurdu) pcm.fill(0) }

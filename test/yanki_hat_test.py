@@ -14,6 +14,7 @@ p.add_argument('--kip', choices=['sessiz', 'yanki'], default='sessiz')
 p.add_argument('--genlik', type=float, default=0.2)
 p.add_argument('--cikis', choices=['asistan', 'medya'], default='asistan')
 p.add_argument('--referans-gecikme-ms', type=int, default=0)
+p.add_argument('--cagri-tanisi', action='store_true', help='Temiz16kHz seste dur/Sezai bayrakları; çalmayı kesmez')
 p.add_argument('--arka-plan', action='store_true')
 p.add_argument('--ekran-bekle', type=int, default=0, metavar='SANIYE',
                help='Ekranın kullanıcı tarafından açılmasını en çok 60 saniye bekle; ekranı açmaz')
@@ -52,7 +53,8 @@ if a.kip == 'yanki':
 print('Test:', kimlik, a.kip, 'çıkış katsayısı:', a.genlik, flush=True)
 cihaz('am start -W -f 0x18000000 -n com.sezai.assistant/.YankiHatTestActivity --es kip ' + a.kip +
       ' --es test_id ' + kimlik + ' --ef genlik ' + str(a.genlik) + ' --es cikis ' + a.cikis +
-      ' --ei referans_gecikme_ms ' + str(a.referans_gecikme_ms))
+      ' --ei referans_gecikme_ms ' + str(a.referans_gecikme_ms) +
+      ' --ez cagri_tanisi ' + str(a.cagri_tanisi).lower())
 dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_' + kimlik + '.json')
 hazir_dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_HAZIR_' + kimlik + '.json')
 try:
@@ -75,6 +77,13 @@ try:
         except (OSError, ValueError): rapor = {}
         if rapor.get('test_id') == kimlik:
             print(json.dumps(rapor, ensure_ascii=False, indent=2))
+            if a.cagri_tanisi:
+                tani = rapor.get('cagri_tanisi', {})
+                if not (tani.get('tanici_birakildi') is True and tani.get('tanici_ornek', 0) > 0
+                        and tani.get('tanici_ornek') == rapor.get('tanima16_ornek')
+                        and tani.get('cozumlenen_ornek') == tani.get('tanici_ornek')
+                        and type(tani.get('dur_duyuldu')) is bool and type(tani.get('sezai_duyuldu')) is bool):
+                    raise SystemExit('Temiz ses/tanıyıcı aktarımı doğrulanmadı')
             if (rapor.get('cikis_turu') != a.cikis
                     or rapor.get('referans_gecikme_ms') != a.referans_gecikme_ms
                     or rapor.get('audiotrack_usage') != (1 if a.cikis == 'medya' else 16)):
