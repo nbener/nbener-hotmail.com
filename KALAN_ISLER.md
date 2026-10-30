@@ -178,3 +178,12 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - `..` devamı kota %3/%46. Shizuku salt okunur sorgusu başarılı ve ilk mWakefulness=Awake; ardından gerçek hat betiğinin iki ayrı ön kontrolü Awake doğrulayamadı/çıkış1. Activity ve mikrofon başlatılmadı; ekran zorla açılmadı. Kullanıcıdan ekranı açık tutması istendi.
 - Kurulu APK mikrofonsuz JNI testi1793378114545628221 PASS: yapay yankı58.1672228dB,24kHz ikinci sinyal0.96213916;16/24/48→16kHz her biri16000örnek,1000Hz,gecikme24örnek. Gerçek insan/yankı/pil kabulü değildir. Kaynak/APK değişmedi.
 - Sıradaki: kullanıcı ekranı açık tuttuğunda sessiz fiziksel hat, sonra arka plan kaynak bırakma. Üretim söz kesme hâlâ tamamlanmadı.
+
+
+## 30.10.2026 19:38 — ilk fiziksel sessiz hat ve arka plan kabulü
+- `~` devamı, kota %4/%47. Kaynak/APK değişmedi; mevcut kurulu APK cihazda sınandı.
+- Sessiz çıkış test1793378262048081498 PASS/HAT_BITTI: gerçek mikrofon24kHz,629kare=6290ms;611 zaman eşleşmesi,zaman damgası yok0;144025 örnek tam çalındı (dijital genlik0),100640 temiz16kHz örnek üretildi. Native AEC+dönüşüm thread CPU359ms; çıkış underrun1. Kaynaklar bırakıldı,ham ses saklanmadı. Bu referans konumu hesaplaması/hat kabulüdür; gerçek akustik gecikme ve yankı giderme kanıtı değildir.
+- Arka plan test1793378288002596696 PASS/GORUNURLUK_KAYBI: gerçek mikrofon232kare=2320ms başladıktan sonra Home gönderildi;225 zaman eşleşmesi,37120 temiz16kHz örnek; kaynaklar bırakıldı. Fiziksel kilit veya arka plan dinleme desteği testi değildir.
+- Kullanıcıya haber verilerek istenen yanki/genlik0.2 testi Awake ön koşulunu sağlayamadı/çıkış1; Activity/mikrofon/işitilir çalma başlamadı. Son appops RECORD_AUDIO çıktısında running yok. Ekran/izin/rol değiştirilmedi.
+- Sessiz mod enerji farkı19.822dB, arka plan turu3.064dB: çıkış0 olduğundan bunlar hoparlör yankı giderme başarısı sayılamaz. CPU süreleri enerji/pil ölçümü değildir.
+- Sonraki: ekran açıkken sesli referans/gecikme ve kendi-ses sızıntısını ölçmek; sonra16kHz temiz sesi tanıyıcıya bağlamak. İnsan dur/Sezai,ilk kelimeler/bağlam,pil/kilit ve üretim entegrasyonu hâlâ açık.

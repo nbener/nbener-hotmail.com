@@ -32,3 +32,12 @@ API dayanakları: [AudioRecord timestamp](https://developer.android.com/referenc
 
 ##16kHz dönüşüm aşaması
 Son APK testi1793350603706639412:16/24/48kHz girişlerin her1s için16000 örneğe dönüşümü,1000Hz/RMS ve hatalı tampon-kapatma kabulü geçti. Speex quality3,gecikme24çıkışörneği(1.5ms);skip_zeros yok. Debug fiziksel hatta dönüşüm kodu var,tanıyıcı tüketicisi yok. Fiziksel hat hâlâ ekran-Awake engeli nedeniyle doğrulanmadı. Son38 sessiz regresyon geçti.
+
+
+## 30.10.2026 19:38 — ilk fiziksel sessiz hat ve arka plan kabulü
+- `~` devamı, kota %4/%47. Kaynak/APK değişmedi; mevcut kurulu APK cihazda sınandı.
+- Sessiz çıkış test1793378262048081498 PASS/HAT_BITTI: gerçek mikrofon24kHz,629kare=6290ms;611 zaman eşleşmesi,zaman damgası yok0;144025 örnek tam çalındı (dijital genlik0),100640 temiz16kHz örnek üretildi. Native AEC+dönüşüm thread CPU359ms; çıkış underrun1. Kaynaklar bırakıldı,ham ses saklanmadı. Bu referans konumu hesaplaması/hat kabulüdür; gerçek akustik gecikme ve yankı giderme kanıtı değildir.
+- Arka plan test1793378288002596696 PASS/GORUNURLUK_KAYBI: gerçek mikrofon232kare=2320ms başladıktan sonra Home gönderildi;225 zaman eşleşmesi,37120 temiz16kHz örnek; kaynaklar bırakıldı. Fiziksel kilit veya arka plan dinleme desteği testi değildir.
+- Kullanıcıya haber verilerek istenen yanki/genlik0.2 testi Awake ön koşulunu sağlayamadı/çıkış1; Activity/mikrofon/işitilir çalma başlamadı. Son appops RECORD_AUDIO çıktısında running yok. Ekran/izin/rol değiştirilmedi.
+- Sessiz mod enerji farkı19.822dB, arka plan turu3.064dB: çıkış0 olduğundan bunlar hoparlör yankı giderme başarısı sayılamaz. CPU süreleri enerji/pil ölçümü değildir.
+- Sonraki: ekran açıkken sesli referans/gecikme ve kendi-ses sızıntısını ölçmek; sonra16kHz temiz sesi tanıyıcıya bağlamak. İnsan dur/Sezai,ilk kelimeler/bağlam,pil/kilit ve üretim entegrasyonu hâlâ açık.
