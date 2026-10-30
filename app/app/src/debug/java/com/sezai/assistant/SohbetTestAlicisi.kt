@@ -27,6 +27,29 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                 catch (_: Exception) { rapor.add("FAIL $ad") }
             }
             try {
+                kontrol("Döküm önceki turları sırayla ve çift halinde koruyor") {
+                    val d = SohbetDokumu()
+                    d.ekle("Kayseri", "Bir şehir.")
+                    d.ekle("Konumu?", "İç Anadolu.")
+                    check(d.metin() == "Siz: Kayseri\n\nSezai: Bir şehir.\n\n────────\n\nSiz: Konumu?\n\nSezai: İç Anadolu.")
+                }
+                kontrol("Döküm büyüyünce eski turu bütünüyle bırakıyor") {
+                    val d = SohbetDokumu()
+                    d.ekle("ESKI_SORU", "ESKI_YANIT")
+                    repeat(12) { d.ekle("soru$it", "yanıt$it") }
+                    check(!d.metin().contains("ESKI_"))
+                    check(d.metin().contains("soru11") && d.metin().contains("yanıt11"))
+                    d.ekle("x".repeat(40000), "y".repeat(40000))
+                    check(d.metin().length < 32500 && d.metin().contains("…"))
+                    check(!d.metin().contains("soru11"))
+                }
+                kontrol("Yeni sohbet dökümü temizliyor, oturumlar ayrı kalıyor") {
+                    val d = SohbetDokumu()
+                    d.ekle("Özel deneme", "Yanıt")
+                    check(SohbetDokumu().metin().isEmpty())
+                    d.temizle()
+                    check(d.metin().isEmpty())
+                }
                 kasa.sil()
                 kontrol("Anahtar yokken ağ isteği yapılmıyor") {
                     val adet = AtomicInteger()

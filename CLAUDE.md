@@ -106,3 +106,7 @@ Henüz kod yazma. Önce şunu yap:
 - Söz alma ölçümleri, başarısız cihaz denemesi ve motor önerisi SOZ_KESME_TASARIMI.md içindedir; Claude/Anthropic ve Codex aynı kaydı kullanır. TTS sırasında söz kesme henüz çalışmıyor.
 
 - Kullanıcının sonraki `~` devam komutu, sunulan Vosk sınırlı denemesine onay olarak alındı. Model/debug bağımlılık denemesi yapılabilir; varsayılan motoru değiştirme kararı gerçek Türkçe/yankı/pil kabulünden sonra ayrıca verilir.
+
+
+## Rutin işlerde devam tercihi — 31 Ekim 2026
+- Kullanıcı “her zaman yes” dedi: yetkilendirilmiş kapsam içindeki rutin geliştirme,derleme,kurulum ve doğrulamada tekrar tekrar onay istemeden ilerle. Bu tercih Android'in zorunlu kullanıcı izinlerini veya araç onaylarını atlatma anlamına gelmez; veri silme gibi ayrıca açık onay gerektiren işlemlerde mevcut kurallar geçerlidir.

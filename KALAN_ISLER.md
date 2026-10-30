@@ -31,7 +31,7 @@ Her çalışma başlangıcında CLAUDE.md, DURUM.md ve TEST_DURUMU.md okunur. Ta
 - Şimdiki API istekleri son 4 turu yeniden taşır. Verimlilik için aktif konu + kısa özet + yakın mesajlar değerlendirilmeli; yanlış özet ve belirsiz göndermeler için test gerekir. Henüz uygulanmadı.
 - Sunucu yanıt kimliği her sağlayıcıda aynı değil. OpenAI zincirde önceki tokenları yine ücretlendirir; Groq belgesinde previous_response_id desteklenmiyor. store=false izinsiz değiştirilmemeli.
 - Telefon/WhatsApp kesintileri gerçek çağrıyla denenmedi. Ses odağı ve Android 12+ ses modu olayları kullanılacak; eski Android sürümlerinin olay desteği daha sınırlı.
-- Tek cevap ekranı bütün konuşmayı göstermiyor; kaydırılabilir konuşma dökümü ve uzun metin düzeni ayrıca iyileştirilecek.
+- Konuşma geçmişi düğmesiyle kaydırılabilir oturum dökümü eklendi (31 Ekim). Ana kart hâlâ son yanıtı gösterir; tüm turları doğrudan ana sohbet akışında gösterme ve uzun metin yerleşimi ayrıca açık. Dökümün gerçek pencere/görsel kabulü bekliyor.
 - Tıklayarak APK kurulumu güvenilir değil; yapılandırılmış Shizuku/rish kurulumu çalışıyor. Yeniden başlatmada Shizuku bağlantısını kontrol et.
 - Disk dar; yeni büyük model/paket indirmeden önce boş alanı ölç.
 
@@ -251,3 +251,13 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - Kullanıcı testi saat10.00'da tekrarlamak istedi. Yerel tarih31.10.2026,saat02.48 Europe/Istanbul;plan bugün10.00. O zamana kadar insan sesi/hoparlör denemesi yapılmayacak.
 - Kullanılabilir araçlarda bağımsız hatırlatıcı/ajanı saatinde başlatan zamanlayıcı bulunmadı;takvim etkinliği oluşturulmadı,otomatik mikrofon/çalma başlatılmayacak. Kullanıcı10.00'da yazınca önce sessiz çıkışta normal konuşma düzeyinde ayrı dur/Sezai kontrolü yapılacak.
 - Kaynak/APK değişmedi;yeni ses testi yapılmadı. Üretim söz kesme,pil/kilit hâlâ açık.
+
+
+## 31.10.2026 02:55 — diğer istekler: oturum konuşma geçmişi
+- Kullanıcı diğer isteklerle devam edip MD okumamı istedi;CLAUDE,DURUM,KALAN_ISLER,TEST_DURUMU incelendi. Gece insan/hoparlör testi10.00'a kadar beklemede. Kullanıcı “her zaman yes” rutin onayları tekrar istememe tercihi verdi;CLAUDE.md'ye kapsamı ve zorunlu araç/Android izinlerini atlamama sınırıyla kaydedildi. Kullanıcı karşılıklı sohbetin buradaki yazışma gibi olmasını teyit etti.
+- Yedek yedek/sohbet-dokumu-oncesi-20261031.tar.gz ve CLAUDE-her-zaman-yes-oncesi-20261031.md. Yeni SohbetDokumu yalnız görüntüleme için son12 başarılı turu/soru-yanıt32bin karaktere kadar bellekte tutar;tek metin15999karakterde … ile sınırlanır. Eski turlar çift halinde bırakılır. API/model bağlamı ve saklama politikası değiştirilmedi;döküm diske/ağa yazılmaz. Hatalı/iptal edilen turlar eklenmez.
+- MainActivity sesli ve yazılı başarı callback'lerinde aynı döküme ekler;Konuşma geçmişi düğmesi seçilebilir/linkli metni ScrollView içeren pencerede gösterir. Pencere açmak dinlemeyi duraklatır,konuyu korur. Yeni sohbet/sağlayıcı değişiminde temizlenir;konfigürasyon değişiminde motorla birlikte bellekte devredilir. Süreç ölünce döküm kaybolur. Ana yanıt kartı hâlâ son turdur;tam mesaj listesinin doğrudan ana akışa yerleşmesi tamamlandı sayılmaz.
+- Ubuntu proot ./build.sh çıktı0;zipalign-c4,apksigner sign/verifyv2/v3 PASS;pm install-r Success. Son APK /sdcard/Download/Sezai-debug.apk;DEX SohbetDokumu varlığı doğrulandı. Python AST/diff--check PASS.
+- SON APK sohbet24/24 PASS:3 yeni döküm sıralama/bellek sınırı/temizleme-oturum ayrımı kontrolü +21 mevcut sahte ağ/Keystore kontrolü. Dinleme9/9 ve görüşme8/8 PASS;toplam41 sessiz kontrol. Bunlar gerçek ses/API/telefon görüşmesi kabulü değildir.
+- Pencerenin gerçek görsel/etkileşim kabulü bu tur yapılmadı:MainActivity boştaki uyanma açıksa mikrofon başlatabileceğinden gece otomatik açılmadı. Yeni mikrofon/hoparlör/servis/wake lock/konum/ağ döngüsü eklenmedi;pil ölçülmedi. Döküm işlem maliyeti yalnız başarılı tur/pencere açılışında ve sınırlı bellekle.
+- Son kota%22/%51. Sonraki: sessiz uygun oturumda geçmiş penceresi/uzun metin ve kullanıcıyla yazılı karşılıklı akış kabulü;ardından MD'deki ekran yardımcısı/telefon yönetimi ve diğer öncelikler. Dur/Sezai insan testi bugün10.00 planında kalır.

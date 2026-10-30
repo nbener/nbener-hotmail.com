@@ -41,7 +41,8 @@ class MainActivity : Activity() {
     }
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
-    private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?)
+    private var sohbetDokumu = SohbetDokumu()
+    private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?, val dokum: SohbetDokumu)
     private var sohbetAcik = false
     private var yaziliSohbetAcik = false
     private lateinit var webSecimi: android.widget.CheckBox
@@ -68,6 +69,7 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         (lastNonConfigurationInstance as? SohbetDevri)?.let {
             sohbet = it.motor; sohbetSaglayicisi = it.saglayici
+            sohbetDokumu = it.dokum
         }
         val kutu = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -201,6 +203,7 @@ class MainActivity : Activity() {
             addView(yeniSohbetDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginEnd = dp(5) })
             addView(baglantiDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginStart = dp(5) })
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
+        dugme("Konuşma geçmişi") { konusmaGecmisiniAc() }
         dugme("Ekran yardımcısı") {
             sohbetDuraklat()
             startActivity(android.content.Intent(this, EkranOkumaAyarActivity::class.java))
@@ -440,6 +443,7 @@ class MainActivity : Activity() {
         motor.gonder(metin,
             sonuc = { cevap ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
+                    sohbetDokumu.ekle(metin, cevap)
                     karakterDurumu(SezaiKarakterView.Durum.BEKLEME, yanitDuygusu(cevap))
                     durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
                     if (mesajAlani.text.toString().trim() == metin) mesajAlani.text.clear()
@@ -488,6 +492,7 @@ class MainActivity : Activity() {
                     sohbet?.gonder(istekMetni,
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
+                                sohbetDokumu.ekle(istekMetni, cevap)
                                 durumYazisi.text = "Siz: $istekMetni\n\nSezai: $cevap"
                                 val sesliCevap = if (cevap.length > 3000) cevap.take(2800) + "… Devamını ekrandan okuyabilirsiniz." else cevap
                                 seslendir(sesliCevap,
@@ -513,6 +518,7 @@ class MainActivity : Activity() {
     private fun sohbetHazirla(kasa: AnahtarKasasi, saglayici: SohbetSaglayici) {
         if (sohbet == null || sohbetSaglayicisi != saglayici) {
             sohbet?.kapat()
+            sohbetDokumu.temizle()
             sohbet = SohbetMotoru(kasa, saglayici)
             sohbetSaglayicisi = saglayici
         }
@@ -535,7 +541,26 @@ class MainActivity : Activity() {
     private fun sohbetBitir(mesajGoster: Boolean = true) {
         sohbetDuraklat()
         sohbet?.kapat(); sohbet = null; sohbetSaglayicisi = null
+        sohbetDokumu.temizle()
         if (mesajGoster) durumYazisi.text = "Yeni sohbet başladı. Size nasıl yardımcı olabilirim?"
+    }
+
+    private fun konusmaGecmisiniAc() {
+        sohbetDuraklat()
+        val yazi = TextView(this).apply {
+            text = sohbetDokumu.metin().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
+            textSize = 18f
+            setTextColor(Color.parseColor("#172E3D"))
+            setPadding(dp(20), dp(16), dp(20), dp(16))
+            setLineSpacing(dp(4).toFloat(), 1f)
+            autoLinkMask = android.text.util.Linkify.WEB_URLS
+            linksClickable = true
+            setLinkTextColor(Color.parseColor("#087F82"))
+            setTextIsSelectable(true)
+        }
+        AlertDialog.Builder(this).setTitle("Konuşma geçmişi")
+            .setView(ScrollView(this).apply { addView(yazi) })
+            .setPositiveButton("Kapat", null).show()
     }
 
     private fun ilerlemeyiGoster() {
@@ -618,7 +643,7 @@ class MainActivity : Activity() {
         super.onSaveInstanceState(outState)
     }
 
-    override fun onRetainNonConfigurationInstance(): Any = SohbetDevri(sohbet, sohbetSaglayicisi)
+    override fun onRetainNonConfigurationInstance(): Any = SohbetDevri(sohbet, sohbetSaglayicisi, sohbetDokumu)
 
     override fun onDestroy() {
         if (!isChangingConfigurations) sohbet?.kapat()
