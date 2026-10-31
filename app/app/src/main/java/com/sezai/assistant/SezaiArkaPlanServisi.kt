@@ -38,6 +38,8 @@ class SezaiArkaPlanServisi : Service() {
     private var konusmaHazir = false
     private var kapaniyor = false
     private var dinleme: AndroidDinleme? = null
+    private val sozKesme by lazy { SozKesme(this) { sozKesildi() } }
+    private var konusanNesil = -1
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
     private var nesil = 0 // eski geri çağrıların yeni turu bozmasını önler
@@ -57,7 +59,11 @@ class SezaiArkaPlanServisi : Service() {
         }
         bildirimKur()
         try {
-            startForeground(BILDIRIM, bildirim(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE)
+            // Kilitliyken konum sorusu için konum türü de gerekir; yalnız konum izni verilmişse eklenir
+            val konumIzni = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val tur = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or (if (konumIzni) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0)
+            startForeground(BILDIRIM, bildirim(), tur)
         } catch (e: Exception) {
             Log.w("Sezai", "ARKAPLAN on plan baslatilamadi: ${e.javaClass.simpleName}"); stopSelf(); return START_NOT_STICKY
         }
@@ -82,19 +88,33 @@ class SezaiArkaPlanServisi : Service() {
         val ses = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (!konusmaHazir || ses.mode != AudioManager.MODE_NORMAL) { yenidenDinle(3000); return }
         val benim = ++nesil
+        sozKesme.hazirla() // model arka planda yüklenir; ilk yanıta kadar hazır olur
         konus("Buyurun, sizi dinliyorum.", benim) { dinleTur(benim, 0) }
     }
 
     // Konuşmayı bitirince devam eder; hata veya iptalde uyanma beklemesine döner
-    private fun konus(metin: String, benim: Int, sonra: () -> Unit) {
+    private fun konus(metin: String, benim: Int, kesilebilir: Boolean = false, sonra: () -> Unit) {
         val k = konusma
         if (k == null) { uyanmayaDon(benim, 3000); return }
         // Uygulamadaki ses çubuğu ayarı her konuşmadan önce okunur
         val yuzde = getSharedPreferences("ses_ayari", MODE_PRIVATE).getInt("tts_seviye", 100).coerceIn(10, 100)
         k.sesDuzeyi = if (yuzde >= 100) null else yuzde / 100f
+        konusanNesil = if (kesilebilir) benim else -1
         k.konus(metin,
-            bitince = { anaIs.post { if (benim == nesil && !kapaniyor) sonra() } },
-            hata = { anaIs.post { uyanmayaDon(benim, 3000) } })
+            bitince = { anaIs.post { sozKesme.durdur(); if (benim == nesil && !kapaniyor) sonra() } },
+            hata = { anaIs.post { sozKesme.durdur(); uyanmayaDon(benim, 3000) } })
+        if (kesilebilir) sozKesme.baslat()
+    }
+
+    // Kullanıcı yanıt okunurken "dur"/"Sezai" dedi: okumayı kes ve yeni isteği dinle
+    private fun sozKesildi() {
+        val eski = konusanNesil
+        if (kapaniyor || eski != nesil) return
+        Log.i("Sezai", "ARKAPLAN soz kesildi")
+        konusanNesil = -1
+        konusma?.durdur()
+        val yeni = ++nesil
+        dinleTur(yeni, 0)
     }
 
     private fun uyanmayaDon(benim: Int, gecikmeMs: Long) {
@@ -121,6 +141,21 @@ class SezaiArkaPlanServisi : Service() {
         if (SohbetKomutlari.bitirMi(metin)) {
             konus("Tamam, çağırdığınızda buradayım.", benim) { uyanmayaDon(benim, 1500) }; return
         }
+        // Uygulamadaki gibi: konum/saat/tarih/alarm/zamanlayıcı yerelde çözülür, modele gitmez
+        val komut = KomutYorumlayici.yorumla(metin)
+        if (komut !is Komut.Bilinmiyor) {
+            val devam = { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
+            if (komut is Komut.KonumGoster) {
+                val konum = KonumYardimcisi(this)
+                if (!konum.izinVarMi()) { konus("Konum izni verilmemiş. Uygulamadan izin verebilirsiniz.", benim) { uyanmayaDon(benim, 1500) }; return }
+                konum.al { _, soz -> if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() } }
+            } else {
+                val cevap = KomutCalistirici(this).calistir(komut)
+                Log.i("Sezai", "ARKAPLAN yerel komut -> '$cevap'")
+                konus(cevap, benim) { devam() }
+            }
+            return
+        }
         val saglayici = SohbetSaglayici.secili(this)
         val anahtarVar = try { !AnahtarKasasi(this, saglayici.kasaAdi).oku().isNullOrBlank() } catch (_: Exception) { false }
         if (!anahtarVar) {
@@ -134,7 +169,7 @@ class SezaiArkaPlanServisi : Service() {
         sohbet?.gonder(metin,
             sonuc = { yanit -> anaIs.post {
                 if (benim != nesil || kapaniyor) return@post
-                konus(yanit.take(1200), benim) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
+                konus(yanit.take(1200), benim, kesilebilir = true) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
             } },
             hata = { mesaj -> anaIs.post {
                 if (benim == nesil && !kapaniyor) konus(mesaj.take(200), benim) { uyanmayaDon(benim, 1500) }
@@ -168,6 +203,7 @@ class SezaiArkaPlanServisi : Service() {
         kapaniyor = true
         anaIs.removeCallbacksAndMessages(null)
         nesil++
+        sozKesme.kapat()
         dinleme?.kapat(); dinleme = null
         sohbet?.kapat(); sohbet = null
         uyanma?.durdur(); uyanma = null
