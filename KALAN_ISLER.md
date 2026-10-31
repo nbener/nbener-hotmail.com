@@ -279,3 +279,10 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - Son Ubuntu proot ./build.sh çıktı0,zipalign-c4,apksigner sign/verifyv2/v3 PASS;pm install-r Success. Son APK /sdcard/Download/Sezai-debug.apk;DEX sıralı geçmiş okuma ve sonTurMetni alanları doğrulandı. Python AST/diff--check PASS.
 - SON APK sohbet31/31 PASS:2 yeni görünüm-geçici durum/son tur kaydı +önceki29 kontrol. Dinleme9/9,görüşme8/8 PASS;toplam48 sessiz kontrol. Sahte ağ/ses/görüşme olayları kullanıldı;gerçek TTS/insan/API başarısı değildir. Kullanıcı uykudayken uygulama ana ekranı/mikrofon/hoparlör açılmadı;görsel/uzun metin-klavye/fiziksel sesli kabul açık.
 - Bu zaman sınırlı çalışma aşaması tamamlandı. Hazır özellikler: oturum dökümü,pencere/ana sohbet görünümü,konuşma geçmişi komutuyla yerel sıralı seslendirme. Açık işler: insan sesiyle geçmiş okuma ve dur/Sezai kabulü,TTS sırasında gerçek söz kesme,telefon geneli ekran/eller serbest,kilit/pil ve diğer MD hedefleri. Yeni servis/wake lock veya sürekli sorgu eklenmedi;pil ölçülmedi.
+
+
+## 31.10.2026 14:3x — normal ses düzeyinde sessiz çıkış dur/Sezai turu
+- `~` devamı. Kaynak/APK değişmedi. Kota betiği "bu oturumun kota bilgisi bulunamıyor" döndü; %80 sınırı doğrulanamadı, tek tur yapıldı.
+- Sessiz çıkış `--cagri-tanisi` turu HAT_BITTI: kayıt 6330ms, 101280 temiz16kHz örneğin tamamı tanıyıcıya verildi/çözüldü. dur_duyuldu=true, sezai_duyuldu=true, ilk_cagri_ses_ms=3800 (işlenen ses konumu, söz başlangıç gecikmesi değil). Tanıyıcı CPU617ms, max62ms; AEC+dönüşüm CPU165ms; mikrofon tepe3088, kırpılan0; kaynaklar bırakıldı. Ham ses/metin kaydedilmedi.
+- Kullanıcının tam olarak ne söylediği teyit bekliyor. Teyit gelirse: motor normal düzeyde sessiz çıkışta dur+Sezai'yi yakalıyor; gece dur=false kısık sesle açıklanır. Bu çalma kesme veya TTS altında başarı DEĞİLDİR.
+- Sıradaki: duyulur TTS altında çağrı ve yanlış tetikleme (kendi sesi) turu; üretimde söz kesme, devam isteği, pil/kilit hâlâ açık.
