@@ -287,3 +287,11 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 - Kullanıcının tam olarak ne söylediği teyit bekliyor. Teyit gelirse: motor normal düzeyde sessiz çıkışta dur+Sezai'yi yakalıyor; gece dur=false kısık sesle açıklanır. Bu çalma kesme veya TTS altında başarı DEĞİLDİR.
 - Sıradaki: duyulur TTS altında çağrı ve yanlış tetikleme (kendi sesi) turu; üretimde söz kesme, devam isteği, pil/kilit hâlâ açık.
 - Kullanıcı teyidi (14:3x): önceki sessiz çıkış turunda hem "dur" hem "Sezai" söylendi. Tur DOĞRULANMIŞ insan kabulüdür: Vosk dilbilgisi normal ses düzeyinde iki hedefi de yakaladı, yanlış tetikleme yok. Hâlâ çalma kesme/TTS altında başarı değildir.
+
+
+## 31.10.2026 — duyulur TTS altında kendi-sesinden yanlış tetikleme (kullanıcı sessiz)
+- Kaynak/APK değişmedi. Kota bilgisi okunamadı; 3 tur yapıldı. Medya çıkışı, genlik0.2, referans gecikme120ms, çalınan cümlede "dur"/"Sezai" geçmiyor.
+- Tur1 (kullanıcı konuşup konuşmadığından emin değil): dur=true,sezai=true,ilk1400ms,mikrofon tepe19029,korelasyon0.442. Tur2 (kullanıcıya sessiz kalması söylendi, sessizliği açıkça teyit etmedi): dur=true,sezai=true,ilk1400ms,tepe21534,korelasyon0.425,enerji farkı1.97dB. Kırpılma0.
+- Kontrol (sessiz çıkış, kullanıcı sessiz): dur=false,sezai=false,tepe893. Hoparlör çıkışı varken iki tur tetiklendi, hoparlörsüz kontrol tetiklenmedi: telefonun kendi sesinden yanlış tetikleme güçle olası. Kesin kök neden değil; tur2'de sessizlik teyidi yok.
+- Sonuç: mevcut AEC (≈2dB enerji düşümü, korelasyon0.43) yankıyı Vosk dilbilgisini kandırmayacak kadar bastırmıyor. Bu durumda TTS sırasında söz kesmeyi üretime BAĞLAMA.
+- Sıradaki aday adımlar: AEC filtre uzunluğu/uyum süresi, yankı sonrası kalıntı bastırma, tanıyıcıya güven eşiği/sonuç doğrulama (ham dilbilgisi yerine güven skoru), TTS çalarken yalnız yüksek enerjili konuşma başlangıcı. Her biri ayrı, ölçülerek.
