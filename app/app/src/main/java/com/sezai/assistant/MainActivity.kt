@@ -223,6 +223,17 @@ class MainActivity : Activity() {
             durumYazisi.text = if (uyanmaAyariAcik()) "Uygulama açıkken Sezai dediğinizde sizi dinlerim. Bu sırada mikrofon açık kalır."
                 else "Sezai deyince uyanma kapatıldı. Mikrofon kapalı."
         }
+        val arkaPlanDugmesi = dugme("") {}
+        fun arkaPlanYazisi() { arkaPlanDugmesi.text = "Kilitliyken de dinle: " + (if (arkaPlanAyariAcik()) "Açık" else "Kapalı") }
+        arkaPlanYazisi()
+        arkaPlanDugmesi.setOnClickListener {
+            val ac = !arkaPlanAyariAcik()
+            sesAyari.edit().putBoolean("arka_plan", ac).apply()
+            if (ac) arkaPlanBaslat() else SezaiArkaPlanServisi.durdur(this)
+            arkaPlanYazisi(); uyanmaGuncelle()
+            durumYazisi.text = if (ac) "Kilitliyken de Sezai deyince yanıt veririm. Bildirimde mikrofon açık görünür."
+                else "Arka plan dinleme kapatıldı. Mikrofon kapalı."
+        }
         dugme("Konuş") { sohbetDuraklat(); seslendir("Merhaba, ben Sezai. Size nasıl yardımcı olabilirim?") }
         dugme("Dinle") { sohbetDuraklat(); dinle() }
         dugme("Sesi değiştir") {
@@ -309,8 +320,19 @@ class MainActivity : Activity() {
 
     // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
     private fun uyanmaAyariAcik() = sesAyari.getBoolean("uyanma", true)
+    private fun arkaPlanAyariAcik() = sesAyari.getBoolean("arka_plan", false)
+    private fun arkaPlanBaslat() {
+        if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 1); return
+        }
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4)
+        }
+        SezaiArkaPlanServisi.baslat(this)
+    }
     private fun uyanmaGuncelle() {
-        val olmali = gorunur && hasWindowFocus() && !sohbetAcik && !yaziliSohbetAcik && !konusuyor && !gecmisOkunuyor && !elleDinliyor && uyanmaAyariAcik() &&
+        // Arka plan servisi mikrofonu tutarken uygulama içi uyanma ikinci mikrofon açmaz
+        val olmali = !SezaiArkaPlanServisi.calisiyor && gorunur && hasWindowFocus() && !sohbetAcik && !yaziliSohbetAcik && !konusuyor && !gecmisOkunuyor && !elleDinliyor && uyanmaAyariAcik() &&
             checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && uyanma.modelVarMi()
         if (olmali) uyanma.baslat() else uyanma.durdur()
     }
@@ -612,6 +634,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         gorunur = true
+        if (arkaPlanAyariAcik() && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
         uyanmaGuncelle()
     }
 
