@@ -14,5 +14,6 @@ internal class SohbetDokumu {
     }
 
     fun temizle() { turlar.clear() }
+    fun sesMetni(): String = turlar.joinToString("\n\n") { "Siz şöyle dediniz: ${it.soru}\nSezai şöyle yanıtladı: ${it.yanit}" }
     fun metin(): String = turlar.joinToString("\n\n────────\n\n") { "Siz: ${it.soru}\n\nSezai: ${it.yanit}" }
 }

@@ -60,6 +60,8 @@ class MainActivity : Activity() {
     private var gorunur = false
     private var elleDinliyor = false
     private var konusuyor = false
+    private var gecmisOkunuyor = false
+    private val gecmisOkuyucu by lazy { SiraliSeslendirme { metin, bitince, hata -> seslendir(metin, bitince, hata) } }
     private val konum by lazy { KonumYardimcisi(this) }
     private val sesAyari by lazy { getSharedPreferences("ses_ayari", MODE_PRIVATE) }
     private val VARSAYILAN_SES = "tr-tr-x-ama-local"
@@ -303,7 +305,7 @@ class MainActivity : Activity() {
     // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
     private fun uyanmaAyariAcik() = sesAyari.getBoolean("uyanma", true)
     private fun uyanmaGuncelle() {
-        val olmali = gorunur && hasWindowFocus() && !sohbetAcik && !yaziliSohbetAcik && !konusuyor && !elleDinliyor && uyanmaAyariAcik() &&
+        val olmali = gorunur && hasWindowFocus() && !sohbetAcik && !yaziliSohbetAcik && !konusuyor && !gecmisOkunuyor && !elleDinliyor && uyanmaAyariAcik() &&
             checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && uyanma.modelVarMi()
         if (olmali) uyanma.baslat() else uyanma.durdur()
     }
@@ -334,6 +336,7 @@ class MainActivity : Activity() {
 
     private fun komutVer(metin: String) {
         sohbetDuraklat()
+        if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
         val cevap = calistirici.calistir(komut)
@@ -486,6 +489,7 @@ class MainActivity : Activity() {
                         }
                     }
                     val istekMetni = sozAlma ?: metin
+                    if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     durumYazisi.text = "Siz: $istekMetni\n\nSezai düşünüyor..."
@@ -525,6 +529,7 @@ class MainActivity : Activity() {
     }
 
     private fun sohbetDuraklat() {
+        gecmisOkuyucu.durdur(); gecmisOkunuyor = false
         uyanma.durdur()
         elleDinliyor = false; konusuyor = false
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
@@ -560,7 +565,26 @@ class MainActivity : Activity() {
         }
         AlertDialog.Builder(this).setTitle("Konuşma geçmişi")
             .setView(ScrollView(this).apply { addView(yazi) })
+            .setNeutralButton("Sesli oku") { _, _ -> gecmisiSesliOku(null) }
             .setPositiveButton("Kapat", null).show()
+    }
+
+    private fun gecmisiSesliOku(sohbetSirasi: Int?) {
+        val metin = sohbetDokumu.sesMetni().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
+        val nesil = sohbetNesli
+        gecmisOkunuyor = true; uyanma.durdur()
+        durumYazisi.text = "Konuşma geçmişini okuyorum."
+        gecmisOkuyucu.baslat(SiraliSeslendirme.parcala(metin), bitince = {
+            gecmisOkunuyor = false
+            if (nesil == sohbetNesli) {
+                durumYazisi.text = "Konuşma geçmişi okundu."
+                if (sohbetSirasi != null && sohbetAcik) anaIs.postDelayed({ sohbetDinle(sohbetSirasi) }, 350)
+                else uyanmaGuncelle()
+            }
+        }, hata = {
+            gecmisOkunuyor = false
+            if (nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = "Geçmiş seslendirilemedi. Konuşma geçmişi düğmesinden okuyabilirsiniz." }
+        })
     }
 
     private fun ilerlemeyiGoster() {

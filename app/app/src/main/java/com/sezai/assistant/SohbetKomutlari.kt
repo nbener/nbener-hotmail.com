@@ -2,6 +2,14 @@ package com.sezai.assistant
 
 // Bitirmek ile sözü almak farklıdır; ikisi de mevcut sohbet geçmişini kendiliğinden silmez.
 object SohbetKomutlari {
+    fun gecmisOkuMu(metin: String): Boolean {
+        var t = KomutYorumlayici.normalize(metin).map { it.trim('.', ':') }.filter { it.isNotEmpty() }
+        if (t.firstOrNull() == "sezai") t = t.drop(1)
+        if (t.firstOrNull() == "lütfen") t = t.drop(1)
+        if (t.lastOrNull() == "lütfen") t = t.dropLast(1)
+        return t.joinToString(" ") in setOf("konuşma geçmişi", "sohbet geçmişi", "konuşma geçmişini oku",
+            "sohbet geçmişini oku", "konuşma geçmişini sesli oku", "sohbet geçmişini sesli oku", "geçmişi oku")
+    }
     private val bitirme = setOf("sohbeti bitir", "sohbeti kapat", "görüşmeyi bitir", "konuşmayı bitir")
     private val hitap = Regex("^\\s*(?:dur|sezai)(?=[\\s,.!?;:…]|$)[\\s,.!?;:…]*", RegexOption.IGNORE_CASE)
     fun bitirMi(metin: String): Boolean {

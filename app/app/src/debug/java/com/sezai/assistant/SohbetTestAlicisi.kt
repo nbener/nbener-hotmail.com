@@ -50,6 +50,43 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     d.temizle()
                     check(d.metin().isEmpty())
                 }
+                kontrol("Geçmiş okuma komutu olumsuz ve alıntı ifadelerden ayrılıyor") {
+                    for (s in listOf("Konuşma geçmişi", "Sezai, konuşma geçmişini sesli oku!", "Lütfen sohbet geçmişini oku."))
+                        check(SohbetKomutlari.gecmisOkuMu(s))
+                    for (s in listOf("Konuşma geçmişini okuma", "Konuşma geçmişi ne demek", "Geçmişi oku demedim", "Sohbeti bitir"))
+                        check(!SohbetKomutlari.gecmisOkuMu(s))
+                }
+                kontrol("Geçmiş ses metni rolleri ve sırayı koruyor") {
+                    val d = SohbetDokumu(); d.ekle("Soru", "Yanıt")
+                    check(d.sesMetni() == "Siz şöyle dediniz: Soru\nSezai şöyle yanıtladı: Yanıt")
+                    d.temizle(); check(d.sesMetni().isEmpty())
+                }
+                kontrol("Uzun ses metni sınır aşmadan eksiksiz parçalanıyor") {
+                    val s = (1..1500).joinToString(" ") { "kelime$it" }
+                    val p = SiraliSeslendirme.parcala(s)
+                    check(p.size > 1 && p.all { it.length <= 2800 })
+                    check(p.joinToString(" ") == s)
+                    check(SiraliSeslendirme.parcala("").isEmpty())
+                    check(SiraliSeslendirme.parcala("x".repeat(6000)).joinToString("") == "x".repeat(6000))
+                }
+                kontrol("Sıralı okumada yinelenen bitiş ve eski hata tekrar ilerletmiyor") {
+                    val okunan = mutableListOf<String>(); val bitti = mutableListOf<() -> Unit>(); val hata = mutableListOf<() -> Unit>()
+                    var tamam = 0; var hatalar = 0
+                    val o = SiraliSeslendirme { s, b, h -> okunan.add(s); bitti.add(b); hata.add(h) }
+                    o.baslat(listOf("bir", "iki"), { tamam++ }, { hatalar++ })
+                    bitti[0](); bitti[0](); hata[0]()
+                    check(okunan == listOf("bir", "iki") && hatalar == 0)
+                    bitti[1](); bitti[1](); check(tamam == 1)
+                }
+                kontrol("İptal edilen geçmiş okuması yeni parça veya bitiş üretmiyor") {
+                    val bitti = mutableListOf<() -> Unit>(); var okunan = 0; var tamam = 0
+                    val o = SiraliSeslendirme { _, b, _ -> okunan++; bitti.add(b) }
+                    o.baslat(listOf("eski", "devam"), { tamam++ }, {})
+                    o.durdur(); bitti[0](); check(okunan == 1 && tamam == 0)
+                    o.baslat(listOf("yeni"), { tamam++ }, {})
+                    bitti[0](); check(okunan == 2 && tamam == 0)
+                    bitti[1](); check(tamam == 1)
+                }
                 kasa.sil()
                 kontrol("Anahtar yokken ağ isteği yapılmıyor") {
                     val adet = AtomicInteger()
