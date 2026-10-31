@@ -62,7 +62,9 @@ class SezaiArkaPlanServisi : Service() {
             // Kilitliyken konum sorusu için konum türü de gerekir; yalnız konum izni verilmişse eklenir
             val konumIzni = checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                 checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-            val tur = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or (if (konumIzni) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0)
+            val kameraIzni = checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+            val tur = ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE or (if (konumIzni) ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION else 0) or
+                (if (kameraIzni) ServiceInfo.FOREGROUND_SERVICE_TYPE_CAMERA else 0)
             startForeground(BILDIRIM, bildirim(), tur)
         } catch (e: Exception) {
             Log.w("Sezai", "ARKAPLAN on plan baslatilamadi: ${e.javaClass.simpleName}"); stopSelf(); return START_NOT_STICKY
@@ -137,6 +139,25 @@ class SezaiArkaPlanServisi : Service() {
             } })
     }
 
+    // "Kamerayı aç, resim çek / ne görüyorsun": tek kare çek, sağlayıcıya yorumlat, sesle anlat
+    private fun kameraBak(on: Boolean, benim: Int, sonra: () -> Unit) {
+        val saglayici = SohbetSaglayici.secili(this)
+        val kasa = AnahtarKasasi(this, saglayici.kasaAdi)
+        val anahtarVar = try { !kasa.oku().isNullOrBlank() } catch (_: Exception) { false }
+        if (!anahtarVar) { konus("Görüntüyü yorumlamak için önce uygulamadan sohbet bağlantısını kurmanız gerekiyor.", benim) { uyanmayaDon(benim, 1500) }; return }
+        konus(if (on) "Ön kameraya bakıyorum." else "Tamam, bakıyorum.", benim) {
+            KameraYakala(this).cek(on) { jpeg, mesaj ->
+                if (benim != nesil || kapaniyor) return@cek
+                if (jpeg == null) { konus(mesaj, benim) { uyanmayaDon(benim, 1500) }; return@cek }
+                val ayar = getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("gorsel_model", null)
+                val yorum = GorselYorum(kasa, saglayici, ayar)
+                yorum.yorumla(jpeg, "Bu resimde ne var? Bana anlat.",
+                    sonuc = { metin -> yorum.kapat(); if (benim == nesil && !kapaniyor) konus(metin.take(1200), benim, kesilebilir = true) { sonra() } },
+                    hata = { m -> yorum.kapat(); if (benim == nesil && !kapaniyor) konus(m.take(250), benim) { uyanmayaDon(benim, 1500) } })
+            }
+        }
+    }
+
     private fun yanitla(metin: String, benim: Int, takip: Int) {
         if (SohbetKomutlari.bitirMi(metin)) {
             konus("Tamam, çağırdığınızda buradayım.", benim) { uyanmayaDon(benim, 1500) }; return
@@ -145,7 +166,9 @@ class SezaiArkaPlanServisi : Service() {
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut !is Komut.Bilinmiyor) {
             val devam = { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
-            if (komut is Komut.KonumGoster) {
+            if (komut is Komut.Kamera) {
+                kameraBak(komut.on, benim) { devam() }
+            } else if (komut is Komut.KonumGoster) {
                 val konum = KonumYardimcisi(this)
                 if (!konum.izinVarMi()) { konus("Konum izni verilmemiş. Uygulamadan izin verebilirsiniz.", benim) { uyanmayaDon(benim, 1500) }; return }
                 konum.al { _, soz -> if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() } }

@@ -110,3 +110,9 @@ Henüz kod yazma. Önce şunu yap:
 
 ## Rutin işlerde devam tercihi — 31 Ekim 2026
 - Kullanıcı “her zaman yes” dedi: yetkilendirilmiş kapsam içindeki rutin geliştirme,derleme,kurulum ve doğrulamada tekrar tekrar onay istemeden ilerle. Bu tercih Android'in zorunlu kullanıcı izinlerini veya araç onaylarını atlatma anlamına gelmez; veri silme gibi ayrıca açık onay gerektiren işlemlerde mevcut kurallar geçerlidir.
+
+
+## Kullanıcı istekleri — kalıcı ana liste (31 Ekim 2026)
+- Kullanıcının HER isteği KULLANICI_ISTEKLERI.md (ana liste) ve KALAN_ISLER.md'ye yazılır; oturum başında DURUM, KALAN_ISLER, TEST_DURUMU ile birlikte KULLANICI_ISTEKLERI.md ve ACIK_KAYNAK_ARASTIRMASI.md okunur. Kullanıcı aynı şeyi tekrar anlatmak zorunda bırakılmaz.
+- Kullanıcı istekleri tek tek, parça parça yapılır; bir seferde bitmiyorsa her seferinde bir parça eklenir. Eksik yetenekleri ajan bulup listeye ekler. Araştırmada açık kaynak projeler, GitHub ve developer.android.com taranır; lisansa dikkat (GPL gömülmez).
+- Kullanıcı özel olarak şunu istedi: tüm gerekli izinler uygulamaya verilsin (verildi, 31 Ekim) ve yeni özelliklerde gereken izinler eklensin.

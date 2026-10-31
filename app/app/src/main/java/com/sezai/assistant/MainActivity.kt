@@ -381,11 +381,33 @@ class MainActivity : Activity() {
         }
     }
 
+    // Tek kare çekip sağlayıcıya yorumlatır ve sesle anlatır; sohbet açıksa (nesil) dinlemeye döner
+    private fun kameraBak(on: Boolean, nesil: Int?) {
+        if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            durumYazisi.text = "Kamera için izin gerekiyor. Açılan pencerede izin verin, sonra tekrar isteyin."
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), 5); return
+        }
+        val saglayici = SohbetSaglayici.secili(this)
+        val kasa = AnahtarKasasi(this, saglayici.kasaAdi)
+        val anahtarVar = try { !kasa.oku().isNullOrBlank() } catch (_: Exception) { false }
+        if (!anahtarVar) { durumYazisi.text = "Görüntüyü yorumlamak için önce Sohbet bağlantısından anahtarı girin."; return }
+        durumYazisi.text = "Kameraya bakıyorum..."
+        fun devam() { if (nesil != null && sohbetAcik && nesil == sohbetNesli) anaIs.postDelayed({ sohbetDinle(nesil) }, 350) }
+        KameraYakala(this).cek(on) { jpeg, mesaj ->
+            if (jpeg == null) { durumYazisi.text = mesaj; seslendir(mesaj, bitince = { devam() }); return@cek }
+            val yorum = GorselYorum(kasa, saglayici, sesAyari.getString("gorsel_model", null))
+            yorum.yorumla(jpeg, "Bu resimde ne var? Bana anlat.",
+                sonuc = { metin -> yorum.kapat(); durumYazisi.text = metin; seslendir(metin.take(2800), bitince = { devam() }) },
+                hata = { m -> yorum.kapat(); durumYazisi.text = m; seslendir(m, bitince = { devam() }) })
+        }
+    }
+
     private fun komutVer(metin: String) {
         sohbetDuraklat()
         if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
+        if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
         val cevap = calistirici.calistir(komut)
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
         durumYazisi.text = cevap
@@ -538,6 +560,7 @@ class MainActivity : Activity() {
                     val istekMetni = sozAlma ?: metin
                     if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
+                    (KomutYorumlayici.yorumla(istekMetni) as? Komut.Kamera)?.let { kameraBak(it.on, nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     sohbetYazisiniGoster("Siz: $istekMetni\n\nSezai düşünüyor...")
                     sohbet?.gonder(istekMetni,
@@ -691,7 +714,7 @@ class MainActivity : Activity() {
     override fun onRequestPermissionsResult(kod: Int, i: Array<out String>, s: IntArray) {
         super.onRequestPermissionsResult(kod, i, s)
         if (s.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
-            if (kod == 1) dinle() else if (kod == 2) sohbetBaslat() else if (kod == 3) konumGoster(null)
+            if (kod == 1) dinle() else if (kod == 2) sohbetBaslat() else if (kod == 3) konumGoster(null) else if (kod == 5) kameraBak(false, null)
         } else if (kod == 3) {
             durumYazisi.text = "Konum izni verilmedi, konumunuzu gösteremem."
         } else if (kod == 1 || kod == 2) {

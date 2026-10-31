@@ -9,6 +9,7 @@ sealed class Komut {
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
     object KonumGoster : Komut()
+    data class Kamera(val on: Boolean) : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
@@ -59,6 +60,13 @@ object KomutYorumlayici {
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
 
         if (t.any { it.startsWith("konumum") } || m.contains("neredeyim") || m.contains("bulunduğum yer")) return Komut.KonumGoster
+        // Kamera: "kamerayı aç ve resim çek", "ne görüyorsun"; ön/arka belirtilmezse arka kamera
+        val kameraKelimesi = t.any { it.startsWith("kamera") }
+        if ((kameraKelimesi && (m.contains("aç") || m.contains("çek") || m.contains("bak") || m.contains("göster"))) ||
+            m.contains("resim çek") || m.contains("fotoğraf çek") || m.contains("fotoğrafını çek") ||
+            m.contains("ne görüyorsun") || m.contains("etrafımda ne var") || m.contains("karşımda ne var")) {
+            return Komut.Kamera(on = m.contains("ön kamera") || m.contains("selfie"))
+        }
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor
 
