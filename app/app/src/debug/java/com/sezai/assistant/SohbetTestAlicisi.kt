@@ -87,6 +87,19 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     bitti[0](); check(okunan == 2 && tamam == 0)
                     bitti[1](); check(tamam == 1)
                 }
+                kontrol("Bekleyen yanıt ve hata eski sohbet turlarını gizlemiyor") {
+                    val d = SohbetDokumu(); d.ekle("Önceki soru", "Önceki yanıt")
+                    val v = d.gorunum("Siz: yeni soru\n\nSezai düşünüyor...")
+                    check(v.contains("Önceki soru") && v.contains("Önceki yanıt") && v.contains("yeni soru"))
+                    check(d.gorunum("Bağlantı hatası").contains("Önceki yanıt"))
+                    check(!d.metin().contains("yeni soru") && !d.metin().contains("Bağlantı hatası"))
+                }
+                kontrol("Android durum kaydı yalnız son turu alabiliyor") {
+                    val d = SohbetDokumu(); d.ekle("Eski soru", "Eski yanıt"); d.ekle("Son soru", "Son yanıt")
+                    check(d.sonTurMetni() == "Siz: Son soru\n\nSezai: Son yanıt")
+                    check(d.gorunum().contains("Eski yanıt"))
+                    d.temizle(); check(d.gorunum().isEmpty() && d.sonTurMetni().isEmpty())
+                }
                 kasa.sil()
                 kontrol("Anahtar yokken ağ isteği yapılmıyor") {
                     val adet = AtomicInteger()

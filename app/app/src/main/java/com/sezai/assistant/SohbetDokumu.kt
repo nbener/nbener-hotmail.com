@@ -16,4 +16,6 @@ internal class SohbetDokumu {
     fun temizle() { turlar.clear() }
     fun sesMetni(): String = turlar.joinToString("\n\n") { "Siz şöyle dediniz: ${it.soru}\nSezai şöyle yanıtladı: ${it.yanit}" }
     fun metin(): String = turlar.joinToString("\n\n────────\n\n") { "Siz: ${it.soru}\n\nSezai: ${it.yanit}" }
+    fun sonTurMetni(): String = turlar.lastOrNull()?.let { "Siz: ${it.soru}\n\nSezai: ${it.yanit}" }.orEmpty()
+    fun gorunum(anlik: String = ""): String = listOf(metin(), anlik).filter { it.isNotBlank() }.joinToString("\n\n")
 }

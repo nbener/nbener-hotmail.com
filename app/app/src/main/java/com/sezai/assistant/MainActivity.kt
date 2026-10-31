@@ -243,6 +243,11 @@ class MainActivity : Activity() {
         webSecimi.isChecked = savedInstanceState?.getBoolean("web_secimi", false) ?: false
         savedInstanceState?.getString("mesaj_taslagi")?.let { mesajAlani.setText(it) }
         savedInstanceState?.getString("son_yanit")?.let { durumYazisi.text = it }
+        if (sohbetDokumu.metin().isNotBlank()) sohbetYazisiniGoster()
+    }
+
+    private fun sohbetYazisiniGoster(anlik: String = "") {
+        durumYazisi.text = sohbetDokumu.gorunum(anlik)
     }
 
     private fun karakterDurumu(durum: SezaiKarakterView.Durum, his: SezaiKarakterView.Duygu = SezaiKarakterView.Duygu.DOGAL) {
@@ -442,13 +447,13 @@ class MainActivity : Activity() {
         (getSystemService(INPUT_METHOD_SERVICE) as android.view.inputmethod.InputMethodManager)
             .hideSoftInputFromWindow(mesajAlani.windowToken, 0)
         karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
-        durumYazisi.text = "Siz: $metin\n\n" + if (web) "Web araştırması isteniyor..." else "Sezai düşünüyor..."
+        sohbetYazisiniGoster("Siz: $metin\n\n" + if (web) "Web araştırması isteniyor..." else "Sezai düşünüyor...")
         motor.gonder(metin,
             sonuc = { cevap ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
                     sohbetDokumu.ekle(metin, cevap)
                     karakterDurumu(SezaiKarakterView.Durum.BEKLEME, yanitDuygusu(cevap))
-                    durumYazisi.text = "Siz: $metin\n\nSezai: $cevap"
+                    sohbetYazisiniGoster()
                     if (mesajAlani.text.toString().trim() == metin) mesajAlani.text.clear()
                     gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
                 }
@@ -456,7 +461,7 @@ class MainActivity : Activity() {
             hata = { mesaj ->
                 if (yaziliSohbetAcik && nesil == sohbetNesli) {
                     karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
-                    durumYazisi.text = "Siz: $metin\n\n$mesaj"
+                    sohbetYazisiniGoster("Siz: $metin\n\n$mesaj")
                     gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder"
                 }
             }, webAramasi = web)
@@ -470,20 +475,20 @@ class MainActivity : Activity() {
             return
         }
         karakterDurumu(SezaiKarakterView.Durum.DINLIYOR)
-        durumYazisi.text = "Dinliyorum..."
+        sohbetYazisiniGoster("Dinliyorum...")
         dinleme.dinle(
             sonuc = { metin -> runOnUiThread {
                 if (sohbetAcik && nesil == sohbetNesli) {
                     if (SohbetKomutlari.bitirMi(metin)) {
                         sohbetDuraklat()
-                        durumYazisi.text = "Dinleme durdu. Sohbetin konusu korunuyor."
+                        sohbetYazisiniGoster("Dinleme durdu. Sohbetin konusu korunuyor.")
                         return@runOnUiThread
                     }
                     val sozAlma = SohbetKomutlari.sozAlmaMetni(metin)
                     if (sozAlma != null) {
                         konusma.durdur(); sohbet?.iptal()
                         if (sozAlma.isBlank()) {
-                            durumYazisi.text = "Seni dinliyorum. Konuşmanın konusu korunuyor."
+                            sohbetYazisiniGoster("Seni dinliyorum. Konuşmanın konusu korunuyor.")
                             anaIs.postDelayed({ sohbetDinle(nesil) }, 200)
                             return@runOnUiThread
                         }
@@ -492,12 +497,12 @@ class MainActivity : Activity() {
                     if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
-                    durumYazisi.text = "Siz: $istekMetni\n\nSezai düşünüyor..."
+                    sohbetYazisiniGoster("Siz: $istekMetni\n\nSezai düşünüyor...")
                     sohbet?.gonder(istekMetni,
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
                                 sohbetDokumu.ekle(istekMetni, cevap)
-                                durumYazisi.text = "Siz: $istekMetni\n\nSezai: $cevap"
+                                sohbetYazisiniGoster()
                                 val sesliCevap = if (cevap.length > 3000) cevap.take(2800) + "… Devamını ekrandan okuyabilirsiniz." else cevap
                                 seslendir(sesliCevap,
                                     bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },
@@ -510,12 +515,12 @@ class MainActivity : Activity() {
                             }
                         },
                         hata = { mesaj ->
-                            if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = mesaj }
+                            if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); sohbetYazisiniGoster(mesaj) }
                         })
                 }
             } },
             hata = { mesaj -> runOnUiThread {
-                if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); durumYazisi.text = "$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz." }
+                if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); sohbetYazisiniGoster("$mesaj. Sohbet et düğmesiyle tekrar başlayabilirsiniz.") }
             } })
     }
 
@@ -573,11 +578,11 @@ class MainActivity : Activity() {
         val metin = sohbetDokumu.sesMetni().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
         val nesil = sohbetNesli
         gecmisOkunuyor = true; uyanma.durdur()
-        durumYazisi.text = "Konuşma geçmişini okuyorum."
+        sohbetYazisiniGoster("Konuşma geçmişini okuyorum.")
         gecmisOkuyucu.baslat(SiraliSeslendirme.parcala(metin), bitince = {
             gecmisOkunuyor = false
             if (nesil == sohbetNesli) {
-                durumYazisi.text = "Konuşma geçmişi okundu."
+                sohbetYazisiniGoster("Konuşma geçmişi okundu.")
                 if (sohbetSirasi != null && sohbetAcik) anaIs.postDelayed({ sohbetDinle(sohbetSirasi) }, 350)
                 else uyanmaGuncelle()
             }
@@ -663,7 +668,8 @@ class MainActivity : Activity() {
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("web_secimi", webSecimi.isChecked)
         outState.putString("mesaj_taslagi", mesajAlani.text.toString())
-        outState.putString("son_yanit", durumYazisi.text.toString())
+        // Android'in durum kaydına bütün dökümü taşımıyoruz; önceki gibi yalnız son tur.
+        outState.putString("son_yanit", sohbetDokumu.sonTurMetni().ifBlank { durumYazisi.text.toString() })
         super.onSaveInstanceState(outState)
     }
 
