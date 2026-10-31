@@ -318,3 +318,8 @@ Saat 06.00 sınırı kaldırıldı. Her ana adımda `python3 scripts/calisma_kon
 
 - %60 (9/15) medya, varsayılan ses (kayıtlı ses_adi yok), `~` devamı, kullanıcıdan dur+Sezai istendi (söylediği teyit bekliyor): dur kesin güven0.991/270ms, sezai kesin güven1.0/570ms, ilk1400ms; serbest_dur=false, serbest_sezai=false. Tanıyıcı CPU3725ms. Enerji dilimleri (mic/ref/temiz RMS, 250ms): çalma sırasında mic1500-3500, ref≈430-1050, temiz≈mic (toplam fark0.40dB) → AEC fiilen yankıyı bastırmıyor; çalma bitince (ref0-1) mic4000-6500 (büyük olasılıkla kullanıcı sesi veya ortam; teyitsiz).
 - Çıkarım (kesin değil): dilbilgili tanıyıcı iki hedefi de yakaladı ama serbest çözüm yakalamadı; hangisinin gerçek söz, hangisinin yanlış tetikleme olduğu bu turdan ayrılamıyor. AEC kazancı yaklaşık0dB olduğundan yankı bastırma yöntemi (filtre uzunluğu/uyum/referans gecikmesi) incelenmeli. Erkek ses seçimi henüz yapılmadı.
+
+## 31.10.2026 16:17 — kullanıcının seçtiği ses
+- Kullanıcı 6 yerel sesi dinledi (2-6 ve 1 tr-TR-language denendi; 1 için günlük doğrulaması alınmadı) ve "11 nolu ses güzel" dedi (erkek ses tercihi). Günlük: `SES varsayilan=tr-tr-x-tmc-network sira=11 uygulandi=true`. ses_ayari/ses_adi, run-as ile shared_prefs/ses_ayari.xml'e yazıldı (uygulama durdurulup açıldı); uygulama kodu değişmedi.
+- DİKKAT: 11 numara AĞ gerektiren (network) ses. İnternetsiz çalışmaz, pil/gecikme etkisi ölçülmedi. Cinsiyeti API'den doğrulanmadı; "erkek" kullanıcının dinleme beyanıdır. Offline yedek için mfm/tmc-local (5/6) karşılaştırması ayrıca yapılabilir. Ticari sürümde sesin ağ bağımlılığı karar gerektirir.
+- Testler artık bu sesi kullanır (YankiHatTestActivity ses_ayari/ses_adi). Medya ses seviyesi %60 (9/15) korunuyor.
