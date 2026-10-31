@@ -15,6 +15,8 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
     init {
         require(cumleSesDuzeyi == null || (cumleSesDuzeyi.isFinite() && cumleSesDuzeyi in 0f..1f))
     }
+    // Cümle başına TTS ses düzeyi (0..1); null ise parametre gönderilmez, sistem ses ayarı değiştirilmez.
+    @Volatile var sesDuzeyi: Float? = cumleSesDuzeyi
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.
     @Volatile internal var pcmTanisi: ((PcmTaniOlayi) -> Unit)? = null
@@ -78,7 +80,7 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
             }
         })
         // Varsayılan çağrılar aynı null parametreyi kullanır; sistem ses ayarı değiştirilmez.
-        val parametre = cumleSesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
+        val parametre = sesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
         if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 

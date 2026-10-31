@@ -130,6 +130,7 @@ class MainActivity : Activity() {
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
                 sesler = konusma.sesListesi()
+                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 100).let { y -> (konusma as? AndroidKonusma)?.sesDuzeyi = if (y >= 100) null else y / 100f }
                 // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
                 val kayitli = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
                 val sira = sesler.indexOf(kayitli)
@@ -223,6 +224,25 @@ class MainActivity : Activity() {
             durumYazisi.text = if (uyanmaAyariAcik()) "Uygulama açıkken Sezai dediğinizde sizi dinlerim. Bu sırada mikrofon açık kalır."
                 else "Sezai deyince uyanma kapatıldı. Mikrofon kapalı."
         }
+        val sesYazisi = TextView(this).apply { textSize = 14f; setTextColor(Color.parseColor("#536B78")) }
+        fun sesYazisiniGuncelle(y: Int) { sesYazisi.text = "Konuşma sesi: %$y (telefon medya sesi ayrıdır)" }
+        val sesCubugu = android.widget.SeekBar(this).apply {
+            max = 90 // %10..%100
+            val kayitliYuzde = sesAyari.getInt("tts_seviye", 100).coerceIn(10, 100)
+            progress = kayitliYuzde - 10
+            sesYazisiniGuncelle(kayitliYuzde)
+            setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
+                override fun onProgressChanged(sb: android.widget.SeekBar?, deger: Int, kullanici: Boolean) {
+                    val y = deger + 10
+                    sesYazisiniGuncelle(y)
+                    if (kullanici) { sesAyari.edit().putInt("tts_seviye", y).apply(); (konusma as? AndroidKonusma)?.sesDuzeyi = if (y >= 100) null else y / 100f }
+                }
+                override fun onStartTrackingTouch(sb: android.widget.SeekBar?) {}
+                override fun onStopTrackingTouch(sb: android.widget.SeekBar?) { sohbetDuraklat(); seslendir("Ses bu kadar.") }
+            })
+        }
+        kutu.addView(sesYazisi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(12) })
+        kutu.addView(sesCubugu, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(4) })
         val arkaPlanDugmesi = dugme("") {}
         fun arkaPlanYazisi() { arkaPlanDugmesi.text = "Kilitliyken de dinle: " + (if (arkaPlanAyariAcik()) "Açık" else "Kapalı") }
         arkaPlanYazisi()
