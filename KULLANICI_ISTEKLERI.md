@@ -50,3 +50,7 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - [ ] Yaşlı/çocuk kolaylığı: yavaş konuşma, tekrar, basit dil, büyük yazı.
 - [ ] Kullanım ve hata raporu (yerel, paylaşılmaz), tek dokunuşla "bugün ne oldu".
 - [ ] Ticari sürüm: Sezai'ye özel release imzası, lisans denetimi (GPL yok), sağlayıcı maliyet modeli.
+
+
+## 1 Kasım devam aşaması
+- `~`: mevcut hedefleri geliştir ve test et talimatı sürdürüldü. Arka plan servisinde eski oturum geri çağrı koruması eklendi; derleme/imza/kurulum ve48 sessiz regresyon geçti. Servis yaşam döngüsü fiziksel kabulü, ekran yardımcısı ve gerçek söz kesme açık (DURUM.md).

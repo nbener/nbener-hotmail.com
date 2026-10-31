@@ -603,3 +603,13 @@ Son güncelleme: 2026-10-29
 - Son Ubuntu proot ./build.sh çıktı0,zipalign-c4,apksigner sign/verifyv2/v3 PASS;pm install-r Success. Son APK /sdcard/Download/Sezai-debug.apk;DEX sıralı geçmiş okuma ve sonTurMetni alanları doğrulandı. Python AST/diff--check PASS.
 - SON APK sohbet31/31 PASS:2 yeni görünüm-geçici durum/son tur kaydı +önceki29 kontrol. Dinleme9/9,görüşme8/8 PASS;toplam48 sessiz kontrol. Sahte ağ/ses/görüşme olayları kullanıldı;gerçek TTS/insan/API başarısı değildir. Kullanıcı uykudayken uygulama ana ekranı/mikrofon/hoparlör açılmadı;görsel/uzun metin-klavye/fiziksel sesli kabul açık.
 - Bu zaman sınırlı çalışma aşaması tamamlandı. Hazır özellikler: oturum dökümü,pencere/ana sohbet görünümü,konuşma geçmişi komutuyla yerel sıralı seslendirme. Açık işler: insan sesiyle geçmiş okuma ve dur/Sezai kabulü,TTS sırasında gerçek söz kesme,telefon geneli ekran/eller serbest,kilit/pil ve diğer MD hedefleri. Yeni servis/wake lock veya sürekli sorgu eklenmedi;pil ölçülmedi.
+
+
+## 01.11.2026 — arka plan oturumunda eski geri çağrı koruması
+- Kullanıcının `~` devam komutuyla kayıtlar ve kaynak incelendi. Kota başlangıç %0/%54; önceki 31 Ekim 10.00 çalışma aşaması kapanmıştı, bu yeni devamdır.
+- SezaiArkaPlanServisi.kt: konus girişinde ve dinleme hata post'unda nesil/kapanış kontrolü eklendi. TTS bitiş/hata post'ları, SozKesme.durdur çağrısından ÖNCE oturumun hâlâ güncel olduğunu doğrular. Böylece eski oturum olayı yeni konuşmayı başlatamaz veya yeni söz kesme dinleyicisini durduramaz. Bu yol kod incelemesinde bulundu; fiziksel yeniden üretim yapılmadı.
+- Yedek: yedek/arka-plan-eski-callback-oncesi-20261101.tar.gz. Ubuntu proot ./build.sh çıkış 0. JDK17, Gradle, aapt2, apksigner, zipalign ve yapılandırılmış Shizuku shell bağlantısı kontrol edildi.
+- Ayrı zipalign -f 4 ve -f -p 4 yeniden paketleme çıkış 1 verdi; ayrıntılı kontrolde native .so hizalaması BAD görüldü. Gradle özgün APK zipalign -c 4 kontrolünü geçti; özgün APK mevcut debug anahtarıyla yeniden imzalandı, ardından zipalign -c 4 ve apksigner verify v2/v3 PASS. Bozuk ara APK kurulmadı. /sdcard/Download/Sezai-debug.apk güncellendi; pm install -r Success. Yeni release anahtarı oluşturulmadı.
+- SON APK üzerinde sohbet31/31, dinleme9/9, görüşme8/8: toplam48 sessiz regresyon PASS. Sahte ağ/ses/odak olayları kullanılır; bu testler SezaiArkaPlanServisi yaşam döngüsünü doğrudan canlandırmaz. Yeni korumaların gerçek arka plan/söz kesme oturumu kabulü açık.
+- Gece mikrofon/hoparlör/ana Activity otomatik açılmadı. Yeni servis, wake lock, sürekli sorgu veya model eklenmedi; pil ölçülmedi.
+- Sonraki: servis için gecikmiş hata/TTS callback yaşam döngüsü kabulü; telefon geneli ekran yardımcısı entegrasyonu ve gerçek insan sesiyle söz kesme hâlâ açık.

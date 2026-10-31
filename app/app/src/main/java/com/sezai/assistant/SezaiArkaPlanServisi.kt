@@ -96,6 +96,7 @@ class SezaiArkaPlanServisi : Service() {
 
     // Konuşmayı bitirince devam eder; hata veya iptalde uyanma beklemesine döner
     private fun konus(metin: String, benim: Int, kesilebilir: Boolean = false, sonra: () -> Unit) {
+        if (benim != nesil || kapaniyor) return
         val k = konusma
         if (k == null) { uyanmayaDon(benim, 3000); return }
         // Uygulamadaki ses çubuğu ayarı her konuşmadan önce okunur
@@ -103,8 +104,12 @@ class SezaiArkaPlanServisi : Service() {
         k.sesDuzeyi = if (yuzde >= 100) null else yuzde / 100f
         konusanNesil = if (kesilebilir) benim else -1
         k.konus(metin,
-            bitince = { anaIs.post { sozKesme.durdur(); if (benim == nesil && !kapaniyor) sonra() } },
-            hata = { anaIs.post { sozKesme.durdur(); uyanmayaDon(benim, 3000) } })
+            bitince = { anaIs.post {
+                if (benim == nesil && !kapaniyor) { sozKesme.durdur(); sonra() }
+            } },
+            hata = { anaIs.post {
+                if (benim == nesil && !kapaniyor) { sozKesme.durdur(); uyanmayaDon(benim, 3000) }
+            } })
         if (kesilebilir) sozKesme.baslat()
     }
 
@@ -134,6 +139,7 @@ class SezaiArkaPlanServisi : Service() {
             sonuc = { metin -> anaIs.post { if (benim == nesil && !kapaniyor) yanitla(metin, benim, takip) } },
             // Ses duyulmadı/anlaşılmadı: ilk istekte kısa bilgi, takipte sessizce uyanma beklemesine dön
             hata = { _ -> anaIs.post {
+                if (benim != nesil || kapaniyor) return@post
                 if (takip == 0) konus("Sizi duyamadım. İsterseniz tekrar Sezai deyin.", benim) { uyanmayaDon(benim, 1500) }
                 else uyanmayaDon(benim, 1500)
             } })
