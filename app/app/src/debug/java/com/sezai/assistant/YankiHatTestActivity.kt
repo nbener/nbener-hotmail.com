@@ -15,11 +15,13 @@ import android.os.Handler
 import android.os.Looper
 import android.os.SystemClock
 import android.widget.TextView
+import org.json.JSONArray
 import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.math.abs
 import kotlin.math.log10
+import kotlin.math.sqrt
 
 // Yalnız DUMP korumalı debug hattı. Varsayılan sessiz; ham ses yalnız sınırlı bellekte.
 // İlk prototip bütün sabit cümleyi hazırlar; üretim akışına ve doğal sohbete bağlı değildir.
@@ -74,6 +76,9 @@ class YankiHatTestActivity : Activity() {
         tts = AndroidKonusma(this, "com.google.android.tts", cumleSesDuzeyi = 0f) { hazir -> anaIs.post {
             if (!etkin.get()) return@post
             if (!hazir) { bitir("TTS_HAZIR_DEGIL"); return@post }
+            // Uygulamada seçilen kayıtlı sesi kullan; yoksa motorun varsayılanı kalır.
+            val kayitliSes = getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("ses_adi", null)
+            if (kayitliSes != null) rapor.put("tts_ses", kayitliSes).put("tts_ses_uygulandi", tts!!.sesSec(kayitliSes))
             tts!!.pcmTanisi = { olay ->
                 if (olay.hz > 0) synchronized(pcmKilidi) {
                     hz = olay.hz; bicim = olay.bicim; kanal = olay.kanal
@@ -133,6 +138,9 @@ class YankiHatTestActivity : Activity() {
         var zamanYok = 0
         var kareSayisi = 0
         var cpuNs = 0L
+        // 250ms dilimlerde mikrofon/referans/AEC çıkışı RMS değerleri; yalnız sayılar.
+        val dilimler = JSONArray()
+        var dilimMic = 0.0; var dilimRef = 0.0; var dilimTemiz = 0.0; var dilimKare = 0
         var okunan = 0L
         var tanimaOrnek = 0L
         try {
@@ -213,6 +221,14 @@ class YankiHatTestActivity : Activity() {
                 for (i in 0 until kare) {
                     girisEnerji += mic[i].toDouble() * mic[i]
                     cikisEnerji += temiz[i].toDouble() * temiz[i]
+                    dilimMic += mic[i].toDouble() * mic[i]
+                    dilimRef += ref[i].toDouble() * ref[i]
+                    dilimTemiz += temiz[i].toDouble() * temiz[i]
+                }
+                if (++dilimKare == 25) {
+                    val d = 25.0 * kare
+                    dilimler.put(JSONArray().put(sqrt(dilimMic / d).toInt()).put(sqrt(dilimRef / d).toInt()).put(sqrt(dilimTemiz / d).toInt()))
+                    dilimMic = 0.0; dilimRef = 0.0; dilimTemiz = 0.0; dilimKare = 0
                 }
                 okunan += kare; kareSayisi++
                 if (kareSayisi == 1) anaIs.post {
@@ -231,6 +247,7 @@ class YankiHatTestActivity : Activity() {
                 .put("calinan_ornek", track.playbackHeadPosition.toLong() and 0xffffffffL)
                 .put("cikis_underrun", track.underrunCount)
                 .put("tanima16_ornek", tanimaOrnek)
+                .put("enerji_dilimleri_250ms_mic_ref_temiz", dilimler)
             if (!yazmaBitti.get() || (track.playbackHeadPosition.toLong() and 0xffffffffL) < pcmSayisi) sonuc = "SURE_DOLDU"
             track.routedDevice?.let { olcum.put("cikis_cihaz_turu", it.type) }
             if (girisEnerji > 0 && cikisEnerji > 0) olcum.put("toplam_enerji_farki_db", 10 * log10(girisEnerji / cikisEnerji))
