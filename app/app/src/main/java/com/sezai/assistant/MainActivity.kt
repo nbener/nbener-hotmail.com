@@ -95,12 +95,12 @@ class MainActivity : Activity() {
         baslik.addView(LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL; setPadding(dp(14), 0, 0, 0)
             addView(TextView(this@MainActivity).apply {
-                text = "Sezai"; textSize = 28f; setTextColor(Color.parseColor("#172E3D"))
+                text = "Sezai"; textSize = 28f; setTextColor(Color.parseColor(r("#172E3D")))
                 setTypeface(typeface, android.graphics.Typeface.BOLD)
             })
             addView(TextView(this@MainActivity).apply {
                 text = "Sesli ve yazılı yol arkadaşınız"; textSize = 14f
-                setTextColor(Color.parseColor("#536B78"))
+                setTextColor(Color.parseColor(r("#536B78")))
             })
         }, LinearLayout.LayoutParams(0, -2, 1f))
         kutu.addView(baslik, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = dp(20) })
@@ -108,7 +108,7 @@ class MainActivity : Activity() {
             calismaDurumu = TextView(this).apply {
                 textSize = 12f; maxLines = 3
                 ellipsize = android.text.TextUtils.TruncateAt.END
-                setTextColor(Color.parseColor("#405B6A"))
+                setTextColor(Color.parseColor(r("#405B6A")))
                 background = kart("#E6EFF3", 14)
                 setPadding(dp(14), dp(12), dp(14), dp(12))
                 contentDescription = "Son geliştirme durumu. Ayrıntıyı açmak için dokunun."
@@ -118,10 +118,10 @@ class MainActivity : Activity() {
         }
         durumYazisi = TextView(this).apply {
             text = "Merhaba, ben Sezai.\nSize nasıl yardımcı olabilirim?"
-            textSize = 19f; setTextColor(Color.parseColor("#172E3D"))
+            textSize = 19f; setTextColor(Color.parseColor(r("#172E3D")))
             autoLinkMask = android.text.util.Linkify.WEB_URLS
             linksClickable = true
-            setLinkTextColor(Color.parseColor("#087F82"))
+            setLinkTextColor(Color.parseColor(rLink()))
             setLineSpacing(dp(5).toFloat(), 1f)
             setPadding(dp(18), dp(20), dp(18), dp(20))
             background = kart("#FFFFFF", 20, "#DFE8ED")
@@ -178,14 +178,14 @@ class MainActivity : Activity() {
         kutu.addView(sohbetDugmesi, kutu.indexOfChild(durumYazisi))
         webSecimi = android.widget.CheckBox(this).apply {
             text = "Webde araştır · Groq (kota/ücret)"; textSize = 14f
-            setTextColor(Color.parseColor("#405B6A")); minHeight = dp(48)
+            setTextColor(Color.parseColor(r("#405B6A"))); minHeight = dp(48)
         }
         kutu.addView(webSecimi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         mesajAlani = EditText(this).apply {
             hint = "Sezai’ye yazın"
             textSize = 17f
-            setTextColor(Color.parseColor("#172E3D"))
-            setHintTextColor(Color.parseColor("#607884"))
+            setTextColor(Color.parseColor(r("#172E3D")))
+            setHintTextColor(Color.parseColor(r("#607884")))
             background = kart("#FFFFFF", 16, "#C6D7DF")
             setPadding(dp(16), dp(12), dp(16), dp(12))
             gravity = Gravity.TOP or Gravity.START
@@ -212,13 +212,17 @@ class MainActivity : Activity() {
             addView(baglantiDugmesi, LinearLayout.LayoutParams(0, -1, 1f).apply { marginStart = dp(5) })
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         dugme("Konuşma geçmişi") { konusmaGecmisiniAc() }
+        dugme(if (gece) "Görünüm: Gece (gündüze geç)" else "Görünüm: Gündüz (geceye geç)") {
+            getSharedPreferences("gorunum", MODE_PRIVATE).edit().putBoolean("gece", !gece).apply()
+            recreate()
+        }
         dugme("Ekran yardımcısı") {
             sohbetDuraklat()
             startActivity(android.content.Intent(this, EkranOkumaAyarActivity::class.java))
         }
         kutu.addView(TextView(this).apply {
             text = "Ses araçları"; textSize = 13f
-            setTextColor(Color.parseColor("#536B78"))
+            setTextColor(Color.parseColor(r("#536B78")))
         }, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(22); bottomMargin = dp(2) })
         val uyanmaDugmesi = dugme("") {}
         fun uyanmaYazisi() { uyanmaDugmesi.text = "Sezai deyince uyan: " + (if (uyanmaAyariAcik()) "Açık" else "Kapalı") }
@@ -229,7 +233,7 @@ class MainActivity : Activity() {
             durumYazisi.text = if (uyanmaAyariAcik()) "Uygulama açıkken Sezai dediğinizde sizi dinlerim. Bu sırada mikrofon açık kalır."
                 else "Sezai deyince uyanma kapatıldı. Mikrofon kapalı."
         }
-        val sesYazisi = TextView(this).apply { textSize = 14f; setTextColor(Color.parseColor("#536B78")) }
+        val sesYazisi = TextView(this).apply { textSize = 14f; setTextColor(Color.parseColor(r("#536B78"))) }
         fun sesYazisiniGuncelle(y: Int) { sesYazisi.text = "Konuşma sesi: %$y (telefon medya sesi ayrıdır)" }
         val sesCubugu = android.widget.SeekBar(this).apply {
             max = 240 // %10..%250
@@ -271,8 +275,11 @@ class MainActivity : Activity() {
                 seslendir("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
             }
         }
+        window.statusBarColor = Color.parseColor(r("#F3F7F8")); window.navigationBarColor = Color.parseColor(r("#F3F7F8"))
+        window.decorView.systemUiVisibility = if (gece) 0 else (android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
+        karakter?.geceOnizleme = gece
         setContentView(ScrollView(this).apply {
-            setBackgroundColor(Color.parseColor("#F3F7F8"))
+            setBackgroundColor(Color.parseColor(r("#F3F7F8")))
             isFillViewport = true; clipToPadding = false
             addView(kutu)
         })
@@ -298,12 +305,21 @@ class MainActivity : Activity() {
         }
     }
 
+    // Gece/gündüz görünümü: kullanıcı düğmesiyle seçilir, "gorunum" ayarında saklanır. Açık palet anahtar, koyu karşılığı değerdir.
+    private val gece by lazy { getSharedPreferences("gorunum", MODE_PRIVATE).getBoolean("gece", false) }
+    private val koyuPalet = mapOf(
+        "#F3F7F8" to "#0F1A20", "#FFFFFF" to "#1B2A33", "#172E3D" to "#EAF2F5", "#536B78" to "#9FB5C0",
+        "#405B6A" to "#B8CBD4", "#E6EFF3" to "#24363F", "#DFE8ED" to "#2E424C", "#C6D7DF" to "#3A505B",
+        "#607884" to "#8CA3AE", "#234552" to "#D8E6EC", "#D8E4E9" to "#33474F")
+    private fun r(acik: String): String = if (gece) koyuPalet[acik.uppercase()] ?: acik else acik
+    private fun rLink(): String = if (gece) "#5FD3D6" else "#087F82"
+
     private fun dp(deger: Int): Int = (deger * resources.displayMetrics.density + 0.5f).toInt()
 
     private fun kart(renk: String, yaricap: Int, cerceve: String? = null) =
         android.graphics.drawable.GradientDrawable().apply {
-            setColor(Color.parseColor(renk)); cornerRadius = dp(yaricap).toFloat()
-            if (cerceve != null) setStroke(dp(1), Color.parseColor(cerceve))
+            setColor(Color.parseColor(r(renk))); cornerRadius = dp(yaricap).toFloat()
+            if (cerceve != null) setStroke(dp(1), Color.parseColor(r(cerceve)))
         }
 
     private fun dugmeGorunumu(dugme: Button, ana: Boolean) {
@@ -312,7 +328,7 @@ class MainActivity : Activity() {
         dugme.setPadding(dp(12), dp(10), dp(12), dp(10))
         dugme.setTextColor(android.content.res.ColorStateList(
             arrayOf(intArrayOf(-android.R.attr.state_enabled), intArrayOf()),
-            intArrayOf(Color.parseColor(if (ana) "#D8ECEC" else "#6D818C"), Color.parseColor(if (ana) "#FFFFFF" else "#234552"))))
+            intArrayOf(Color.parseColor(r(if (ana) "#D8ECEC" else "#6D818C")), if (ana) Color.WHITE else Color.parseColor(r("#234552")))))
         dugme.background = android.graphics.drawable.RippleDrawable(
             android.content.res.ColorStateList.valueOf(Color.parseColor(if (ana) "#334CFFF2" else "#18087F82")),
             kart(if (ana) "#087F82" else "#FFFFFF", 14, if (ana) null else "#D8E4E9"), null)
@@ -651,12 +667,12 @@ class MainActivity : Activity() {
         val yazi = TextView(this).apply {
             text = sohbetDokumu.metin().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
             textSize = 18f
-            setTextColor(Color.parseColor("#172E3D"))
+            setTextColor(Color.parseColor(r("#172E3D")))
             setPadding(dp(20), dp(16), dp(20), dp(16))
             setLineSpacing(dp(4).toFloat(), 1f)
             autoLinkMask = android.text.util.Linkify.WEB_URLS
             linksClickable = true
-            setLinkTextColor(Color.parseColor("#087F82"))
+            setLinkTextColor(Color.parseColor(rLink()))
             setTextIsSelectable(true)
         }
         AlertDialog.Builder(this).setTitle("Konuşma geçmişi")
