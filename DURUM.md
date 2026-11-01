@@ -667,3 +667,8 @@ Son güncelleme: 2026-10-29
 - Gerçek UI: Sezai paketinde13 düğüm, Ekranda ne var? başlığı=true, Yorumla ve oku düğmesi enabled=true. Mevcut kod düğmeyi yalnız boş olmayan metinde etkinleştirir: bu koşulda dış pencere yolunun boş olmayan metin döndürdüğü çıkarılır. Beklenen boş/metin açıklaması önekleri XML'de eşleşmedi; açıklama metni kabulü başarılı sayılmadı. Hangi uygulama/pencere metninin geldiği, doğruluğu ve kapsamı doğrulanmadı; tam ekran görsel analizi değildir.
 - Yorumla ve oku tıklanmadı, ekran içeriği rapora/sohbete yazılmadı, test bu içerikle API çağrısı başlatmadı. İnsan sesiyle tetikleme denenmedi. MainActivity gerçek açılışı yapıldı; ayarlı uyanma/arka plan dinlemesinin açılıştaki etkisi ayrıca ölçülmedi, bu deneme mikrofon açılmadı iddiası taşımaz.
 - Kaynak/APK değişmedi. Önceki59 sessiz kontrol bu tur tekrarlanmadı. Sonraki: kullanıcı açık uygulama ile alınan metni karşılaştırmalı; ardından isterse Yorumla ve oku ile model kabulü. Arka plan sesli ekran komutu, söz kesme ve pil ölçümü açık.
+
+
+## 01.11.2026 20:25 — `~` devamı: ekran yardımcısı izni şu an kapalı görünüyor
+- Shizuku/rish id başarılı (uid2000). Salt okunur `settings get secure enabled_accessibility_services` listesinde com.sezai.assistant/EkranOkuyucuServisi YOK (listede yalnız başka uygulamaların hizmetleri). Önceki kayıtta etkin doğrulanmıştı; son APK güncelleme zamanı 2026-11-01 19:52:22. Kapanma nedeninin güncelleme olduğu doğrulanmadı, tahmindir.
+- Hiçbir ayar/izin değiştirilmedi, ekran içeriği toplanmadı, kaynak/APK değişmedi. Gerçek dış pencere kabulü için kullanıcının hizmeti yeniden açması gerekir.
