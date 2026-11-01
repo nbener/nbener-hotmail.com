@@ -672,3 +672,10 @@ Son güncelleme: 2026-10-29
 ## 01.11.2026 20:25 — `~` devamı: ekran yardımcısı izni şu an kapalı görünüyor
 - Shizuku/rish id başarılı (uid2000). Salt okunur `settings get secure enabled_accessibility_services` listesinde com.sezai.assistant/EkranOkuyucuServisi YOK (listede yalnız başka uygulamaların hizmetleri). Önceki kayıtta etkin doğrulanmıştı; son APK güncelleme zamanı 2026-11-01 19:52:22. Kapanma nedeninin güncelleme olduğu doğrulanmadı, tahmindir.
 - Hiçbir ayar/izin değiştirilmedi, ekran içeriği toplanmadı, kaynak/APK değişmedi. Gerçek dış pencere kabulü için kullanıcının hizmeti yeniden açması gerekir.
+
+
+## 01.11.2026 20:40 — gerçek dış pencere kabulü: BAŞARISIZ
+- `~` devamı. Sezai ekran yardımcısı artık etkin (enabled_accessibility_services içinde EkranOkuyucuServisi). Kullanıcı izni yeniden açmış.
+- İki gerçek deneme (`am start ... --es komut "ekranımda ne var"`): (1) Termux arkada, (2) Android Ayarlar arkada. İkisinde de inceleme ekranı "Bu ekrandan okunabilir metin alınamadı..." gösterdi (130 karakter). Dış uygulama metni alınamadı. Ekran içeriği toplanmadı/rapora yazılmadı; Termux'a geri dönüldü.
+- Sonuç: disPencereMetni() `windows` yolu bu cihazda Sezai öndeyken arkadaki uygulamayı vermiyor (veya servis o anda bağlı/yetkili değildi; ayrım doğrulanmadı). Telefon geneli ekran yardımı TAMAMLANMADI.
+- Planlanan geri dönüş (CLAUDE.md kural 4 gereği onaya sunulur): seçenek 1 — EkranOkuyucuServisi olay dinleyicisiyle son dış uygulama penceresinin metnini bellekte hatırlamak (yalnız açık istekte kullanılır). Değişecek dosyalar: EkranOkuyucuServisi.kt, ekran_erisim.xml (olay türleri). Pil/gizlilik etkisi tasarımda değerlendirilecek.
