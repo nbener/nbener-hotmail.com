@@ -194,7 +194,8 @@ class SezaiKarakterView @JvmOverloads constructor(context: Context, attrs: Attri
             bakisX += (bakisHedefX-bakisX)*minOf(1f, dt*1.3f); bakisY += (bakisHedefY-bakisY)*minOf(1f, dt*1.3f)
             sonKare = simdi
         }
-        val gece = geceOnizleme ?: ((resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES)
+        // Kullanıcı isteği: cihaz gece modundayken de gündüz renkleri kullanılır (gece paleti yalnız önizleme için).
+        val gece = geceOnizleme ?: false
         val koyu = Color.rgb(51, 65, 51)
         val yesil = if (gece) Color.rgb(111, 169, 142) else Color.rgb(80, 139, 111)
         val acikYesil = if (gece) Color.rgb(156, 195, 169) else Color.rgb(157, 191, 160)

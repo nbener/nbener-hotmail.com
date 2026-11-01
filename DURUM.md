@@ -706,3 +706,10 @@ Son güncelleme: 2026-10-29
 - `~` devamı. Değişen dosyalar: KomutYorumlayici.kt (Komut.Yardim, dar ifadeler: neler/ne yapabilirsin, ne işe yararsın, hangi komutları), KomutCalistirici.kt (yalnız çalışan yetenekleri sayan sabit yanıt; alarm iptali ve çalışmayanlar anılmaz), test/yorumla_cumleler.txt (+4 cümle: 2 olumlu, "bana yardım et" ve "yapabilirsen alarm kur" Bilinmiyor/değişmeden). Yedek: yedek/yardim-komutu-oncesi-20261101.tar.gz.
 - Yerel JVM: yorumla_cumleler.txt tüm cümleler hata=0. Derleme çıkış 0, zipalign + apksigner PASS, pm install -r Success. Cihazda ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, cihaz_yorumla 23/23 PASS (yan etkisiz, sentetik).
 - Yanıtın sesli okunması, arka plan servisi yolunda (calistir çağrılır) ve insan sesiyle söylenmesi cihazda denenmedi. Pil/servis etkisi yok.
+
+
+## 01.11.2026 22:30 — karaktere dokununca dinleme + gece modunda gündüz renkleri
+- Kullanıcı isteği: "resime tıklanınca dinleme modu olsun; gece modu gündüz rengi". Yedek: yedek/karakter-tikla-gunduz-oncesi-20261101.tar.gz.
+- MainActivity.karakterTiklandi(): karakter dokunuşunda anahtar varsa sohbetBaslat(), yoksa tek seferlik dinle(); sohbet/dinleme/konuşma/geçmiş okuma sürerken yok sayılır. Mikrofon yalnız dokunuşla açılır; yeni servis/döngü yok.
+- SezaiKarakterView: gece paleti artık cihaz gece moduna bağlı değil (geceOnizleme yalnız önizleme); karakter her zaman gündüz renklerinde. YORUM: "gece modu gündüz rengi" bu şekilde anlaşıldı; uygulamanın genel ekranı zaten açık temalı, ayrı koyu tema yok. Yanlış anlaşıldıysa kullanıcı düzeltecek.
+- Derleme çıkış 0, zipalign + apksigner PASS, kurulum Success. Karakter 6/6, ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, yorumlama 23/23 PASS (sentetik). Dokunuş cihazda DENENMEDİ (mikrofon açacağı için otomatik dokunulmadı); gece modunda görsel kontrol yapılmadı.

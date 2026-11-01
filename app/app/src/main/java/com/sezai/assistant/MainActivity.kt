@@ -80,7 +80,7 @@ class MainActivity : Activity() {
         }
         val baslik = LinearLayout(this).apply { gravity = Gravity.CENTER_VERTICAL }
         if (YENI_KARAKTER_ACIK) {
-            karakter = SezaiKarakterView(this)
+            karakter = SezaiKarakterView(this).apply { setOnClickListener { karakterTiklandi() } }
             baslik.addView(karakter, LinearLayout.LayoutParams(dp(104), dp(112)))
         } else baslik.addView(TextView(this).apply {
             text = "S"; textSize = 27f; gravity = Gravity.CENTER
@@ -356,6 +356,14 @@ class MainActivity : Activity() {
             checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED && uyanma.modelVarMi()
         if (olmali) uyanma.baslat() else uyanma.durdur()
     }
+    // Karaktere dokununca dinleme başlar: anahtar varsa sohbet, yoksa tek seferlik dinleme. Meşgulken yok sayılır.
+    private fun karakterTiklandi() {
+        if (sohbetAcik || elleDinliyor || konusuyor || gecmisOkunuyor) return
+        val saglayici = SohbetSaglayici.secili(this)
+        val anahtarVar = try { !AnahtarKasasi(this, saglayici.kasaAdi).oku().isNullOrBlank() } catch (_: Exception) { false }
+        if (anahtarVar) sohbetBaslat() else dinle()
+    }
+
     private fun sezaiDendi() {
         if (!gorunur) return
         Log.i("Sezai", "UYANMA tetiklendi")
