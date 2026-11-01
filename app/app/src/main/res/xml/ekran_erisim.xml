@@ -3,6 +3,6 @@
     android:accessibilityEventTypes="typeWindowStateChanged|typeWindowContentChanged|typeViewScrolled"
     android:accessibilityFeedbackType="feedbackSpoken"
     android:notificationTimeout="300"
-    android:accessibilityFlags="flagRequestAccessibilityButton"
+    android:accessibilityFlags="flagRequestAccessibilityButton|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:settingsActivity="com.sezai.assistant.EkranOkumaAyarActivity" />

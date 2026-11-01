@@ -13,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.PowerManager
 import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityWindowInfo
 
 // Sistem bağlar; BIND_ACCESSIBILITY_SERVICE ile korunur. Hiçbir ekrana eylem göndermez.
 class EkranOkuyucuServisi : AccessibilityService() {
@@ -41,6 +42,7 @@ class EkranOkuyucuServisi : AccessibilityService() {
     }
 
     override fun onServiceConnected() {
+        canli = this
         ayar.registerOnSharedPreferenceChangeListener(ayarDinleyici)
         if (Build.VERSION.SDK_INT >= 33) registerReceiver(ekranKapandi, IntentFilter(Intent.ACTION_SCREEN_OFF), RECEIVER_NOT_EXPORTED)
         else registerReceiver(ekranKapandi, IntentFilter(Intent.ACTION_SCREEN_OFF))
@@ -109,6 +111,22 @@ class EkranOkuyucuServisi : AccessibilityService() {
             hata = { anaIs.post { if (nesil == siraNo) durdur() } })
     }
 
+    // Sezai öndeyken (sesli komut) arkadaki uygulamanın penceresini bulur: pencereler önden arkaya sıralıdır.
+    // Sezai, sistem arayüzü ve klavye atlanır. Yalnızca açık istekle çağrılır; sorgu döngüsü yoktur.
+    private fun disPencereMetni(): String {
+        if (!kullanilabilirMi()) return ""
+        for (pencere in windows) {
+            if (pencere.type != AccessibilityWindowInfo.TYPE_APPLICATION) continue
+            val kok = pencere.root ?: continue
+            try {
+                val paket = kok.packageName?.toString().orEmpty()
+                if (paket.isBlank() || paket == packageName || paket == "com.android.systemui") continue
+                return EkranMetni.topla(kok, paket).joinToString("\n")
+            } finally { kok.recycle() }
+        }
+        return ""
+    }
+
     private fun ekraniIncele() {
         durdur()
         EkranIncelemeBellek.metin = null
@@ -116,7 +134,8 @@ class EkranOkuyucuServisi : AccessibilityService() {
         val kok = rootInActiveWindow ?: return
         val metin = try {
             val paket = kok.packageName?.toString().orEmpty()
-            if (paket == packageName || paket.isBlank()) "" else EkranMetni.topla(kok, paket).joinToString("\n")
+            if (paket == packageName) disPencereMetni()
+            else if (paket.isBlank()) "" else EkranMetni.topla(kok, paket).joinToString("\n")
         } finally { kok.recycle() }
         EkranIncelemeBellek.metin = metin
         startActivity(Intent(this, EkranIncelemeActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
@@ -128,10 +147,18 @@ class EkranOkuyucuServisi : AccessibilityService() {
     }
     override fun onInterrupt() { durdur() }
     override fun onDestroy() {
+        if (canli === this) canli = null
         durdur(); konusma?.kapat(); oncelik.kapat()
         ayar.unregisterOnSharedPreferenceChangeListener(ayarDinleyici)
         accessibilityButtonController.unregisterAccessibilityButtonCallback(dugme)
         try { unregisterReceiver(ekranKapandi) } catch (_: IllegalArgumentException) {}
         super.onDestroy()
+    }
+
+    companion object {
+        @Volatile private var canli: EkranOkuyucuServisi? = null
+        // Ana iş parçacığından çağrılır; servis bağlı değilse null (erişilebilirlik izni kapalı).
+        fun disEkranMetni(): String? = canli?.disPencereMetni()
+        fun baglimi(): Boolean = canli != null
     }
 }

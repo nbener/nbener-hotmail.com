@@ -620,3 +620,11 @@ Son güncelleme: 2026-10-29
 - Yalnız kayıt işi: izlenmeyen test/yorumla_test.sh ve test/yorumla_cumleler.txt (yorumlayıcı yan etkisiz test) git'e eklendi, __pycache__ .gitignore'a girdi. Kaynak/APK değişmedi; yeni derleme/test yapılmadı.
 - Gözlem (kod incelemesi, cihazda denenmedi): "Hey Sezai" için SezaiUyanma.kt:72 cümlede "sezai" sözcüğünü arıyor; dilbilgisi yalnız "sezai" içerdiğinden "hey" [unk] olur, yani "hey sezai" büyük olasılıkla zaten uyandırır. Yanlış tetikleme ölçümü ve cihaz doğrulaması açık.
 - Açık işler değişmedi: insan sesiyle dur/Sezai kabulü, TTS sırasında söz kesme, telefon geneli ekran yardımcısı, kilit/pil ölçümü.
+
+
+## 01.11.2026 03:40 — ekran yardımcısı: dış pencere okuma (seçenek 2, 1. parça)
+- Kullanıcı gece "diğerine geç" dedi; ekran yardımcısında seçenek 2 (pencere listesi) seçildi. Yedek yedek/dis-ekran-penceresi-oncesi-20261101.tar.gz.
+- ekran_erisim.xml: flagRetrieveInteractiveWindows eklendi (derlenmiş değer 0x140 doğrulandı). EkranOkuyucuServisi.kt: disPencereMetni() `windows` listesinde önden arkaya ilk TYPE_APPLICATION penceresini (Sezai, systemui hariç) okur; EkranMetni.topla ile parola/düzenlenen alanlar yine atlanır. ekraniIncele(), aktif kök Sezai ise bu yola düşer. Companion disEkranMetni()/baglimi() sonraki sesli komut bağlantısı içindir. Yeni servis/sorgu döngüsü/wake lock yok; yalnız açık istekle çalışır, pil etkisi ihmal edilebilir (ölçülmedi).
+- Ubuntu proot ./build.sh çıktı 0; zipalign -c 4 PASS; apksigner verify v2 PASS (Gradle debug imzası). APK KURULMADI: gece MainActivity açılışı uyanma mikrofonunu başlatabilir; ayrıca sesli komut henüz bağlı değil.
+- Doğrulanmadı: windows listesinin gerçek cihazda Sezai öndeyken arkadaki uygulamayı verip vermediği (Android/üretici sınırı olabilir). Başarısızsa seçenek 1'e (son dış uygulamayı hatırla) dönülecek.
+- Sonraki parça: SohbetKomutlari'na "ekranımda ne var" tanıma + MainActivity'de EkranOkuyucuServisi.disEkranMetni() → EkranIncelemeActivity; gündüz cihaz testi (erişilebilirlik açık, Termux/başka uygulama arkada).
