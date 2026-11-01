@@ -168,6 +168,17 @@ class SezaiArkaPlanServisi : Service() {
         if (SohbetKomutlari.bitirMi(metin)) {
             konus("Tamam, çağırdığınızda buradayım.", benim) { uyanmayaDon(benim, 1500) }; return
         }
+        // Ekran metni yalnız yerelde okunur; modele/ağa gönderilmez. Kilitliyken servis metin vermez.
+        if (SohbetKomutlari.ekranInceleMi(metin)) {
+            val ekran = EkranOkuyucuServisi.disEkranMetni()
+            val soz = when {
+                ekran == null -> "Ekranı okumak için erişilebilirlik ayarlarından Sezai ekran yardımcısını açmanız gerekiyor."
+                ekran.isBlank() -> "Ekrandan okunabilir metin alamadım."
+                else -> ekran.replace(Regex("\\s+"), " ").take(600)
+            }
+            konus(soz, benim) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
+            return
+        }
         // Uygulamadaki gibi: konum/saat/tarih/alarm/zamanlayıcı yerelde çözülür, modele gitmez
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut !is Komut.Bilinmiyor) {

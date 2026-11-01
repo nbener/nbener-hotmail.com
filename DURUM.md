@@ -688,3 +688,10 @@ Son güncelleme: 2026-10-29
 - GERÇEK TEST: Ayarlar arkadayken `am start ... --es komut "ekranımda ne var"` → inceleme ekranı "Erişilebilir ekran metni aşağıda" ve Ayarlar metnini (Ayarlar, Pil ve cihaz bakımı, Depolama...) gösterdi. Önceki başarısızlık giderildi. Termux'a dönüldü; Yorumla ve oku tıklanmadı, API'ye gönderilmedi.
 - Aynı APK: ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8 PASS (sessiz/sentetik).
 - Açık: insan sesiyle komut, arka plan servisine bağlama, Yorumla ve oku model kabulü, hatırlanan metnin bayatlığı (10 dk), pil ölçümü.
+
+
+## 01.11.2026 21:20 — arka plan servisine "ekranımda ne var" bağlandı (cihazda sesle denenmedi)
+- `~` devamı. Değişen dosya: SezaiArkaPlanServisi.kt (yanitla içinde, yerel komutlardan önce). Yedek: yedek/arka-plan-ekran-komutu-oncesi-20261101.tar.gz.
+- Davranış: ekranInceleMi eşleşirse API'ye gitmeden EkranOkuyucuServisi.disEkranMetni() ilk 600 karakteri yerelde seslendirir; izin yoksa / metin boşsa (ör. kilitliyken) açıklama söyler. Ağa gönderim yok, yeni servis/wake lock/mikrofon döngüsü yok.
+- Derleme çıkış 0, zipalign -c 4 + apksigner verify PASS, pm install -r Success, erişilebilirlik hizmeti etkin kaldı. Ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8 PASS (sentetik).
+- DOĞRULANMADI: gerçek insan sesiyle arka plandan komut ve TTS okuması; yeni yolun servis yaşam döngüsünde fiziksel kabulü. Sonraki: kullanıcıyla sesli kabul, Yorumla ve oku model kabulü, pil.
