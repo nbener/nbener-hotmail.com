@@ -17,12 +17,12 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     }
     // Cümle başına TTS ses düzeyi (0..1); null ise parametre gönderilmez, sistem ses ayarı değiştirilmez.
     @Volatile var sesDuzeyi: Float? = cumleSesDuzeyi
-    // %100 üstü ses (en çok %120) yazılımla güçlendirilir: TTS parametresi 1.0'ı aşamaz.
+    // %100 üstü ses (en çok %200) yazılımla güçlendirilir: TTS parametresi 1.0'ı aşamaz.
     private var guclendirici: android.media.audiofx.LoudnessEnhancer? = null
     private var oturumKimligi = 0
     @Volatile private var guc = 1f
     fun yuzdeAyarla(yuzde: Int) {
-        val y = yuzde.coerceIn(10, 120)
+        val y = yuzde.coerceIn(10, 200)
         sesDuzeyi = if (y >= 100) null else y / 100f
         guc = if (y > 100) y / 100f else 1f
     }
@@ -36,7 +36,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
             }
             guclendirici?.setTargetGain((2000 * Math.log10(g.toDouble())).toInt()) // mB: %120 ≈ 158
             oturumKimligi
-        } catch (e: Exception) { Log.w("Sezai", "Ses guclendirme kullanilamadi: ${e.javaClass.simpleName}"); null }
+        } catch (e: Exception) { Log.w("Sezai", "Ses guclendirme kullanilamadi: ${e.javaClass.simpleName} ${e.message}"); null }
     }
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.

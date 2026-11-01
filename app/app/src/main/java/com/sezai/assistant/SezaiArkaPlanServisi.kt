@@ -100,7 +100,7 @@ class SezaiArkaPlanServisi : Service() {
         val k = konusma
         if (k == null) { uyanmayaDon(benim, 3000); return }
         // Uygulamadaki ses çubuğu ayarı her konuşmadan önce okunur
-        val yuzde = getSharedPreferences("ses_ayari", MODE_PRIVATE).getInt("tts_seviye", 100).coerceIn(10, 120)
+        val yuzde = getSharedPreferences("ses_ayari", MODE_PRIVATE).getInt("tts_seviye", 100).coerceIn(10, 200)
         k.yuzdeAyarla(yuzde)
         konusanNesil = if (kesilebilir) benim else -1
         k.konus(metin,

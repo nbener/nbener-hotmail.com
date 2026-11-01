@@ -720,3 +720,9 @@ Son güncelleme: 2026-10-29
 - AndroidKonusma.yuzdeAyarla(10..120): %100 altı KEY_PARAM_VOLUME; %100 üstü LoudnessEnhancer (hedef kazanç 2000·log10(oran) mB, %120≈158 mB) TTS KEY_PARAM_SESSION_ID oturumuna bağlanır; hata olursa güçlendirmesiz devam, günlüğe uyarı. kapat() güçlendiriciyi serbest bırakır. MainActivity ses çubuğu %10–%120 (max=110), arka plan servisi aynı ayarı okur. Kayıtlı değer değiştirilmedi (100 kalır); kullanıcı çubuğu kaydırmalı.
 - Derleme çıkış 0, zipalign + apksigner PASS, kurulum Success. Karakter 6/6, ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, yorumlama 23/23 PASS (ses çıkışı kapsamaz).
 - DOĞRULANMADI: %120'nin gerçekten daha yüksek duyulup duyulmadığı, ağ sesinde (tmc-network) oturum kimliğinin kabul edildiği ve bozulma. Cihazda dinleyerek kabul gerekir. Pil etkisi ölçülmedi; yalnız konuşma sırasında hafif ses işlemesi.
+
+
+## 01.11.2026 23:20 — konuşma sesi %200'e çıkarıldı
+- Kullanıcı "ses artmadı, %200 olsun" dedi. Bulgu: %120 ≈ +1,6 dB (zor fark edilir); ilk %120 denemesinde günlükte "Ses guclendirme kullanilamadi: RuntimeException" görüldü (sonraki turda uyarı yok; ilk hatanın nedeni doğrulanmadı, günlüğe artık hata mesajı da yazılıyor). Yedek: yedek/ses-yuzde200-oncesi-20261101.tar.gz.
+- Değişiklik: yuzdeAyarla ve ses çubuğu %10–%200 (200 ≈ +6 dB, hedef kazanç ≈602 mB); kayıtlı değer bir kez 200'e çekilir (tts_200_uygulandi bayrağı), sonra çubuk serbest. Arka plan servisi aynı değeri okur; ilk uygulama açılışından sonra geçerli (cihazda kaydedilen tts_seviye=200 doğrulandı).
+- Derleme/imza/kurulum Success. Sessiz testler PASS (sonuçlar yukarıdaki komut çıktısında). Gerçek duyulur ses artışı, ağ sesinde oturum kabulü ve %200'de bozulma/cızırtı DOĞRULANMADI; kullanıcı dinleyip bildirmeli. Bozulma olursa üst sınırı düşür.
