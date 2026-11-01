@@ -613,3 +613,10 @@ Son güncelleme: 2026-10-29
 - SON APK üzerinde sohbet31/31, dinleme9/9, görüşme8/8: toplam48 sessiz regresyon PASS. Sahte ağ/ses/odak olayları kullanılır; bu testler SezaiArkaPlanServisi yaşam döngüsünü doğrudan canlandırmaz. Yeni korumaların gerçek arka plan/söz kesme oturumu kabulü açık.
 - Gece mikrofon/hoparlör/ana Activity otomatik açılmadı. Yeni servis, wake lock, sürekli sorgu veya model eklenmedi; pil ölçülmedi.
 - Sonraki: servis için gecikmiş hata/TTS callback yaşam döngüsü kabulü; telefon geneli ekran yardımcısı entegrasyonu ve gerçek insan sesiyle söz kesme hâlâ açık.
+
+
+## 01.11.2026 03:05 — `~` devamı: kayıt temizliği, kota doğrulanamadı
+- CLAUDE.md, DURUM, KALAN_ISLER, TEST_DURUMU, KULLANICI_ISTEKLERI okundu. scripts/calisma_kontrol.py Codex oturum değişkenlerini (CODEX_THREAD_ID) bekler; bu Claude Code oturumunda "kota bilgisi bulunamıyor" dedi. %80 kota sınırı bu oturumda DOĞRULANAMADI; büyük iş açılmadı.
+- Yalnız kayıt işi: izlenmeyen test/yorumla_test.sh ve test/yorumla_cumleler.txt (yorumlayıcı yan etkisiz test) git'e eklendi, __pycache__ .gitignore'a girdi. Kaynak/APK değişmedi; yeni derleme/test yapılmadı.
+- Gözlem (kod incelemesi, cihazda denenmedi): "Hey Sezai" için SezaiUyanma.kt:72 cümlede "sezai" sözcüğünü arıyor; dilbilgisi yalnız "sezai" içerdiğinden "hey" [unk] olur, yani "hey sezai" büyük olasılıkla zaten uyandırır. Yanlış tetikleme ölçümü ve cihaz doğrulaması açık.
+- Açık işler değişmedi: insan sesiyle dur/Sezai kabulü, TTS sırasında söz kesme, telefon geneli ekran yardımcısı, kilit/pil ölçümü.

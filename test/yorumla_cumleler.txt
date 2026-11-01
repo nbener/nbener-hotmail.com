@@ -1,0 +1,17 @@
+saat kaç|SaatSor
+bugün günlerden ne|TarihSor
+sabah yedi buçuğa alarm kur|AlarmKur(saat=7, dakika=30)
+akşam altıda alarm kur|AlarmKur(saat=18, dakika=0)
+saat 7:30 için alarm kur|AlarmKur(saat=7, dakika=30)
+yarın sabah 6.45'e alarm ayarla|AlarmKur(saat=6, dakika=45)
+gece on ikiye alarm kur|AlarmKur(saat=0, dakika=0)
+sabah on bire alarm kur|AlarmKur(saat=11, dakika=0)
+saat on iki otuza alarm kur|AlarmKur(saat=12, dakika=30)
+akşam sekiz buçukta alarm kur|AlarmKur(saat=20, dakika=30)
+beş dakikalık zamanlayıcı kur|ZamanlayiciKur(saniye=300)
+on iki dakika zamanlayıcı kur|ZamanlayiciKur(saniye=720)
+yirmi beş dakika zamanlayıcı kur|ZamanlayiciKur(saniye=1500)
+bir buçuk saat sonrası için sayaç başlat|ZamanlayiciKur(saniye=5400)
+otuz saniye zamanlayıcı kur|ZamanlayiciKur(saniye=30)
+alarmı iptal et|AlarmIptal
+bana bir fıkra anlat|Bilinmiyor

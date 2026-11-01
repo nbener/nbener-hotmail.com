@@ -17,3 +17,4 @@ calisma_durdu.json
 
 # Yerel ses denemesi model ve indirmeleri
 yerel-model/
+__pycache__/
