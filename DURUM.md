@@ -695,3 +695,8 @@ Son güncelleme: 2026-10-29
 - Davranış: ekranInceleMi eşleşirse API'ye gitmeden EkranOkuyucuServisi.disEkranMetni() ilk 600 karakteri yerelde seslendirir; izin yoksa / metin boşsa (ör. kilitliyken) açıklama söyler. Ağa gönderim yok, yeni servis/wake lock/mikrofon döngüsü yok.
 - Derleme çıkış 0, zipalign -c 4 + apksigner verify PASS, pm install -r Success, erişilebilirlik hizmeti etkin kaldı. Ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8 PASS (sentetik).
 - DOĞRULANMADI: gerçek insan sesiyle arka plandan komut ve TTS okuması; yeni yolun servis yaşam döngüsünde fiziksel kabulü. Sonraki: kullanıcıyla sesli kabul, Yorumla ve oku model kabulü, pil.
+
+
+## 01.11.2026 21:40 — `~` devamı: otomatik yapılabilir iş kalmadı
+- SezaiUyanma.kt:51,72 yeniden okundu: dilbilgisi ["sezai","[unk]"], eşleşme cümlede "sezai" sözcüğü. Kod incelemesine göre "hey sezai" → "[unk] sezai" uyandırır; cihazda ve insan sesiyle DOĞRULANMADI. Kod değişmedi.
+- Bekleyenler kullanıcıya bağlı: arka planda sesli "ekranımda ne var" kabulü, "Hey Sezai"/dur-Sezai insan sesi testleri, Yorumla ve oku için API gönderim onayı, "note oku" belirsizliği. Kaynak/APK değişmedi.
