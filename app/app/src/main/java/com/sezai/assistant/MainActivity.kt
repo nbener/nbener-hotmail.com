@@ -65,8 +65,8 @@ class MainActivity : Activity() {
     private val konum by lazy { KonumYardimcisi(this) }
     private val sesAyari by lazy {
         getSharedPreferences("ses_ayari", MODE_PRIVATE).also { o ->
-            // Kullanıcı isteği (1 Kasım): konuşma sesi %200; bir kez uygulanır, sonra çubuk serbest.
-            if (!o.getBoolean("tts_200_uygulandi", false)) o.edit().putInt("tts_seviye", 200).putBoolean("tts_200_uygulandi", true).apply()
+            // Kullanıcı isteği (1 Kasım): konuşma sesi %250; bir kez uygulanır, sonra çubuk serbest.
+            if (!o.getBoolean("tts_250_uygulandi", false)) o.edit().putInt("tts_seviye", 250).putBoolean("tts_250_uygulandi", true).apply()
         }
     }
     private val VARSAYILAN_SES = "tr-tr-x-ama-local"
@@ -135,7 +135,7 @@ class MainActivity : Activity() {
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
                 sesler = konusma.sesListesi()
-                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 200).let { y -> (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
+                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 250).let { y -> (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
                 // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
                 val kayitli = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
                 val sira = sesler.indexOf(kayitli)
@@ -232,8 +232,8 @@ class MainActivity : Activity() {
         val sesYazisi = TextView(this).apply { textSize = 14f; setTextColor(Color.parseColor("#536B78")) }
         fun sesYazisiniGuncelle(y: Int) { sesYazisi.text = "Konuşma sesi: %$y (telefon medya sesi ayrıdır)" }
         val sesCubugu = android.widget.SeekBar(this).apply {
-            max = 190 // %10..%200
-            val kayitliYuzde = sesAyari.getInt("tts_seviye", 100).coerceIn(10, 200)
+            max = 240 // %10..%250
+            val kayitliYuzde = sesAyari.getInt("tts_seviye", 100).coerceIn(10, 250)
             progress = kayitliYuzde - 10
             sesYazisiniGuncelle(kayitliYuzde)
             setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {

@@ -17,26 +17,65 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     }
     // Cümle başına TTS ses düzeyi (0..1); null ise parametre gönderilmez, sistem ses ayarı değiştirilmez.
     @Volatile var sesDuzeyi: Float? = cumleSesDuzeyi
-    // %100 üstü ses (en çok %200) yazılımla güçlendirilir: TTS parametresi 1.0'ı aşamaz.
-    private var guclendirici: android.media.audiofx.LoudnessEnhancer? = null
-    private var oturumKimligi = 0
+    // %100 üstü ses (en çok %250): TTS parametresi 1.0'ı aşamaz ve LoudnessEnhancer bu cihazda duyulur fark yaratmadı.
+    // Bu yüzden sentez dosyaya alınır, PCM örnekleri yumuşak sınırlayıcıyla (tanh) büyütülür ve AudioTrack ile çalınır.
     @Volatile private var guc = 1f
+    @Volatile private var guclCalan: android.media.AudioTrack? = null
     fun yuzdeAyarla(yuzde: Int) {
-        val y = yuzde.coerceIn(10, 200)
+        val y = yuzde.coerceIn(10, 250)
         sesDuzeyi = if (y >= 100) null else y / 100f
         guc = if (y > 100) y / 100f else 1f
     }
-    private fun gucUygula(): Int? {
-        val g = guc
-        if (g <= 1f) return null
-        return try {
-            if (guclendirici == null) {
-                oturumKimligi = (context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager).generateAudioSessionId()
-                guclendirici = android.media.audiofx.LoudnessEnhancer(oturumKimligi).also { it.enabled = true }
+    private fun guclCalDurdur() {
+        val c = guclCalan; guclCalan = null
+        if (c != null) { try { c.setPlaybackPositionUpdateListener(null); c.stop() } catch (_: Exception) {}; try { c.release() } catch (_: Exception) {} }
+    }
+    // WAV (PCM16) dosyasını okur: (örnekleme hızı, kanal sayısı, örnekler)
+    private fun wavOku(f: java.io.File): Triple<Int, Int, ShortArray>? {
+        val b = f.readBytes()
+        if (b.size < 44 || String(b, 0, 4) != "RIFF") return null
+        val bb = java.nio.ByteBuffer.wrap(b).order(java.nio.ByteOrder.LITTLE_ENDIAN)
+        val kanal = bb.getShort(22).toInt(); val hz = bb.getInt(24); val bit = bb.getShort(34).toInt()
+        if (bit != 16 || kanal !in 1..2 || hz <= 0) return null
+        var o = 12
+        while (o + 8 <= b.size) {
+            val ad = String(b, o, 4); var boy = bb.getInt(o + 4)
+            if (ad == "data") {
+                if (boy < 0 || o + 8 + boy > b.size) boy = b.size - o - 8
+                val n = boy / 2
+                return Triple(hz, kanal, ShortArray(n) { bb.getShort(o + 8 + it * 2) })
             }
-            guclendirici?.setTargetGain((2000 * Math.log10(g.toDouble())).toInt()) // mB: %120 ≈ 158
-            oturumKimligi
-        } catch (e: Exception) { Log.w("Sezai", "Ses guclendirme kullanilamadi: ${e.javaClass.simpleName} ${e.message}"); null }
+            o += 8 + boy + (boy and 1)
+        }
+        return null
+    }
+    private fun guclCal(f: java.io.File, sira: Int, basladi: () -> Unit, bitti: () -> Unit, hata: () -> Unit) {
+        try {
+            val (hz, kanal, ornek) = wavOku(f) ?: run { hata(); return }
+            if (ornek.isEmpty()) { hata(); return }
+            val g = guc
+            for (k in ornek.indices) ornek[k] = (32767.0 * kotlin.math.tanh(g * ornek[k] / 32768.0)).toInt().toShort()
+            val iz = android.media.AudioTrack.Builder()
+                .setAudioAttributes(android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ASSISTANT)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
+                .setAudioFormat(android.media.AudioFormat.Builder().setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(hz).setChannelMask(if (kanal == 1) android.media.AudioFormat.CHANNEL_OUT_MONO else android.media.AudioFormat.CHANNEL_OUT_STEREO).build())
+                .setBufferSizeInBytes(ornek.size * 2).setTransferMode(android.media.AudioTrack.MODE_STATIC).build()
+            iz.write(ornek, 0, ornek.size)
+            val kare = ornek.size / kanal
+            if (gorselNesil.get() != sira) { iz.release(); return }
+            guclCalDurdur(); guclCalan = iz
+            iz.setNotificationMarkerPosition(maxOf(1, kare - 1))
+            iz.setPlaybackPositionUpdateListener(object : android.media.AudioTrack.OnPlaybackPositionUpdateListener {
+                override fun onMarkerReached(t: android.media.AudioTrack?) {
+                    if (gorselNesil.get() == sira && guclCalan === iz) { guclCalDurdur(); bitti() }
+                }
+                override fun onPeriodicNotification(t: android.media.AudioTrack?) {}
+            }, gorselAnaIs)
+            iz.play(); basladi()
+        } catch (e: Exception) { Log.w("Sezai", "Guclu ses calinamadi: ${e.javaClass.simpleName} ${e.message}"); guclCalDurdur(); hata() }
+        finally { f.delete() }
     }
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.
@@ -77,6 +116,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         }
         val t = tts
         if (t == null || !hazirlandi) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke(); return }
+        val dosya = if (guc > 1f) java.io.File(context.cacheDir, "sezai-tts-$sira.wav") else null
         t.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
             private fun pcmBildir(olay: PcmTaniOlayi) {
                 if (gorselNesil.get() == sira) pcmTanisi?.invoke(olay)
@@ -90,9 +130,14 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
                     pcmAkisi?.invoke(audio)
                 }
             }
-            override fun onStart(id: String?) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
+            override fun onStart(id: String?) { if (id == konusmaKimligi && dosya == null) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
             override fun onDone(id: String?) {
-                if (id == konusmaKimligi) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() }
+                if (id != konusmaKimligi) return
+                if (dosya == null) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke(); return }
+                if (gorselNesil.get() != sira) { dosya.delete(); return }
+                guclCal(dosya, sira, { bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) },
+                    { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() },
+                    { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() })
             }
             override fun onStop(id: String?, interrupted: Boolean) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.DURDU) }
             @Deprecated("Deprecated in Java")
@@ -101,12 +146,10 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
             }
         })
         // Varsayılan çağrılar aynı null parametreyi kullanır; sistem ses ayarı değiştirilmez.
-        val oturum = gucUygula()
-        val parametre = if (sesDuzeyi == null && oturum == null) null else Bundle().apply {
-            sesDuzeyi?.let { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, it) }
-            oturum?.let { putInt(TextToSpeech.Engine.KEY_PARAM_SESSION_ID, it) }
-        }
-        if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
+        val parametre = sesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
+        val sonuc = if (dosya != null) t.synthesizeToFile(metin, parametre, dosya, konusmaKimligi)
+                    else t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi)
+        if (sonuc == TextToSpeech.ERROR) { dosya?.delete(); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
     override fun durdur() {
@@ -114,6 +157,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         if (gorselOlayi != null) gorselAnaIs.post {
             if (gorselNesil.get() == sira) gorselOlayi?.invoke(KonusmaGorselOlayi(KonusmaGorselOlayi.Tur.DURDU))
         }
+        guclCalDurdur()
         tts?.stop()
     }
 
@@ -130,7 +174,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { try { guclendirici?.release() } catch (_: Exception) {}; guclendirici = null; pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+    override fun kapat() { pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
 }
 
 internal data class PcmTaniOlayi(val hz: Int = 0, val bicim: Int = 0, val kanal: Int = 0, val bayt: Int = 0)
