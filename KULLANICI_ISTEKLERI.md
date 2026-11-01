@@ -71,3 +71,11 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - test/ekran_komut_jvm.kt ve .sh eklendi: mevcut Gradle içindeki Kotlin derleyicisiyle gerçek KomutYorumlayici.kt ve SohbetKomutlari.kt yerel JVM için derlenir. Yeni paket/ağ/Android/anahtar kullanılmaz; geçici test çıktısı temizlenir.
 - Yerel JVM 21/21 PASS: olumlu ekran komutları, Türkçe büyük harf/noktalama/hitap, olumsuz/alıntı ifadeler ve geçmiş/bitirme/söz alma ayrımı. Bu sonuç gerçek erişilebilirlik penceresi, Activity yönlendirmesi veya sesli kabulü değildir. bash sözdizimi ve diff kontrolü başarılı.
 - Üretim kaynağı/APK değişmedi; yeniden APK derlenmedi/kurulmadı. Yeni mikrofon, servis veya pil yükü yok; pil ölçülmedi. Sonraki adım: kullanıcı Shizuku'yu başlattığında önceki imzalı APK'yı kur, ekran11 ve regresyon48 cihaz kontrolünü çalıştır; sonra gerçek dış pencere kabulü.
+
+
+## 01.11.2026 — bağlantı geldi, ekran komutlu APK kuruldu
+- `~` devamında rish id başarılı: uid2000(shell). ADB listesi boş; cihaz işlemleri yapılandırılmış Shizuku üzerinden yapıldı. Kota %7/%56.
+- Mevcut APK tekrar zipalign -c 4 ve apksigner verify --verbose kontrolünden geçti (v2=true). Kaynak değişmedi, önceki başarılı derlemenin APK'sı kullanıldı. `pm install -r -S 11708326` stdin aktarımı Success; Activity otomatik açılmadı. Download kopyası güncellenmedi.
+- KURULU SON APK: ekran11/11, sohbet31/31, dinleme9/9, görüşme8/8; toplam59/59 PASS. Her betik yeni test_id ile kendi raporunu doğruladı. Gerçek ekran içeriği, insan sesi, API ve telefon görüşmesi kabulü değildir; sentetik metin/sahte ağ/ses/odak olayları ve Android sistem yetenek kontrolüdür.
+- `settings get secure enabled_accessibility_services` listesinde Sezai yok: ekran okuyucu izni etkin değil. Android erişilebilirlik ayarlarında kullanıcı Sezai ekran okuyucusunu açmalı; sonra gerçek dış pencere/ekranımda ne var kabulü yapılmalı. İzin otomatik değiştirilmedi, ekran içeriği toplanmadı.
+- Yeni üretim kaynak değişikliği, servis, wake lock veya mikrofon döngüsü yok. Testte ana ekran/mikrofon/hoparlör başlatılmadı. Pil ölçülmedi. Arka plan komut bağlantısı, gerçek söz kesme ve diğer MD hedefleri açık.
