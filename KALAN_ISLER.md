@@ -414,3 +414,10 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - Gerçek UI: Sezai paketinde13 düğüm, Ekranda ne var? başlığı=true, Yorumla ve oku düğmesi enabled=true. Mevcut kod düğmeyi yalnız boş olmayan metinde etkinleştirir: bu koşulda dış pencere yolunun boş olmayan metin döndürdüğü çıkarılır. Beklenen boş/metin açıklaması önekleri XML'de eşleşmedi; açıklama metni kabulü başarılı sayılmadı. Hangi uygulama/pencere metninin geldiği, doğruluğu ve kapsamı doğrulanmadı; tam ekran görsel analizi değildir.
 - Yorumla ve oku tıklanmadı, ekran içeriği rapora/sohbete yazılmadı, test bu içerikle API çağrısı başlatmadı. İnsan sesiyle tetikleme denenmedi. MainActivity gerçek açılışı yapıldı; ayarlı uyanma/arka plan dinlemesinin açılıştaki etkisi ayrıca ölçülmedi, bu deneme mikrofon açılmadı iddiası taşımaz.
 - Kaynak/APK değişmedi. Önceki59 sessiz kontrol bu tur tekrarlanmadı. Sonraki: kullanıcı açık uygulama ile alınan metni karşılaştırmalı; ardından isterse Yorumla ve oku ile model kabulü. Arka plan sesli ekran komutu, söz kesme ve pil ölçümü açık.
+
+
+## 01.11.2026 21:30 — ekran yardımcısı durumu
+- [x] Dış pencere metni: son dış uygulama metni bellekte hatırlanıyor; Ayarlar arkadayken "ekranımda ne var" gerçek cihazda Ayarlar metnini verdi (MainActivity komut yolu).
+- [~] Arka plan servisinde aynı komut yerelde seslendirilir; kodlandı, kuruldu, sentetik testler geçti. Gerçek insan sesiyle kabul bekliyor (kullanıcı telefon kilitsizken başka uygulamadayken "Sezai, ekranımda ne var" demeli).
+- [ ] Yorumla ve oku (model yorumu) gerçek kabulü: ekran metni dış API'ye gider, kullanıcı onayıyla ve zararsız bir ekranla denenmeli.
+- [ ] Hatırlanan metin bayatlığı (10 dk), kilitliyken davranış, pil ölçümü.
