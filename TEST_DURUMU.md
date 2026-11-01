@@ -456,3 +456,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - KURULU SON APK: ekran11/11, sohbet31/31, dinleme9/9, görüşme8/8; toplam59/59 PASS. Her betik yeni test_id ile kendi raporunu doğruladı. Gerçek ekran içeriği, insan sesi, API ve telefon görüşmesi kabulü değildir; sentetik metin/sahte ağ/ses/odak olayları ve Android sistem yetenek kontrolüdür.
 - `settings get secure enabled_accessibility_services` listesinde Sezai yok: ekran okuyucu izni etkin değil. Android erişilebilirlik ayarlarında kullanıcı Sezai ekran okuyucusunu açmalı; sonra gerçek dış pencere/ekranımda ne var kabulü yapılmalı. İzin otomatik değiştirilmedi, ekran içeriği toplanmadı.
 - Yeni üretim kaynak değişikliği, servis, wake lock veya mikrofon döngüsü yok. Testte ana ekran/mikrofon/hoparlör başlatılmadı. Pil ölçülmedi. Arka plan komut bağlantısı, gerçek söz kesme ve diğer MD hedefleri açık.
+
+
+## 01.11.2026 — Sezai ekran yardımcısı izni etkin
+- Kullanıcı hizmeti açtığını bildirdi; Shizuku üzerinden enabled_accessibility_services sorgusunda com.sezai.assistant/com.sezai.assistant.EkranOkuyucuServisi bulundu. Android erişilebilirlik etkinleştirmesi doğrulandı.
+- Doğru arayüz adı: Sezai ekran yardımcısı. Önceki Zeki/Sezai karışıklığı kullanıcıya düzeltildi; diğer hizmetlerin ayarları değiştirilmedi.
+- Gerçek dış pencere metni, sesli komut ve yorumlama henüz denenmedi. Sonraki: başka uygulama açıkken erişilebilirlik Sezai düğmesiyle açık istekli ekran inceleme, ardından Sezai öndeyken sesli komut/dış pencere kabulü. Kaynak/APK değişmedi, ekran içeriği toplanmadı, yeni mikrofon/ses/pil testi yapılmadı.
