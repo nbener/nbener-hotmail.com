@@ -713,3 +713,10 @@ Son güncelleme: 2026-10-29
 - MainActivity.karakterTiklandi(): karakter dokunuşunda anahtar varsa sohbetBaslat(), yoksa tek seferlik dinle(); sohbet/dinleme/konuşma/geçmiş okuma sürerken yok sayılır. Mikrofon yalnız dokunuşla açılır; yeni servis/döngü yok.
 - SezaiKarakterView: gece paleti artık cihaz gece moduna bağlı değil (geceOnizleme yalnız önizleme); karakter her zaman gündüz renklerinde. YORUM: "gece modu gündüz rengi" bu şekilde anlaşıldı; uygulamanın genel ekranı zaten açık temalı, ayrı koyu tema yok. Yanlış anlaşıldıysa kullanıcı düzeltecek.
 - Derleme çıkış 0, zipalign + apksigner PASS, kurulum Success. Karakter 6/6, ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, yorumlama 23/23 PASS (sentetik). Dokunuş cihazda DENENMEDİ (mikrofon açacağı için otomatik dokunulmadı); gece modunda görsel kontrol yapılmadı.
+
+
+## 01.11.2026 23:00 — konuşma sesi %120'ye kadar
+- Kullanıcı isteği: ses %120. Android TTS ses parametresi 1.0'ı (%100) aşamaz; kullanıcı "yazılımla güçlendir" seçti. Yedek: yedek/ses-yuzde120-oncesi-20261101.tar.gz.
+- AndroidKonusma.yuzdeAyarla(10..120): %100 altı KEY_PARAM_VOLUME; %100 üstü LoudnessEnhancer (hedef kazanç 2000·log10(oran) mB, %120≈158 mB) TTS KEY_PARAM_SESSION_ID oturumuna bağlanır; hata olursa güçlendirmesiz devam, günlüğe uyarı. kapat() güçlendiriciyi serbest bırakır. MainActivity ses çubuğu %10–%120 (max=110), arka plan servisi aynı ayarı okur. Kayıtlı değer değiştirilmedi (100 kalır); kullanıcı çubuğu kaydırmalı.
+- Derleme çıkış 0, zipalign + apksigner PASS, kurulum Success. Karakter 6/6, ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, yorumlama 23/23 PASS (ses çıkışı kapsamaz).
+- DOĞRULANMADI: %120'nin gerçekten daha yüksek duyulup duyulmadığı, ağ sesinde (tmc-network) oturum kimliğinin kabul edildiği ve bozulma. Cihazda dinleyerek kabul gerekir. Pil etkisi ölçülmedi; yalnız konuşma sırasında hafif ses işlemesi.

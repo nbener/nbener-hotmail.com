@@ -130,7 +130,7 @@ class MainActivity : Activity() {
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
                 sesler = konusma.sesListesi()
-                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 100).let { y -> (konusma as? AndroidKonusma)?.sesDuzeyi = if (y >= 100) null else y / 100f }
+                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 120).let { y -> (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
                 // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
                 val kayitli = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
                 val sira = sesler.indexOf(kayitli)
@@ -227,15 +227,15 @@ class MainActivity : Activity() {
         val sesYazisi = TextView(this).apply { textSize = 14f; setTextColor(Color.parseColor("#536B78")) }
         fun sesYazisiniGuncelle(y: Int) { sesYazisi.text = "Konuşma sesi: %$y (telefon medya sesi ayrıdır)" }
         val sesCubugu = android.widget.SeekBar(this).apply {
-            max = 90 // %10..%100
-            val kayitliYuzde = sesAyari.getInt("tts_seviye", 100).coerceIn(10, 100)
+            max = 110 // %10..%120
+            val kayitliYuzde = sesAyari.getInt("tts_seviye", 100).coerceIn(10, 120)
             progress = kayitliYuzde - 10
             sesYazisiniGuncelle(kayitliYuzde)
             setOnSeekBarChangeListener(object : android.widget.SeekBar.OnSeekBarChangeListener {
                 override fun onProgressChanged(sb: android.widget.SeekBar?, deger: Int, kullanici: Boolean) {
                     val y = deger + 10
                     sesYazisiniGuncelle(y)
-                    if (kullanici) { sesAyari.edit().putInt("tts_seviye", y).apply(); (konusma as? AndroidKonusma)?.sesDuzeyi = if (y >= 100) null else y / 100f }
+                    if (kullanici) { sesAyari.edit().putInt("tts_seviye", y).apply(); (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
                 }
                 override fun onStartTrackingTouch(sb: android.widget.SeekBar?) {}
                 override fun onStopTrackingTouch(sb: android.widget.SeekBar?) { sohbetDuraklat(); seslendir("Ses bu kadar.") }

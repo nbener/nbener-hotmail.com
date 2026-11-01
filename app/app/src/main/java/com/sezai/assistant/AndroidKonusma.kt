@@ -11,12 +11,33 @@ import java.util.Locale
 import java.util.concurrent.atomic.AtomicInteger
 
 // Android'in kendi TTS motoru (Google/Samsung); ek boyut ve pil maliyeti yok
-class AndroidKonusma(context: Context, motor: String? = null, private val cumleSesDuzeyi: Float? = null, hazir: (Boolean) -> Unit) : KonusmaMotoru {
+class AndroidKonusma(private val context: Context, motor: String? = null, private val cumleSesDuzeyi: Float? = null, hazir: (Boolean) -> Unit) : KonusmaMotoru {
     init {
         require(cumleSesDuzeyi == null || (cumleSesDuzeyi.isFinite() && cumleSesDuzeyi in 0f..1f))
     }
     // Cümle başına TTS ses düzeyi (0..1); null ise parametre gönderilmez, sistem ses ayarı değiştirilmez.
     @Volatile var sesDuzeyi: Float? = cumleSesDuzeyi
+    // %100 üstü ses (en çok %120) yazılımla güçlendirilir: TTS parametresi 1.0'ı aşamaz.
+    private var guclendirici: android.media.audiofx.LoudnessEnhancer? = null
+    private var oturumKimligi = 0
+    @Volatile private var guc = 1f
+    fun yuzdeAyarla(yuzde: Int) {
+        val y = yuzde.coerceIn(10, 120)
+        sesDuzeyi = if (y >= 100) null else y / 100f
+        guc = if (y > 100) y / 100f else 1f
+    }
+    private fun gucUygula(): Int? {
+        val g = guc
+        if (g <= 1f) return null
+        return try {
+            if (guclendirici == null) {
+                oturumKimligi = (context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager).generateAudioSessionId()
+                guclendirici = android.media.audiofx.LoudnessEnhancer(oturumKimligi).also { it.enabled = true }
+            }
+            guclendirici?.setTargetGain((2000 * Math.log10(g.toDouble())).toInt()) // mB: %120 ≈ 158
+            oturumKimligi
+        } catch (e: Exception) { Log.w("Sezai", "Ses guclendirme kullanilamadi: ${e.javaClass.simpleName}"); null }
+    }
     internal var gorselOlayi: ((KonusmaGorselOlayi) -> Unit)? = null
     // Tanı yalnız biçim/sayım taşır; ham ses tutulmaz veya başka yere aktarılmaz.
     @Volatile internal var pcmTanisi: ((PcmTaniOlayi) -> Unit)? = null
@@ -80,7 +101,11 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
             }
         })
         // Varsayılan çağrılar aynı null parametreyi kullanır; sistem ses ayarı değiştirilmez.
-        val parametre = sesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
+        val oturum = gucUygula()
+        val parametre = if (sesDuzeyi == null && oturum == null) null else Bundle().apply {
+            sesDuzeyi?.let { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, it) }
+            oturum?.let { putInt(TextToSpeech.Engine.KEY_PARAM_SESSION_ID, it) }
+        }
         if (t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi) == TextToSpeech.ERROR) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
@@ -105,7 +130,7 @@ class AndroidKonusma(context: Context, motor: String? = null, private val cumleS
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+    override fun kapat() { try { guclendirici?.release() } catch (_: Exception) {}; guclendirici = null; pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
 }
 
 internal data class PcmTaniOlayi(val hz: Int = 0, val bicim: Int = 0, val kanal: Int = 0, val bayt: Int = 0)
