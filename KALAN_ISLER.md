@@ -406,3 +406,11 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - Kullanıcı hizmeti açtığını bildirdi; Shizuku üzerinden enabled_accessibility_services sorgusunda com.sezai.assistant/com.sezai.assistant.EkranOkuyucuServisi bulundu. Android erişilebilirlik etkinleştirmesi doğrulandı.
 - Doğru arayüz adı: Sezai ekran yardımcısı. Önceki Zeki/Sezai karışıklığı kullanıcıya düzeltildi; diğer hizmetlerin ayarları değiştirilmedi.
 - Gerçek dış pencere metni, sesli komut ve yorumlama henüz denenmedi. Sonraki: başka uygulama açıkken erişilebilirlik Sezai düğmesiyle açık istekli ekran inceleme, ardından Sezai öndeyken sesli komut/dış pencere kabulü. Kaynak/APK değişmedi, ekran içeriği toplanmadı, yeni mikrofon/ses/pil testi yapılmadı.
+
+
+## 01.11.2026 — gerçek komutla inceleme ekranı açılış kontrolü
+- `~` devamı kota %10/%56. Mevcut MainActivity test girişiyle `am start ... --es komut "ekranımda ne var"` çalıştırıldı; Activity başlatma çıkış0.
+- İlk uiautomator XML'ini rish standart çıktısından okuma başarısız: XML ayrıştırılamadı; sebep kesinleşmedi. Mevcut test/cihaz_ui.py dosya aktarımıyla yeni döküm alındı ve ayrıştırıldı. Geçici XML dosyaları yardımcı tarafından temizlendi.
+- Gerçek UI: Sezai paketinde13 düğüm, Ekranda ne var? başlığı=true, Yorumla ve oku düğmesi enabled=true. Mevcut kod düğmeyi yalnız boş olmayan metinde etkinleştirir: bu koşulda dış pencere yolunun boş olmayan metin döndürdüğü çıkarılır. Beklenen boş/metin açıklaması önekleri XML'de eşleşmedi; açıklama metni kabulü başarılı sayılmadı. Hangi uygulama/pencere metninin geldiği, doğruluğu ve kapsamı doğrulanmadı; tam ekran görsel analizi değildir.
+- Yorumla ve oku tıklanmadı, ekran içeriği rapora/sohbete yazılmadı, test bu içerikle API çağrısı başlatmadı. İnsan sesiyle tetikleme denenmedi. MainActivity gerçek açılışı yapıldı; ayarlı uyanma/arka plan dinlemesinin açılıştaki etkisi ayrıca ölçülmedi, bu deneme mikrofon açılmadı iddiası taşımaz.
+- Kaynak/APK değişmedi. Önceki59 sessiz kontrol bu tur tekrarlanmadı. Sonraki: kullanıcı açık uygulama ile alınan metni karşılaştırmalı; ardından isterse Yorumla ve oku ile model kabulü. Arka plan sesli ekran komutu, söz kesme ve pil ölçümü açık.
