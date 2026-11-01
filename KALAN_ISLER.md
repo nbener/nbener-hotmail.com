@@ -421,3 +421,10 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [~] Arka plan servisinde aynı komut yerelde seslendirilir; kodlandı, kuruldu, sentetik testler geçti. Gerçek insan sesiyle kabul bekliyor (kullanıcı telefon kilitsizken başka uygulamadayken "Sezai, ekranımda ne var" demeli).
 - [ ] Yorumla ve oku (model yorumu) gerçek kabulü: ekran metni dış API'ye gider, kullanıcı onayıyla ve zararsız bir ekranla denenmeli.
 - [ ] Hatırlanan metin bayatlığı (10 dk), kilitliyken davranış, pil ölçümü.
+
+
+## 02.11.2026 — karakter, ses, görünüm
+- [~] Karakter dokunuşu = dinleme: kodlandı, cihazda dokunuş testi yok.
+- [~] Gece/Gündüz düğmesi: kuruldu; koyu paletin görsel kabulü kullanıcıdan bekliyor. Diğer ekranlar (EkranIncele, EkranOkumaAyar, diyaloglar) hâlâ açık.
+- [ ] Ses %250 duyulabilir mi: kullanıcı testi bekliyor. Hâlâ yetmezse medya sesini artırma için kullanıcı onayı gerekir.
+- [?] "note oku": hangi not kastedildi, yanıt bekleniyor.

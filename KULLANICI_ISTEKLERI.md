@@ -98,3 +98,11 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 ## 01.11.2026 — ekran yardımcısı
 - [~] "Ekranımda ne var": dış uygulama metni okunuyor (cihazda doğrulandı, uygulama içi komut). Arka plandan sesle kullanım kodlandı, insan sesi kabulü bekliyor.
 - [?] Not: kullanıcı "note oku" dedi; hangi dosya/not kastedildiği belirsiz, yanıt bekleniyor.
+
+
+## 02.11.2026 — karakter, ses, görünüm istekleri
+- "Resim tıklanınca dinleme modu olsun": karakter dokunuşu dinlemeyi başlatır (kodlandı, kuruldu; cihazda dokunuş denenmedi, mikrofon açtığı için).
+- "Gece modu gündüz rengi" ve "gece gündüz rengi nerde": ana ekrana Gece/Gündüz görünüm düğmesi eklendi (kullanıcı seçimi). Görsel doğrulama yapılmadı; diğer ekranlar açık renkli.
+- "Sesi %120 / %200 / %250 yap": yazılım kazancı (PCM + AudioTrack) en çok %250. Kullanıcı: rakam artsa da ses yükselmiyor. Duyulabilirlik doğrulanmadı.
+- "Neler yapabilirsin" yardım komutu eklendi.
+- "note oku" / "md yada hatırlama dosyasını oku": hangi not kastedildi belirsiz, yanıt bekleniyor.
