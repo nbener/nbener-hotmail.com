@@ -385,3 +385,10 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - KURULUM/CİHAZ TESTİ YAPILAMADI: yapılandırılmış rish ile id komutu çıkış1, `Server is not running`. Shizuku çalışmıyor. Yeni 11 ekran kontrolü ve önceki 48 sessiz regresyon bu APK'da çalıştırılmadı; eski sonuçlar yeni kaynak kabulü değildir. Download APK güncellenmedi, uygulama açılmadı, ekran metni toplanmadı, ses/mikrofon başlatılmadı.
 - Sonraki: Shizuku yeniden başlatılınca imzalı APK'yı kur (Activity'yi otomatik açmadan), ekran11 ve mevcut48 sessiz test; sonra kullanıcıyla erişilebilirlik izni ve gerçek dış pencere/komut kabulü. Pencere listesi arkadaki uygulamayı sunmayabilir; cihaz kanıtı olmadan telefon geneli ekran yardımı tamamlandı sayılmaz. Söz kesme/pil/kilit işleri açık.
 - Pil: yeni servis, sürekli sorgu, wake lock veya mikrofon döngüsü yok; ekran okuma yalnız açık komutta. Pil ölçülmedi.
+
+
+## 01.11.2026 — ekran komutlarının bağımsız JVM doğrulaması
+- Yeni `~` devamı: kota %4/%55. rish `id` çıkış1: `Server is not running`; `adb devices -l` listesi boş. ADB yerel sunucusu komutla başladı; kablosuz hata ayıklama açılmadı, bağlantı/izin değiştirilmedi. Kurulum ve cihaz testleri hâlâ bekliyor.
+- test/ekran_komut_jvm.kt ve .sh eklendi: mevcut Gradle içindeki Kotlin derleyicisiyle gerçek KomutYorumlayici.kt ve SohbetKomutlari.kt yerel JVM için derlenir. Yeni paket/ağ/Android/anahtar kullanılmaz; geçici test çıktısı temizlenir.
+- Yerel JVM 21/21 PASS: olumlu ekran komutları, Türkçe büyük harf/noktalama/hitap, olumsuz/alıntı ifadeler ve geçmiş/bitirme/söz alma ayrımı. Bu sonuç gerçek erişilebilirlik penceresi, Activity yönlendirmesi veya sesli kabulü değildir. bash sözdizimi ve diff kontrolü başarılı.
+- Üretim kaynağı/APK değişmedi; yeniden APK derlenmedi/kurulmadı. Yeni mikrofon, servis veya pil yükü yok; pil ölçülmedi. Sonraki adım: kullanıcı Shizuku'yu başlattığında önceki imzalı APK'yı kur, ekran11 ve regresyon48 cihaz kontrolünü çalıştır; sonra gerçek dış pencere kabulü.
