@@ -15,3 +15,7 @@ bir buçuk saat sonrası için sayaç başlat|ZamanlayiciKur(saniye=5400)
 otuz saniye zamanlayıcı kur|ZamanlayiciKur(saniye=30)
 alarmı iptal et|AlarmIptal
 bana bir fıkra anlat|Bilinmiyor
+neler yapabilirsin|Yardim
+Sezai sen ne yapabilirsin|Yardim
+bana yardım et|Bilinmiyor
+yapabilirsen alarm kur|Bilinmiyor

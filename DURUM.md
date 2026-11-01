@@ -700,3 +700,9 @@ Son güncelleme: 2026-10-29
 ## 01.11.2026 21:40 — `~` devamı: otomatik yapılabilir iş kalmadı
 - SezaiUyanma.kt:51,72 yeniden okundu: dilbilgisi ["sezai","[unk]"], eşleşme cümlede "sezai" sözcüğü. Kod incelemesine göre "hey sezai" → "[unk] sezai" uyandırır; cihazda ve insan sesiyle DOĞRULANMADI. Kod değişmedi.
 - Bekleyenler kullanıcıya bağlı: arka planda sesli "ekranımda ne var" kabulü, "Hey Sezai"/dur-Sezai insan sesi testleri, Yorumla ve oku için API gönderim onayı, "note oku" belirsizliği. Kaynak/APK değişmedi.
+
+
+## 01.11.2026 22:00 — "Neler yapabilirsin?" yardım komutu
+- `~` devamı. Değişen dosyalar: KomutYorumlayici.kt (Komut.Yardim, dar ifadeler: neler/ne yapabilirsin, ne işe yararsın, hangi komutları), KomutCalistirici.kt (yalnız çalışan yetenekleri sayan sabit yanıt; alarm iptali ve çalışmayanlar anılmaz), test/yorumla_cumleler.txt (+4 cümle: 2 olumlu, "bana yardım et" ve "yapabilirsen alarm kur" Bilinmiyor/değişmeden). Yedek: yedek/yardim-komutu-oncesi-20261101.tar.gz.
+- Yerel JVM: yorumla_cumleler.txt tüm cümleler hata=0. Derleme çıkış 0, zipalign + apksigner PASS, pm install -r Success. Cihazda ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, cihaz_yorumla 23/23 PASS (yan etkisiz, sentetik).
+- Yanıtın sesli okunması, arka plan servisi yolunda (calistir çağrılır) ve insan sesiyle söylenmesi cihazda denenmedi. Pil/servis etkisi yok.

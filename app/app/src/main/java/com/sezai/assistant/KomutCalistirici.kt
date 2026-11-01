@@ -19,6 +19,9 @@ class KomutCalistirici(private val context: Context) {
         }
         is Komut.AlarmKur -> alarmKur(komut.saat, komut.dakika)
         is Komut.AlarmIptal -> alarmIptal()
+        is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim, konumunuzu söyleyebilir, " +
+            "kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilir ve sizinle sohbet edebilirim. " +
+            "Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)

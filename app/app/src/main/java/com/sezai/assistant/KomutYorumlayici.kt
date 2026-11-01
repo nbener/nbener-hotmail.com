@@ -8,6 +8,7 @@ sealed class Komut {
     object TarihSor : Komut()
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
+    object Yardim : Komut()
     object KonumGoster : Komut()
     data class Kamera(val on: Boolean) : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
@@ -58,6 +59,10 @@ object KomutYorumlayici {
         val t = normalize(metin)
         val m = t.joinToString(" ")
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
+
+        // "Neler yapabilirsin?" gibi dar ifadeler; genel "yardım" sözcüğü tek başına eşleşmez
+        if (m.contains("neler yapabilirsin") || m.contains("ne yapabilirsin") || m.contains("ne işe yararsın") ||
+            m.contains("sana neler söyleyebilirim") || m.contains("hangi komutları")) return Komut.Yardim
 
         if (t.any { it.startsWith("konumum") } || m.contains("neredeyim") || m.contains("bulunduğum yer")) return Komut.KonumGoster
         // Kamera: "kamerayı aç ve resim çek", "ne görüyorsun"; ön/arka belirtilmezse arka kamera
