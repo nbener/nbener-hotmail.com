@@ -14,6 +14,16 @@ class EkranTestAlicisi : BroadcastReceiver() {
         fun kontrol(ad: String, islem: () -> Unit) {
             try { islem(); rapor.add("PASS $ad") } catch (_: Exception) { rapor.add("FAIL $ad") }
         }
+        kontrol("Ekran komutları hitap ve noktalama ile tanınıyor") {
+            listOf("ekranımda ne var?", "Sezai, ekranı incele", "lütfen ekranımı analiz et", "ekranda ne var lütfen").forEach {
+                check(SohbetKomutlari.ekranInceleMi(it))
+            }
+        }
+        kontrol("Olumsuz ve alıntı ekran ifadeleri işlem başlatmıyor") {
+            listOf("ekranı inceleme", "ekranı analiz et demedim", "ekranımda ne var sorusu", "ekranı okuma").forEach {
+                check(!SohbetKomutlari.ekranInceleMi(it))
+            }
+        }
         kontrol("Kapalı mod ve başka uygulama otomatik okumaya alınmıyor") {
             check(!EkranMetni.otomatikHedefMi(false, "com.termux", "com.termux"))
             check(!EkranMetni.otomatikHedefMi(true, "com.termux", "com.baska"))

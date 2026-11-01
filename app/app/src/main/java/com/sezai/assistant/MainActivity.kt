@@ -402,8 +402,20 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun ekraniIncele() {
+        sohbetDuraklat()
+        val metin = EkranOkuyucuServisi.disEkranMetni()
+        if (metin == null) {
+            durumYazisi.text = "Ekranı incelemek için Android erişilebilirlik ayarlarından Sezai ekran okuyucusunu açın."
+            return
+        }
+        EkranIncelemeBellek.metin = metin
+        startActivity(android.content.Intent(this, EkranIncelemeActivity::class.java))
+    }
+
     private fun komutVer(metin: String) {
         sohbetDuraklat()
+        if (SohbetKomutlari.ekranInceleMi(metin)) { ekraniIncele(); return }
         if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
@@ -558,6 +570,7 @@ class MainActivity : Activity() {
                         }
                     }
                     val istekMetni = sozAlma ?: metin
+                    if (SohbetKomutlari.ekranInceleMi(istekMetni)) { ekraniIncele(); return@runOnUiThread }
                     if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
                     (KomutYorumlayici.yorumla(istekMetni) as? Komut.Kamera)?.let { kameraBak(it.on, nesil); return@runOnUiThread }

@@ -54,3 +54,13 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 
 ## 1 Kasım devam aşaması
 - `~`: mevcut hedefleri geliştir ve test et talimatı sürdürüldü. Arka plan servisinde eski oturum geri çağrı koruması eklendi; derleme/imza/kurulum ve48 sessiz regresyon geçti. Servis yaşam döngüsü fiziksel kabulü, ekran yardımcısı ve gerçek söz kesme açık (DURUM.md).
+
+
+## 01.11.2026 — ekran inceleme komut bağlantısı (2. parça)
+- `~` devamıyla son kayıtlar incelendi; kota %0/%55, %80 sınırının altında. Yedek: yedek/ekran-komut-baglantisi-oncesi-20261101.tar.gz.
+- SohbetKomutlari.ekranInceleMi: ekranımda/ekranda ne var, ekranı/ekranımı incele/analiz et; hitap ve lütfen desteği. MainActivity normal komut ve sesli sohbet yolunda bunu API öncesinde yakalar, sohbeti duraklatıp dış pencere metnini EkranIncelemeActivity'ye bellekte devreder. İzin yoksa açıklama gösterir. Mevcut Yorumla ve oku adımı korunur; otomatik ağ gönderimi eklenmedi. Arka plan servisine henüz bağlanmadı.
+- Debug EkranTestAlicisi'na olumlu ve olumsuz/alıntı komut kontrolleri eklendi; test/ekran_test.py artık 11 sonuç bekler.
+- Ubuntu proot ./build.sh çıkış 0; zipalign -c 4 PASS; Gradle debug imzalı APK apksigner verify --verbose PASS (v2=true, v3=false). APK: app/app/build/outputs/apk/debug/app-debug.apk. Python AST ve git diff --check PASS.
+- KURULUM/CİHAZ TESTİ YAPILAMADI: yapılandırılmış rish ile id komutu çıkış1, `Server is not running`. Shizuku çalışmıyor. Yeni 11 ekran kontrolü ve önceki 48 sessiz regresyon bu APK'da çalıştırılmadı; eski sonuçlar yeni kaynak kabulü değildir. Download APK güncellenmedi, uygulama açılmadı, ekran metni toplanmadı, ses/mikrofon başlatılmadı.
+- Sonraki: Shizuku yeniden başlatılınca imzalı APK'yı kur (Activity'yi otomatik açmadan), ekran11 ve mevcut48 sessiz test; sonra kullanıcıyla erişilebilirlik izni ve gerçek dış pencere/komut kabulü. Pencere listesi arkadaki uygulamayı sunmayabilir; cihaz kanıtı olmadan telefon geneli ekran yardımı tamamlandı sayılmaz. Söz kesme/pil/kilit işleri açık.
+- Pil: yeni servis, sürekli sorgu, wake lock veya mikrofon döngüsü yok; ekran okuma yalnız açık komutta. Pil ölçülmedi.

@@ -2,6 +2,15 @@ package com.sezai.assistant
 
 // Bitirmek ile sözü almak farklıdır; ikisi de mevcut sohbet geçmişini kendiliğinden silmez.
 object SohbetKomutlari {
+    fun ekranInceleMi(metin: String): Boolean {
+        var t = KomutYorumlayici.normalize(metin).map { it.trim('.', ':') }.filter { it.isNotEmpty() }
+        if (t.firstOrNull() == "sezai") t = t.drop(1)
+        if (t.firstOrNull() == "lütfen") t = t.drop(1)
+        if (t.lastOrNull() == "lütfen") t = t.dropLast(1)
+        return t.joinToString(" ") in setOf("ekranımda ne var", "ekranda ne var", "ekranı incele",
+            "ekranımı incele", "ekranı analiz et", "ekranımı analiz et")
+    }
+
     fun gecmisOkuMu(metin: String): Boolean {
         var t = KomutYorumlayici.normalize(metin).map { it.trim('.', ':') }.filter { it.isNotEmpty() }
         if (t.firstOrNull() == "sezai") t = t.drop(1)

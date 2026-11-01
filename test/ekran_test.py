@@ -24,13 +24,13 @@ try:
         satirlar = cikti.read_text().splitlines() if cikti.exists() else []
         if satirlar and satirlar[0] == 'TEST_ID '+kimlik:
             rapor = satirlar[1:]
-            if len(rapor) < 9:
+            if len(rapor) < 11:
                 time.sleep(0.3)
                 continue
             print('\n'.join(rapor))
-            if len(rapor) != 9 or any(not s.startswith('PASS ') for s in rapor):
+            if len(rapor) != 11 or any(not s.startswith('PASS ') for s in rapor):
                 raise SystemExit(1)
-            print('Sonuç: 9/9 başarılı')
+            print('Sonuç: 11/11 başarılı')
             break
         time.sleep(0.3)
     else:
