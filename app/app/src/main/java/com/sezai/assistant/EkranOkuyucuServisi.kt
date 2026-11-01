@@ -34,9 +34,13 @@ class EkranOkuyucuServisi : AccessibilityService() {
         }
     }
     private val ekranKapandi = object : BroadcastReceiver() {
-        override fun onReceive(context: Context?, intent: Intent?) { durdur(); aktifPaket = null }
+        override fun onReceive(context: Context?, intent: Intent?) { durdur(); aktifPaket = null; disMetniniUnut() }
     }
     private val oku = Runnable { yeniMetniAl() }
+    // Son dış uygulamanın metni yalnız bellekte tutulur; Sezai öne geçince "ekranımda ne var" için kullanılır.
+    private var sonDisMetin = ""
+    private var sonDisZaman = 0L
+    private val disKaydet = Runnable { disMetniniHatirla() }
     private val dugme = object : AccessibilityButtonController.AccessibilityButtonCallback() {
         override fun onClicked(controller: AccessibilityButtonController) { ekraniIncele() }
     }
@@ -57,6 +61,11 @@ class EkranOkuyucuServisi : AccessibilityService() {
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event == null) return
         val paket = event.packageName?.toString()
+        if (disUygulamaMi(paket) && kullanilabilirMi()) {
+            // Olay başına tek geciktirilmiş okuma; periyodik sorgu yok.
+            anaIs.removeCallbacks(disKaydet)
+            anaIs.postDelayed(disKaydet, 1500)
+        }
         if (!ayar.getBoolean("otomatik", false) || !kullanilabilirMi()) { durdur(); return }
         val secili = ayar.getString("paket", "com.termux")
         if (!EkranMetni.otomatikHedefMi(true, secili, paket)) {
@@ -70,6 +79,28 @@ class EkranOkuyucuServisi : AccessibilityService() {
         // Akış halindeki metin sabitlenince tek okuma; periyodik ekran sorgusu yok.
         anaIs.postDelayed(oku, 1800)
     }
+
+    private fun disUygulamaMi(paket: String?): Boolean =
+        !paket.isNullOrBlank() && paket != packageName && paket != "com.android.systemui" &&
+        !paket.contains("inputmethod") && !paket.contains("keyboard")
+
+    private fun disMetniniHatirla() {
+        if (!kullanilabilirMi()) return
+        val kok = rootInActiveWindow ?: return
+        try {
+            val paket = kok.packageName?.toString()
+            if (!disUygulamaMi(paket)) return
+            val metin = EkranMetni.topla(kok, paket!!).joinToString("\n")
+            if (metin.isBlank()) return
+            sonDisMetin = metin.take(SON_METIN_SINIRI)
+            sonDisZaman = System.currentTimeMillis()
+        } finally { kok.recycle() }
+    }
+
+    private fun hatirlananDisMetin(): String =
+        if (System.currentTimeMillis() - sonDisZaman <= SON_METIN_OMRU_MS) sonDisMetin else ""
+
+    private fun disMetniniUnut() { anaIs.removeCallbacks(disKaydet); sonDisMetin = ""; sonDisZaman = 0L }
 
     private fun yeniMetniAl() {
         if (!ayar.getBoolean("otomatik", false) || !kullanilabilirMi()) { durdur(); return }
@@ -124,7 +155,7 @@ class EkranOkuyucuServisi : AccessibilityService() {
                 return EkranMetni.topla(kok, paket).joinToString("\n")
             } finally { kok.recycle() }
         }
-        return ""
+        return hatirlananDisMetin()
     }
 
     private fun ekraniIncele() {
@@ -148,7 +179,7 @@ class EkranOkuyucuServisi : AccessibilityService() {
     override fun onInterrupt() { durdur() }
     override fun onDestroy() {
         if (canli === this) canli = null
-        durdur(); konusma?.kapat(); oncelik.kapat()
+        disMetniniUnut(); durdur(); konusma?.kapat(); oncelik.kapat()
         ayar.unregisterOnSharedPreferenceChangeListener(ayarDinleyici)
         accessibilityButtonController.unregisterAccessibilityButtonCallback(dugme)
         try { unregisterReceiver(ekranKapandi) } catch (_: IllegalArgumentException) {}
@@ -156,6 +187,8 @@ class EkranOkuyucuServisi : AccessibilityService() {
     }
 
     companion object {
+        private const val SON_METIN_SINIRI = 20000
+        private const val SON_METIN_OMRU_MS = 10 * 60 * 1000L
         @Volatile private var canli: EkranOkuyucuServisi? = null
         // Ana iş parçacığından çağrılır; servis bağlı değilse null (erişilebilirlik izni kapalı).
         fun disEkranMetni(): String? = canli?.disPencereMetni()

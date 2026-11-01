@@ -679,3 +679,12 @@ Son güncelleme: 2026-10-29
 - İki gerçek deneme (`am start ... --es komut "ekranımda ne var"`): (1) Termux arkada, (2) Android Ayarlar arkada. İkisinde de inceleme ekranı "Bu ekrandan okunabilir metin alınamadı..." gösterdi (130 karakter). Dış uygulama metni alınamadı. Ekran içeriği toplanmadı/rapora yazılmadı; Termux'a geri dönüldü.
 - Sonuç: disPencereMetni() `windows` yolu bu cihazda Sezai öndeyken arkadaki uygulamayı vermiyor (veya servis o anda bağlı/yetkili değildi; ayrım doğrulanmadı). Telefon geneli ekran yardımı TAMAMLANMADI.
 - Planlanan geri dönüş (CLAUDE.md kural 4 gereği onaya sunulur): seçenek 1 — EkranOkuyucuServisi olay dinleyicisiyle son dış uygulama penceresinin metnini bellekte hatırlamak (yalnız açık istekte kullanılır). Değişecek dosyalar: EkranOkuyucuServisi.kt, ekran_erisim.xml (olay türleri). Pil/gizlilik etkisi tasarımda değerlendirilecek.
+
+
+## 01.11.2026 21:00 — son dış uygulama metni hatırlama: GERÇEK CİHAZDA ÇALIŞTI
+- Kullanıcı onayıyla seçenek 1 uygulandı. Değişen dosya: EkranOkuyucuServisi.kt (ekran_erisim.xml değişmedi). Yedek: yedek/dis-ekran-hatirlama-oncesi-20261101.tar.gz.
+- Servis dış uygulama olaylarında (Sezai, systemui, klavye hariç) 1,5 sn gecikmeli TEK okuma yapar; metni yalnız bellekte (en çok 20000 karakter, 10 dk ömür) tutar. Parola/düzenlenen alanlar EkranMetni.topla ile atlanır. Ekran kapanınca ve servis kapanınca silinir. disPencereMetni(): önce windows listesi, boşsa hatırlanan metin. Periyodik sorgu, yeni servis, wake lock, mikrofon yok. Pil: olay başına tek okuma, ölçülmedi.
+- Ubuntu proot içinde doğrudan ./build.sh çıkış 0 (proot-distro iç içe çalışmaz); zipalign -c 4 ve apksigner verify PASS; pm install -r Success; erişilebilirlik hizmeti kurulumdan sonra da etkin kaldı.
+- GERÇEK TEST: Ayarlar arkadayken `am start ... --es komut "ekranımda ne var"` → inceleme ekranı "Erişilebilir ekran metni aşağıda" ve Ayarlar metnini (Ayarlar, Pil ve cihaz bakımı, Depolama...) gösterdi. Önceki başarısızlık giderildi. Termux'a dönüldü; Yorumla ve oku tıklanmadı, API'ye gönderilmedi.
+- Aynı APK: ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8 PASS (sessiz/sentetik).
+- Açık: insan sesiyle komut, arka plan servisine bağlama, Yorumla ve oku model kabulü, hatırlanan metnin bayatlığı (10 dk), pil ölçümü.
