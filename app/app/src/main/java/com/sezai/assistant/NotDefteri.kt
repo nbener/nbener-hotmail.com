@@ -5,8 +5,8 @@ import android.util.Log
 import java.io.File
 
 // Sesli notlar: yalnız uygulamanın özel klasöründe, satır başına bir not (yeni en sonda)
-class NotDefteri(context: Context) {
-    private val dosya = File(context.filesDir, "notlar.txt")
+class NotDefteri(context: Context, ad: String = "notlar.txt") {
+    private val dosya = File(context.filesDir, ad)
 
     fun ekle(metin: String): Boolean = try {
         dosya.appendText(metin.replace('\n', ' ').trim() + "\n"); true

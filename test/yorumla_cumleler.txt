@@ -29,3 +29,7 @@ sessiz moda geç|Sessiz(ac=true)
 sessize al|Sessiz(ac=true)
 sessiz modu kapat|Sessiz(ac=false)
 pasif ol|Sessiz(ac=true)
+hatırla: ilacımı sabah içerim|Hatirla(metin=ilacımı sabah içerim)
+şunu hatırla kapı anahtarı çekmecede|Hatirla(metin=kapı anahtarı çekmecede)
+ne hatırlıyorsun|Hatirlat
+ne öğrendin|Hatirlat

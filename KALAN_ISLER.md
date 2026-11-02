@@ -436,5 +436,5 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [~] Açık-uygulama bildirimi: kodlandı; POST_NOTIFICATIONS izni gerekir.
 - [~] Bildirim düğmeleri (Sessiz mod, Arka plan dinleme) kodlandı, kuruldu; tıklama kabulü kullanıcıdan bekliyor. Dinleme dışındaki işlevler için ek düğmeler açık.
 - [ ] Tüm ana ekran işlevlerine sesli kumanda.
-- [ ] Öğrenme/hatırlama hafızası ("şunu hatırla", "ne öğrendin").
+- [~] Hafıza: "hatırla ..." ve "ne hatırlıyorsun" kodlandı/kuruldu; sohbet modeline bağlama (onaylı) ve "unut" açık.
 - [~] Sessiz/pasif mod: düğme + sesli komut + bildirim düğmesi kodlandı; cihaz kabulü bekliyor.

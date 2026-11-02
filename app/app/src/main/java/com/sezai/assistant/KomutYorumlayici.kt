@@ -9,6 +9,8 @@ sealed class Komut {
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
     object Yardim : Komut()
+    data class Hatirla(val metin: String) : Komut()
+    object Hatirlat : Komut()
     data class Sessiz(val ac: Boolean) : Komut()
     data class NotKaydet(val metin: String) : Komut()
     data class NotOku(val adet: Int) : Komut()
@@ -67,6 +69,12 @@ object KomutYorumlayici {
         if (m.contains("sessiz mod") || m.contains("sessize al") || m.contains("sessiz ol") || m.contains("pasif mod") || m.contains("pasif ol")) {
             return Komut.Sessiz(!(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır")))
         }
+        // Hafıza: "şunu hatırla: ..." kaydeder; "ne hatırlıyorsun / ne öğrendin" okur
+        Regex("(?:^|\\s)(?:şunu hatırla|bunu hatırla|hatırla|öğren|şunu öğren)\\b[\\s:,.-]*").find(metin.lowercase(trLocale))?.let { k ->
+            val icerik = metin.substring(k.range.last + 1).trim().trim('.', ',', ':', '-', ' ')
+            if (icerik.isNotEmpty() && !m.contains("ne hatırl")) return Komut.Hatirla(icerik)
+        }
+        if (m.contains("ne hatırlıyorsun") || m.contains("ne öğrendin") || m.contains("neleri hatırlıyorsun") || m.contains("hatırladıklarını")) return Komut.Hatirlat
         // Sesli not: "not al: yarın süt al" -> kaydet; "son notu oku" -> oku
         val kayit = Regex("(?:^|\\s)(?:not al|notu al|not kaydet|notu kaydet|not et|not yaz|not defterine yaz|notlara ekle)\\b[\\s:,.-]*").find(metin.lowercase(trLocale))
         if (kayit != null) {

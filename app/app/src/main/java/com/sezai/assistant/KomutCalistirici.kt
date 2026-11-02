@@ -21,7 +21,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.AlarmIptal -> alarmIptal()
         is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim, konumunuzu söyleyebilir, " +
             "kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilir ve sizinle sohbet edebilirim. " +
-            "Sessiz moda geçebilirim. Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
+            "Sessiz moda geçebilirim. Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
         is Komut.NotOku -> NotDefteri(context).son(komut.adet).let { l ->
             if (l.isEmpty()) "Kayıtlı notunuz yok."
@@ -29,6 +29,11 @@ class KomutCalistirici(private val context: Context) {
             else l.mapIndexed { i, n -> "${i + 1}. not: $n" }.joinToString(". ")
         }
         is Komut.Sessiz -> { BildirimKumanda.sessizAyarla(context, komut.ac); if (komut.ac) "Sessiz moda geçtim. Çıkmak için bildirimdeki ya da ana ekrandaki düğmeyi kullanın." else "Sessiz moddan çıktım." }
+        is Komut.Hatirla -> if (NotDefteri(context, "hafiza.txt").ekle(komut.metin)) "Tamam, bunu hatırlayacağım." else "Bunu kaydedemedim."
+        is Komut.Hatirlat -> NotDefteri(context, "hafiza.txt").son(5).let { l ->
+            if (l.isEmpty()) "Henüz bir şey öğretmediniz."
+            else "Hatırladıklarım: " + l.joinToString(". ")
+        }
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)
