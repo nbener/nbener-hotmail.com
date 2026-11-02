@@ -767,3 +767,11 @@ Son güncelleme: 2026-10-29
 ## 02.11.2026 — bildirim paneli (tek satır, açılınca 6 düğme)
 - Kapalıyken tek satır başlık; açılınca RemoteViews paneli: Sessiz, Arka plan, Gece/Gündüz, Ses −, Ses +, Uyanma (BildirimKumanda.panel, layout/bildirim_kumanda.xml). Servis bildirimi aynı paneli kullanır (tek bildirim); düğmeler SessizAlici (exported=false) üzerinden tercih yazar, ekran açıksa dinleyiciler anında uygular.
 - Doğrulama: build exit0, zipalign/apksigner PASS, install Success. Panelin görünümü ve düğme tıklamaları cihazda DENENMEDİ (bildirim izni/ekran durumu; yalnız dokunmayla denenir).
+
+
+## 02.11.2026 — devam kontrolü (Claude Code oturumu)
+- Kaynak değişmedi. ./build.sh çıkış 0 (debug APK derlendi, SHA256 kontrolü PASS). İmzalama/kurulum bu turda yapılmadı.
+- test/ekran_komut_jvm.sh: 21/21 PASS (yerel JVM; cihaz kabulü değildir).
+- ENGEL: Shizuku/rish "Server is not running" döndü; cihaza kurulum ve cihaz testleri yapılamadı. Çözüm: kullanıcı Shizuku'yu yeniden başlatmalı (kablosuz hata ayıklama ile).
+- NOT: scripts/calisma_kontrol.py Codex ortam değişkenlerini (CODEX_THREAD_ID/CODEX_HOME) okur; Claude Code oturumunda "kota bilgisi bulunamıyor" der. Bu %80 sınırına ulaşıldığı anlamına gelmez, kota doğrulanamadı.
+- Kalan işler değişmedi (KALAN_ISLER.md): çoğu cihazda kullanıcı kabulü gerektiriyor.
