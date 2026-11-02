@@ -9,6 +9,9 @@ sealed class Komut {
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
     object Yardim : Komut()
+    data class Gorunum(val gece: Boolean) : Komut()
+    data class ArkaPlan(val ac: Boolean) : Komut()
+    data class SesAyar(val fark: Int) : Komut()
     data class Hatirla(val metin: String) : Komut()
     object Hatirlat : Komut()
     data class Sessiz(val ac: Boolean) : Komut()
@@ -65,6 +68,12 @@ object KomutYorumlayici {
         val m = t.joinToString(" ")
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
 
+        // Ana ekran işlevleri: görünüm, arka plan dinleme, konuşma sesi
+        if (m.contains("gece mod") || m.contains("karanlık mod") || m.contains("koyu mod")) return Komut.Gorunum(!(m.contains("kapat") || m.contains("çık")))
+        if (m.contains("gündüz mod") || m.contains("aydınlık mod") || m.contains("açık mod")) return Komut.Gorunum(false)
+        if ((m.contains("arka plan") || m.contains("kilitliyken")) && m.contains("dinle")) return Komut.ArkaPlan(!(m.contains("kapat") || m.contains("durdur") || m.contains("bırak")))
+        if ((m.contains("sesini") || m.contains("sesi ") || m.endsWith("sesi")) && (m.contains("artır") || m.contains("yükselt") || m.contains("aç"))) return Komut.SesAyar(25)
+        if ((m.contains("sesini") || m.contains("sesi ") || m.endsWith("sesi")) && (m.contains("azalt") || m.contains("kıs") || m.contains("alçalt"))) return Komut.SesAyar(-25)
         // Sessiz mod: açma sesle olur; kapatma dinleme kapalı olduğundan düğme/bildirimle (ama söylenirse de anlaşılır)
         if (m.contains("sessiz mod") || m.contains("sessize al") || m.contains("sessiz ol") || m.contains("pasif mod") || m.contains("pasif ol")) {
             return Komut.Sessiz(!(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır")))

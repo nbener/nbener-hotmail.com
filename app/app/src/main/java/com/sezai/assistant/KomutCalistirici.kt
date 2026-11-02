@@ -21,7 +21,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.AlarmIptal -> alarmIptal()
         is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim, konumunuzu söyleyebilir, " +
             "kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilir ve sizinle sohbet edebilirim. " +
-            "Sessiz moda geçebilirim. Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
+            "Sessiz moda geçebilirim. Görünümü, arka plan dinlemeyi ve konuşma sesini değiştirebilirim. Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
         is Komut.NotOku -> NotDefteri(context).son(komut.adet).let { l ->
             if (l.isEmpty()) "Kayıtlı notunuz yok."
@@ -33,6 +33,21 @@ class KomutCalistirici(private val context: Context) {
         is Komut.Hatirlat -> NotDefteri(context, "hafiza.txt").son(5).let { l ->
             if (l.isEmpty()) "Henüz bir şey öğretmediniz."
             else "Hatırladıklarım: " + l.joinToString(". ")
+        }
+        is Komut.Gorunum -> {
+            context.getSharedPreferences("gorunum", Context.MODE_PRIVATE).edit().putBoolean("gece", komut.gece).apply()
+            if (komut.gece) "Gece görünümüne geçtim." else "Gündüz görünümüne geçtim."
+        }
+        is Komut.ArkaPlan -> {
+            context.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("arka_plan", komut.ac).apply()
+            if (komut.ac) { if (BildirimKumanda.sessizMi(context)) "Sessiz moddasınız, önce sessiz moddan çıkın." else { SezaiArkaPlanServisi.baslat(context); "Arka planda dinlemeye başladım." } }
+            else { SezaiArkaPlanServisi.durdur(context); "Arka plan dinlemeyi kapattım." }
+        }
+        is Komut.SesAyar -> {
+            val o = context.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE)
+            val yeni = (o.getInt("tts_seviye", 100) + komut.fark).coerceIn(10, 250)
+            o.edit().putInt("tts_seviye", yeni).apply()
+            "Konuşma sesi yüzde $yeni."
         }
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum

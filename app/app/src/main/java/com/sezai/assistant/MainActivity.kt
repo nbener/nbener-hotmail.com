@@ -727,6 +727,8 @@ class MainActivity : Activity() {
         gorunur = true
         acikBildirimiGoster()
         sesAyari.registerOnSharedPreferenceChangeListener(sessizDinleyici)
+        sesAyari.registerOnSharedPreferenceChangeListener(sesDinleyici)
+        getSharedPreferences("gorunum", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(gorunumDinleyici)
         sessizYazisiGuncelle()
         if (arkaPlanAyariAcik() && !BildirimKumanda.sessizMi(this) && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
         uyanmaGuncelle()
@@ -746,6 +748,12 @@ class MainActivity : Activity() {
     }
 
     // Bildirimden sessiz mod değişince çalışan ekranı da hemen susturur/uyandırır
+    private val gorunumDinleyici = android.content.SharedPreferences.OnSharedPreferenceChangeListener { o, anahtar ->
+        if (anahtar == "gece" && o.getBoolean("gece", true) != gece) recreate()
+    }
+    private val sesDinleyici = android.content.SharedPreferences.OnSharedPreferenceChangeListener { o, anahtar ->
+        if (anahtar == "tts_seviye") (konusma as? AndroidKonusma)?.yuzdeAyarla(o.getInt("tts_seviye", 100).coerceIn(10, 250))
+    }
     private val sessizDinleyici = android.content.SharedPreferences.OnSharedPreferenceChangeListener { _, anahtar ->
         if (anahtar == "sessiz") {
             if (BildirimKumanda.sessizMi(this)) { konusma.durdur(); uyanma.durdur() }
@@ -755,6 +763,8 @@ class MainActivity : Activity() {
 
     override fun onPause() {
         sesAyari.unregisterOnSharedPreferenceChangeListener(sessizDinleyici)
+        sesAyari.unregisterOnSharedPreferenceChangeListener(sesDinleyici)
+        getSharedPreferences("gorunum", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(gorunumDinleyici)
         gorunur = false
         uyanma.durdur()
         super.onPause()

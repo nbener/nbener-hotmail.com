@@ -33,3 +33,9 @@ hatırla: ilacımı sabah içerim|Hatirla(metin=ilacımı sabah içerim)
 şunu hatırla kapı anahtarı çekmecede|Hatirla(metin=kapı anahtarı çekmecede)
 ne hatırlıyorsun|Hatirlat
 ne öğrendin|Hatirlat
+gece moduna geç|Gorunum(gece=true)
+gündüz moduna geç|Gorunum(gece=false)
+arka planda dinlemeyi aç|ArkaPlan(ac=true)
+arka plan dinlemeyi kapat|ArkaPlan(ac=false)
+sesini artır|SesAyar(fark=25)
+sesi azalt|SesAyar(fark=-25)

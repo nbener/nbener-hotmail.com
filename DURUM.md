@@ -757,3 +757,8 @@ Son güncelleme: 2026-10-29
 
 ## 02.11.2026 — hafıza (öğren/hatırla)
 - "hatırla: ..." / "şunu hatırla ..." → hafiza.txt (uygulama özel klasörü); "ne hatırlıyorsun / ne öğrendin" son 5 kaydı okur. JVM yorumlama hata=0; build/imza/kurulum Success. Cihazda ses kabulü yok. Henüz sohbet modeline bağlanmadı (model bu bilgiyi bağlam olarak görmüyor): sonraki adım, harici API'ye gidecek veri olduğundan kullanıcı onayı gerekir. "Unut" komutu silme olduğundan eklenmedi.
+
+
+## 02.11.2026 — sesli kumanda genişletildi
+- Yeni komutlar: "gece/gündüz moduna geç", "arka planda dinlemeyi aç/kapat", "sesini artır/azalt" (±%25, %10–250). Ekran açıkken görünüm ve ses ayarı tercih dinleyicisiyle anında uygulanır. Sessiz modda arka plan açılmaz.
+- Doğrulama: build exit0, imza PASS, install Success, JVM yorumlama hata=0. Gerçek ses ve cihazda davranış denenmedi. Kapsam hâlâ tam değil (ekran yardımcısı ayarı, uyanma anahtarı, bildirim ek düğmeleri açık).
