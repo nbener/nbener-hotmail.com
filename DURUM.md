@@ -784,3 +784,9 @@ Son güncelleme: 2026-10-29
 - Doğrulama: yorumla_cumleler.txt JVM çalıştırması hata=0 (3 yeni cümle dahil), ekran JVM 21/21, build çıkış 0, zipalign + apksigner v2 doğrulandı.
 - DENENMEDİ: cihaza kurulum (Shizuku kapalı), gerçek model yanıtında hafızanın kullanıldığı, debug sohbet testleri (SohbetTestAlicisi). Hafıza metninin gerçek modelde işe yaradığı doğrulanmış sayılmaz.
 - Belirsiz: "seski note kaydet" isteği "sesli not kaydet" olarak yorumlandı; sesli not zaten vardı ("not al ..."). Başka bir şey kastedildiyse söyleyin.
+
+
+## 03.11.2026 — cihaz kurulumu ve testler (hafıza + son N not)
+- Shizuku çalıştı (kullanıcı başlattı). APK kuruldu: pm install Success, lastUpdateTime=2026-11-03 01:06:54.
+- Cihaz: test/yorumla_test.sh hata=0 (son N not cümleleri dahil); test/sohbet_test.py 31/31 (sahte ağ; gerçek model/API kullanılmadı).
+- HÂLÂ DENENMEDİ: modelin hafızayı gerçek yanıtta kullandığı (gerçek API + kullanıcı anahtarı gerekir, hafıza metni dışarı gider), sesli komutla uçtan uca not/hafıza, bildirim düğmeleri.
