@@ -24,7 +24,8 @@ class SezaiArkaPlanServisi : Service() {
     companion object {
         private const val KANAL = "sezai_dinleme"
         private const val BILDIRIM = 41
-        private const val DURDUR = "com.sezai.assistant.ARKA_PLAN_DURDUR"
+        const val ACIK_ISTEK = "com.sezai.assistant.ARKA_PLAN_ACIK"
+        const val DURDUR = "com.sezai.assistant.ARKA_PLAN_DURDUR"
         @Volatile var calisiyor = false
             private set
 
@@ -53,6 +54,8 @@ class SezaiArkaPlanServisi : Service() {
             getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
             stopSelf(); return START_NOT_STICKY
         }
+        if (intent?.action == ACIK_ISTEK) getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", true).apply()
+        if (BildirimKumanda.sessizMi(this)) { stopSelf(); return START_NOT_STICKY } // sessiz modda mikrofon açılmaz
         if (calisiyor) return START_NOT_STICKY
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Log.w("Sezai", "ARKAPLAN mikrofon izni yok"); stopSelf(); return START_NOT_STICKY
@@ -235,6 +238,7 @@ class SezaiArkaPlanServisi : Service() {
             .setContentTitle("Sezai dinliyor")
             .setContentText("\"Sezai\" deyince yanıt verir. Mikrofon açık.")
             .setContentIntent(ac)
+            .addAction(BildirimKumanda.sessizAksiyonu(this))
             .addAction(Notification.Action.Builder(null, "Kapat", kapat).build())
             .setOngoing(true).build()
     }

@@ -9,6 +9,7 @@ sealed class Komut {
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
     object Yardim : Komut()
+    data class Sessiz(val ac: Boolean) : Komut()
     data class NotKaydet(val metin: String) : Komut()
     data class NotOku(val adet: Int) : Komut()
     object KonumGoster : Komut()
@@ -62,6 +63,10 @@ object KomutYorumlayici {
         val m = t.joinToString(" ")
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
 
+        // Sessiz mod: açma sesle olur; kapatma dinleme kapalı olduğundan düğme/bildirimle (ama söylenirse de anlaşılır)
+        if (m.contains("sessiz mod") || m.contains("sessize al") || m.contains("sessiz ol") || m.contains("pasif mod") || m.contains("pasif ol")) {
+            return Komut.Sessiz(!(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır")))
+        }
         // Sesli not: "not al: yarın süt al" -> kaydet; "son notu oku" -> oku
         val kayit = Regex("(?:^|\\s)(?:not al|notu al|not kaydet|notu kaydet|not et|not yaz|not defterine yaz|notlara ekle)\\b[\\s:,.-]*").find(metin.lowercase(trLocale))
         if (kayit != null) {

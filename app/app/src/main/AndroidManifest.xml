@@ -46,6 +46,7 @@
         </service>
         <service android:name=".SezaiArkaPlanServisi" android:exported="false"
             android:foregroundServiceType="microphone|location|camera"/>
+        <receiver android:name=".SessizAlici" android:exported="false"/>
         <activity android:name=".EkranOkumaAyarActivity" android:exported="true" android:label="Ekran yardımcısı"/>
         <activity android:name=".EkranIncelemeActivity" android:exported="false" android:label="Ekranı incele"/>
         <activity android:name=".MainActivity" android:exported="true">

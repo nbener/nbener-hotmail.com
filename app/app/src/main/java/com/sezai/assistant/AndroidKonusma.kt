@@ -107,6 +107,8 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     override fun hazirMi() = hazirlandi
 
     override fun konus(metin: String, bitince: (() -> Unit)?, hata: (() -> Unit)?) {
+        // Sessiz mod: hiç ses çıkmaz
+        if (BildirimKumanda.sessizMi(context)) { bitince?.invoke(); return }
         val sira = gorselNesil.incrementAndGet()
         val konusmaKimligi = "sezai-konus-$sira"
         fun bildir(tur: KonusmaGorselOlayi.Tur, yazi: String = "") {
