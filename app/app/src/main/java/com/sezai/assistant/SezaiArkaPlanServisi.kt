@@ -229,19 +229,7 @@ class SezaiArkaPlanServisi : Service() {
         yonetici.createNotificationChannel(NotificationChannel(KANAL, "Sezai dinleme", NotificationManager.IMPORTANCE_LOW))
     }
 
-    private fun bildirim(): Notification {
-        val ac = PendingIntent.getActivity(this, 0, Intent(this, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val kapat = PendingIntent.getService(this, 1,
-            Intent(this, SezaiArkaPlanServisi::class.java).setAction(DURDUR), PendingIntent.FLAG_IMMUTABLE)
-        return Notification.Builder(this, KANAL)
-            .setSmallIcon(android.R.drawable.ic_btn_speak_now)
-            .setContentTitle("Sezai dinliyor")
-            .setContentText("\"Sezai\" deyince yanıt verir. Mikrofon açık.")
-            .setContentIntent(ac)
-            .addAction(BildirimKumanda.sessizAksiyonu(this))
-            .addAction(Notification.Action.Builder(null, "Kapat", kapat).build())
-            .setOngoing(true).build()
-    }
+    private fun bildirim(): Notification = BildirimKumanda.panel(this, KANAL, true).setOngoing(true).build()
 
     override fun onDestroy() {
         kapaniyor = true
@@ -253,6 +241,7 @@ class SezaiArkaPlanServisi : Service() {
         uyanma?.durdur(); uyanma = null
         konusma?.kapat(); konusma = null
         calisiyor = false
+        if (BildirimKumanda.arayuzAcik) BildirimKumanda.acikBildirimiGuncelle(this)
         Log.i("Sezai", "ARKAPLAN servis durdu")
         super.onDestroy()
     }

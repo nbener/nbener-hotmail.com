@@ -725,6 +725,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         gorunur = true
+        BildirimKumanda.arayuzAcik = true
         acikBildirimiGoster()
         sesAyari.registerOnSharedPreferenceChangeListener(sessizDinleyici)
         sesAyari.registerOnSharedPreferenceChangeListener(sesDinleyici)
@@ -826,6 +827,7 @@ class MainActivity : Activity() {
 
     override fun onDestroy() {
         if (!isChangingConfigurations) getSystemService(android.app.NotificationManager::class.java).cancel(BildirimKumanda.ACIK_BILDIRIM)
+        if (!isChangingConfigurations) BildirimKumanda.arayuzAcik = false
         if (!isChangingConfigurations) sohbet?.kapat()
         dinleme.kapat(); konusma.kapat(); super.onDestroy()
     }

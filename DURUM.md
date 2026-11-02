@@ -762,3 +762,8 @@ Son güncelleme: 2026-10-29
 ## 02.11.2026 — sesli kumanda genişletildi
 - Yeni komutlar: "gece/gündüz moduna geç", "arka planda dinlemeyi aç/kapat", "sesini artır/azalt" (±%25, %10–250). Ekran açıkken görünüm ve ses ayarı tercih dinleyicisiyle anında uygulanır. Sessiz modda arka plan açılmaz.
 - Doğrulama: build exit0, imza PASS, install Success, JVM yorumlama hata=0. Gerçek ses ve cihazda davranış denenmedi. Kapsam hâlâ tam değil (ekran yardımcısı ayarı, uyanma anahtarı, bildirim ek düğmeleri açık).
+
+
+## 02.11.2026 — bildirim paneli (tek satır, açılınca 6 düğme)
+- Kapalıyken tek satır başlık; açılınca RemoteViews paneli: Sessiz, Arka plan, Gece/Gündüz, Ses −, Ses +, Uyanma (BildirimKumanda.panel, layout/bildirim_kumanda.xml). Servis bildirimi aynı paneli kullanır (tek bildirim); düğmeler SessizAlici (exported=false) üzerinden tercih yazar, ekran açıksa dinleyiciler anında uygular.
+- Doğrulama: build exit0, zipalign/apksigner PASS, install Success. Panelin görünümü ve düğme tıklamaları cihazda DENENMEDİ (bildirim izni/ekran durumu; yalnız dokunmayla denenir).
