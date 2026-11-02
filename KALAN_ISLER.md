@@ -426,5 +426,5 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 ## 02.11.2026 — karakter, ses, görünüm
 - [~] Karakter dokunuşu = dinleme: kodlandı, cihazda dokunuş testi yok.
 - [~] Gece/Gündüz düğmesi: kuruldu; koyu paletin görsel kabulü kullanıcıdan bekliyor. Diğer ekranlar (EkranIncele, EkranOkumaAyar, diyaloglar) hâlâ açık.
-- [ ] Ses %250 duyulabilir mi: kullanıcı testi bekliyor. Hâlâ yetmezse medya sesini artırma için kullanıcı onayı gerekir.
+- [~] Ses: medya sesi 4→8 yapıldı (onaylı); duyulabilirlik kullanıcı testi bekliyor, yetmezse 10-12 önerilecek.
 - [?] "note oku": hangi not kastedildi, yanıt bekleniyor.

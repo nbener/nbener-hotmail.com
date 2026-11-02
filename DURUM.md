@@ -741,3 +741,9 @@ Son güncelleme: 2026-10-29
 - MainActivity.kt: "Görünüm: Gündüz/Gece" düğmesi ("Ekran yardımcısı" düğmesinin üstünde), seçim "gorunum" ayarında (varsayılan gündüz), recreate() ile uygulanır. Renkler r() ile açık→koyu palete eşlenir (arka plan, kartlar, yazılar, kenarlıklar, bağlantı rengi), durum/gezinme çubuğu ve karakter paleti (geceOnizleme) seçime uyar. Karakterin "telefon gece modunda gündüz renkli" kuralı kaldırıldı: artık düğmeye bağlı. Not: yalnız ana ekran; EkranIncelemeActivity, ekran ayar ekranı ve diyaloglar hâlâ açık temalı.
 - Derleme çıkış 0, zipalign + apksigner PASS, kurulum Success; ekran 11/11, sohbet 31/31, dinleme 9/9, görüşme 8/8, yorumlama 23/23 PASS (karakter testi bu turda koşulmadı).
 - GECE GÖRÜNÜMÜ GÖRSEL OLARAK DOĞRULANMADI: ekran kapalıydı (Dozing), ekran görüntüsü siyah çıktı; ekran zorla açılmadı. Denemede yazdığım gece ayarı geri silindi (varsayılan gündüz). Kontrast/okunabilirlik, düğmeye basıp geçiş ve diğer ekranların koyu temaya uyumu kullanıcı gözüyle kabul bekliyor.
+
+
+## 02.11.2026 — medya sesi 4→8 (kullanıcı onayıyla)
+- Ölçüm: hoparlörde STREAM_MUSIC 4/15 idi; yazılım kazancı (en çok %250) dijital tam ölçeği aşamaz, kısık sistem sesinde etkisiz kalması bununla uyumlu (çıkarım, kanıt değil).
+- Kullanıcı "Evet 8" dedi; hoparlör için müzik/TTS akışı 8'e alındı, dumpsys ile doğrulandı. Kulaklık/Bluetooth değerlerine dokunulmadı. Kaynak/APK değişmedi.
+- Açık: gerçek duyulabilirlik kullanıcı testi bekliyor ("Sezai, saat kaç"). Geri alma: "sesi 4'e al".
