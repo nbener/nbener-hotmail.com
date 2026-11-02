@@ -641,7 +641,7 @@ class MainActivity : Activity() {
         if (sohbet == null || sohbetSaglayicisi != saglayici) {
             sohbet?.kapat()
             sohbetDokumu.temizle()
-            sohbet = SohbetMotoru(kasa, saglayici)
+            sohbet = SohbetMotoru(kasa, saglayici, { NotDefteri(applicationContext, "hafiza.txt").son(10) })
             sohbetSaglayicisi = saglayici
         }
     }

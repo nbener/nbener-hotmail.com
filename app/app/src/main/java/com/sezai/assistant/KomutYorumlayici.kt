@@ -92,7 +92,12 @@ object KomutYorumlayici {
         }
         val notKelimesi = t.any { it in setOf("not", "notu", "note", "notum", "notumu", "notlar", "notları", "notlarım", "notlarımı") }
         if (notKelimesi && (m.contains("oku") || m.contains("söyle") || m.contains("dinlet") || m.contains("ne yazıyor") || m.contains("son not")))
-            return Komut.NotOku(if (t.any { it.startsWith("notlar") } && !m.contains("son not")) 3 else 1)
+        {
+            // "son 3 notu oku" / "son üç notu oku": "son" sözcüğünden sonraki sayı (en çok 10)
+            val sonIdx = t.indexOf("son")
+            val sayi = if (sonIdx >= 0 && sonIdx + 1 < t.size) sayiOku(t, sonIdx + 1)?.first else null
+            return Komut.NotOku(sayi?.coerceIn(1, 10) ?: if (t.any { it.startsWith("notlar") } && !m.contains("son not")) 3 else 1)
+        }
 
         // "Neler yapabilirsin?" gibi dar ifadeler; genel "yardım" sözcüğü tek başına eşleşmez
         if (m.contains("neler yapabilirsin") || m.contains("ne yapabilirsin") || m.contains("ne işe yararsın") ||

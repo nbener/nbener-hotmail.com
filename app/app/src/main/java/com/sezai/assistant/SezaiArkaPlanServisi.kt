@@ -206,7 +206,7 @@ class SezaiArkaPlanServisi : Service() {
         }
         if (sohbet == null || sohbetSaglayicisi != saglayici) {
             sohbet?.kapat()
-            sohbet = SohbetMotoru(AnahtarKasasi(this, saglayici.kasaAdi), saglayici)
+            sohbet = SohbetMotoru(AnahtarKasasi(this, saglayici.kasaAdi), saglayici, { NotDefteri(applicationContext, "hafiza.txt").son(10) })
             sohbetSaglayicisi = saglayici
         }
         sohbet?.gonder(metin,
