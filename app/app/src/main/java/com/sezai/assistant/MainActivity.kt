@@ -306,7 +306,9 @@ class MainActivity : Activity() {
     }
 
     // Gece/gündüz görünümü: kullanıcı düğmesiyle seçilir, "gorunum" ayarında saklanır. Açık palet anahtar, koyu karşılığı değerdir.
-    private val gece by lazy { getSharedPreferences("gorunum", MODE_PRIVATE).getBoolean("gece", false) }
+    private var bildirimIzniIstendi = false
+    private val ACIK_BILDIRIM = 42
+    private val gece by lazy { getSharedPreferences("gorunum", MODE_PRIVATE).getBoolean("gece", true) }
     private val koyuPalet = mapOf(
         "#F3F7F8" to "#0F1A20", "#FFFFFF" to "#1B2A33", "#172E3D" to "#EAF2F5", "#536B78" to "#9FB5C0",
         "#405B6A" to "#B8CBD4", "#E6EFF3" to "#24363F", "#DFE8ED" to "#2E424C", "#C6D7DF" to "#3A505B",
@@ -719,8 +721,24 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         gorunur = true
+        acikBildirimiGoster()
         if (arkaPlanAyariAcik() && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
         uyanmaGuncelle()
+    }
+
+    // Uygulama açıkken durum çubuğunda sessiz bir bildirim; servis/uyanma kilidi yok, pil maliyeti yok
+    private fun acikBildirimiGoster() {
+        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (!bildirimIzniIstendi) { bildirimIzniIstendi = true; requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4) }
+            return
+        }
+        if (SezaiArkaPlanServisi.calisiyor) return // servisin kendi bildirimi var
+        val yonetici = getSystemService(android.app.NotificationManager::class.java)
+        yonetici.createNotificationChannel(android.app.NotificationChannel("sezai_acik", "Sezai açık", android.app.NotificationManager.IMPORTANCE_LOW))
+        val ac = android.app.PendingIntent.getActivity(this, 0, android.content.Intent(this, MainActivity::class.java).addFlags(android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP), android.app.PendingIntent.FLAG_IMMUTABLE)
+        yonetici.notify(ACIK_BILDIRIM, android.app.Notification.Builder(this, "sezai_acik")
+            .setSmallIcon(android.R.drawable.ic_btn_speak_now).setContentTitle("Sezai açık")
+            .setContentText("Dokunarak Sezai'ye dön.").setContentIntent(ac).setOnlyAlertOnce(true).build())
     }
 
     override fun onPause() {
@@ -784,6 +802,7 @@ class MainActivity : Activity() {
     override fun onRetainNonConfigurationInstance(): Any = SohbetDevri(sohbet, sohbetSaglayicisi, sohbetDokumu)
 
     override fun onDestroy() {
+        if (!isChangingConfigurations) getSystemService(android.app.NotificationManager::class.java).cancel(ACIK_BILDIRIM)
         if (!isChangingConfigurations) sohbet?.kapat()
         dinleme.kapat(); konusma.kapat(); super.onDestroy()
     }

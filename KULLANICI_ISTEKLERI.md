@@ -106,3 +106,13 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - "Sesi %120 / %200 / %250 yap": yazılım kazancı (PCM + AudioTrack) en çok %250. Kullanıcı: rakam artsa da ses yükselmiyor. Duyulabilirlik doğrulanmadı.
 - "Neler yapabilirsin" yardım komutu eklendi.
 - "note oku" / "md yada hatırlama dosyasını oku": hangi not kastedildi belirsiz, yanıt bekleniyor.
+
+
+## 02.11.2026 — sesli not, varsayılan gece, bildirim ve kumanda istekleri
+- "Sesli not kaydedeyim, 'son notu' deyince okusun": "not al ..." / "son notu oku" / "notlarımı oku" kodlandı (NotDefteri.kt, yalnız uygulama özel klasörü).
+- "Varsayılan gece modunda başlasın": gece varsayılan yapıldı.
+- "Sezai açıldığında bildirim çubuğunda bildirimi görünsün": uygulama açıkken sessiz bildirim kodlandı (servis yok).
+- "Sezai başladı, mümkün olan çok özellik bildirim çubuğundan açılır/kapanır, elle müdahale/tıklama olsun": bildirim düğmeleri — AÇIK İŞ.
+- "İcondaki tüm özelliklere sesle kumanda olsun": AÇIK İŞ (ses komutu kapsamı genişletilecek).
+- "Sesle kendini geliştirecek, öğrenecek, öğrendiğini hatırlayacak": AÇIK İŞ; tanım netleşmeli (kullanıcının öğrettiği bilgi/tercihlerin kalıcı hafızası; uygulamanın kendi kodunu değiştirmesi kapsam dışı/güvensiz).
+- "Tamamen sessiz pasif moda getirecek buton ve sesle kumanda": AÇIK İŞ.

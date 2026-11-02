@@ -428,3 +428,13 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [~] Gece/Gündüz düğmesi: kuruldu; koyu paletin görsel kabulü kullanıcıdan bekliyor. Diğer ekranlar (EkranIncele, EkranOkumaAyar, diyaloglar) hâlâ açık.
 - [~] Ses: medya sesi 4→8 yapıldı (onaylı); duyulabilirlik kullanıcı testi bekliyor, yetmezse 10-12 önerilecek.
 - [?] "note oku": hangi not kastedildi, yanıt bekleniyor.
+
+
+## 02.11.2026 — yeni istekler
+- [~] Sesli not (not al / son notu oku): kodlandı, kuruldu; insan sesi kabulü yok.
+- [x] Varsayılan gece: kodlandı (kurulum sonrası görsel kabul kullanıcıdan).
+- [~] Açık-uygulama bildirimi: kodlandı; POST_NOTIFICATIONS izni gerekir.
+- [ ] Bildirimden açma/kapama düğmeleri (dinleme, sessiz mod, ekran yardımcısı vb.).
+- [ ] Tüm ana ekran işlevlerine sesli kumanda.
+- [ ] Öğrenme/hatırlama hafızası ("şunu hatırla", "ne öğrendin").
+- [ ] Tam sessiz/pasif mod: düğme + sesli komut + bildirim düğmesi.

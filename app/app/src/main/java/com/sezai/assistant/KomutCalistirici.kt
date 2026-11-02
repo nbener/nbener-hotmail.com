@@ -21,7 +21,13 @@ class KomutCalistirici(private val context: Context) {
         is Komut.AlarmIptal -> alarmIptal()
         is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim, konumunuzu söyleyebilir, " +
             "kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilir ve sizinle sohbet edebilirim. " +
-            "Açıkça isterseniz internette araştırma da yapabilirim."
+            "Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
+        is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
+        is Komut.NotOku -> NotDefteri(context).son(komut.adet).let { l ->
+            if (l.isEmpty()) "Kayıtlı notunuz yok."
+            else if (l.size == 1) "Son notunuz: ${l[0]}"
+            else l.mapIndexed { i, n -> "${i + 1}. not: $n" }.joinToString(". ")
+        }
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)

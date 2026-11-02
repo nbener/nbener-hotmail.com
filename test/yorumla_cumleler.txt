@@ -19,3 +19,9 @@ neler yapabilirsin|Yardim
 Sezai sen ne yapabilirsin|Yardim
 bana yardım et|Bilinmiyor
 yapabilirsen alarm kur|Bilinmiyor
+not al yarın süt al|NotKaydet(metin=yarın süt al)
+not al: doktor saat üçte|NotKaydet(metin=doktor saat üçte)
+son notu oku|NotOku(adet=1)
+notlarımı oku|NotOku(adet=3)
+note oku|NotOku(adet=1)
+not al|Bilinmiyor(metin=not al)

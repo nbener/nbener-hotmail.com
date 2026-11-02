@@ -9,6 +9,8 @@ sealed class Komut {
     data class AlarmKur(val saat: Int, val dakika: Int) : Komut()
     object AlarmIptal : Komut()
     object Yardim : Komut()
+    data class NotKaydet(val metin: String) : Komut()
+    data class NotOku(val adet: Int) : Komut()
     object KonumGoster : Komut()
     data class Kamera(val on: Boolean) : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
@@ -59,6 +61,16 @@ object KomutYorumlayici {
         val t = normalize(metin)
         val m = t.joinToString(" ")
         if (t.isEmpty()) return Komut.Bilinmiyor(metin)
+
+        // Sesli not: "not al: yarın süt al" -> kaydet; "son notu oku" -> oku
+        val kayit = Regex("(?:^|\\s)(?:not al|notu al|not kaydet|notu kaydet|not et|not yaz|not defterine yaz|notlara ekle)\\b[\\s:,.-]*").find(metin.lowercase(trLocale))
+        if (kayit != null) {
+            val icerik = metin.substring(kayit.range.last + 1).trim().trim('.', ',', ':', '-', ' ')
+            return if (icerik.isNotEmpty()) Komut.NotKaydet(icerik) else Komut.Bilinmiyor(metin)
+        }
+        val notKelimesi = t.any { it in setOf("not", "notu", "note", "notum", "notumu", "notlar", "notları", "notlarım", "notlarımı") }
+        if (notKelimesi && (m.contains("oku") || m.contains("söyle") || m.contains("dinlet") || m.contains("ne yazıyor") || m.contains("son not")))
+            return Komut.NotOku(if (t.any { it.startsWith("notlar") } && !m.contains("son not")) 3 else 1)
 
         // "Neler yapabilirsin?" gibi dar ifadeler; genel "yardım" sözcüğü tek başına eşleşmez
         if (m.contains("neler yapabilirsin") || m.contains("ne yapabilirsin") || m.contains("ne işe yararsın") ||
