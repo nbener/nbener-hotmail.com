@@ -797,3 +797,10 @@ Son güncelleme: 2026-10-29
 - BULGU 1: "Webde araştır" onay kutusunun kenarlığı koyu zeminde neredeyse görünmüyor (düşük kontrast). Henüz düzeltilmedi.
 - BULGU 2: "Çalışma durumu" kartı eski metni gösteriyor (Son bildirim 29.10 13:56). Güncel olmayabilir; kaynağı doğrulanmadı.
 - Gece görünümüne düğmeyle geçiş, diğer ekranların (ekran yardımcısı, ayar) koyu temaya uyumu hâlâ kontrol edilmedi.
+
+
+## 03.11.2026 — dinleme başlarken bip sesini bastır
+- Kullanıcı isteği: dinlemeye başlarken çıkan ses rahatsız edici. Bip Google konuşma tanıma servisinden gelir; kapatan resmî ayar yok. Yedek: yedek/bip-oncesi-20261103.tar.gz.
+- AndroidDinleme.kt: dinle() başlarken MUSIC/NOTIFICATION/SYSTEM akışlarından yalnız zaten kapalı olmayanlar ADJUST_MUTE ile susturulur; onReadyForSpeech'ten 700 ms sonra (en geç 2,5 sn) ADJUST_UNMUTE ile geri açılır; kapat() ve hata yollarında da geri açılır.
+- Doğrulama: build çıkış 0, kurulum Success, dinleme testi 9/9, test sonrası dumpsys: akışlar susturulu kalmadı. 
+- DENENMEDİ: bipin gerçekten duyulmadığı (kullanıcı kulağı gerekir; bip hangi akıştan çalıyor kesin değil, çıkarım). Bip hâlâ duyulursa akış listesi/süre ayarlanacak. Risk: sustur-aç arasında uygulama çökerse ilgili akış sessiz kalabilir (ses tuşuyla düzelir).

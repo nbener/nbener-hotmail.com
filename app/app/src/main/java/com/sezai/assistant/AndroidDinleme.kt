@@ -2,7 +2,10 @@ package com.sezai.assistant
 
 import android.content.Context
 import android.content.Intent
+import android.media.AudioManager
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.speech.RecognitionListener
 import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
@@ -14,6 +17,31 @@ class AndroidDinleme internal constructor(
     private val oturumOlustur: () -> TanimaOturumu = { AndroidTanimaOturumu(context) }
 ) : DinlemeMotoru {
     private var tanici: TanimaOturumu? = null
+    private val anaIs = Handler(Looper.getMainLooper())
+    private val ses = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    // Google tanıma servisi başlarken kısa bir bip çalar ve kapatma ayarı yoktur: bip süresince
+    // yalnız bizim sustardığımız akışlar geri açılır (zaten kapalı olana dokunulmaz).
+    private val susturulan = mutableListOf<Int>()
+    private val geriAc = Runnable { sesiGeriAc() }
+
+    private fun sesiSustur() {
+        anaIs.removeCallbacks(geriAc)
+        if (susturulan.isNotEmpty()) { anaIs.postDelayed(geriAc, 2500); return }
+        for (akis in intArrayOf(AudioManager.STREAM_MUSIC, AudioManager.STREAM_NOTIFICATION, AudioManager.STREAM_SYSTEM)) {
+            try {
+                if (!ses.isStreamMute(akis)) { ses.adjustStreamVolume(akis, AudioManager.ADJUST_MUTE, 0); susturulan.add(akis) }
+            } catch (e: Exception) { Log.w("Sezai", "BIP susturulamadi akis=$akis ${e.javaClass.simpleName}") }
+        }
+        anaIs.postDelayed(geriAc, 2500) // hazır olay gelmezse de sesi geri aç
+    }
+
+    private fun sesiGeriAc() {
+        anaIs.removeCallbacks(geriAc)
+        for (akis in susturulan) {
+            try { ses.adjustStreamVolume(akis, AudioManager.ADJUST_UNMUTE, 0) } catch (e: Exception) { Log.w("Sezai", "BIP geri acilamadi akis=$akis ${e.javaClass.simpleName}") }
+        }
+        susturulan.clear()
+    }
 
     override fun kullanilabilirMi() = SpeechRecognizer.isRecognitionAvailable(context)
 
@@ -34,7 +62,7 @@ class AndroidDinleme internal constructor(
                 Log.w("Sezai", "STT hata kodu=$kod")
                 kapat(); hata(hataMetni(kod))
             }
-            override fun onReadyForSpeech(p: Bundle?) { Log.i("Sezai", "STT hazir") }
+            override fun onReadyForSpeech(p: Bundle?) { Log.i("Sezai", "STT hazir"); anaIs.removeCallbacks(geriAc); anaIs.postDelayed(geriAc, 700) }
             override fun onBeginningOfSpeech() {}
             override fun onRmsChanged(v: Float) {}
             override fun onBufferReceived(b: ByteArray?) {}
@@ -42,6 +70,7 @@ class AndroidDinleme internal constructor(
             override fun onPartialResults(b: Bundle?) {}
             override fun onEvent(t: Int, b: Bundle?) {}
         }
+        sesiSustur()
         try {
             r.baslat(dinleyici, Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
@@ -49,9 +78,9 @@ class AndroidDinleme internal constructor(
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             })
         } catch (_: SecurityException) {
-            if (tanici === r) { kapat(); hata("Mikrofon izni yok") }
+            if (tanici === r) { kapat(); hata("Mikrofon izni yok") } else sesiGeriAc()
         } catch (_: Exception) {
-            if (tanici === r) { kapat(); hata("Dinleme başlatılamadı") }
+            if (tanici === r) { kapat(); hata("Dinleme başlatılamadı") } else sesiGeriAc()
         }
     }
 
@@ -68,6 +97,7 @@ class AndroidDinleme internal constructor(
         // destroy sırasında gelen eski olaylar yeni oturumu kapatmamalı.
         val eski = tanici
         tanici = null
+        sesiGeriAc()
         eski?.kapat()
     }
 }
