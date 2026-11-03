@@ -148,6 +148,23 @@ class MainActivity : Activity() {
                 intent.getStringExtra("komut")?.let { komutVer(it) }
             }
         }
+        (konusma as AndroidKonusma).sozAlindi = {
+            if (gorunur && konusuyor && !BildirimKumanda.sessizMi(this)) {
+                Log.i("Sezai", "EKRAN soz kesildi")
+                val sohbetVardi = sohbetAcik
+                sohbetDuraklat() // eski yanıt ve sıralı okuma geri çağrılarını iptal eder, geçmişi korur
+                durumYazisi.text = "Sizi dinliyorum."
+                anaIs.postDelayed({
+                    if (gorunur && !BildirimKumanda.sessizMi(this)) {
+                        if (sohbetVardi) {
+                            sohbetAcik = true
+                            sohbetDugmesi.text = "Dinlemeyi durdur"
+                            sohbetDinle(sohbetNesli)
+                        } else sezaiDendi()
+                    }
+                }, 200)
+            }
+        }
         (konusma as AndroidKonusma).gorselOlayi = { olay -> runOnUiThread {
             when (olay.tur) {
                 KonusmaGorselOlayi.Tur.BASLADI -> {
@@ -734,7 +751,11 @@ class MainActivity : Activity() {
         sesAyari.registerOnSharedPreferenceChangeListener(sesDinleyici)
         getSharedPreferences("gorunum", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(gorunumDinleyici)
         sessizYazisiGuncelle()
-        if (arkaPlanAyariAcik() && !BildirimKumanda.sessizMi(this) && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
+        // Ön planda tek mikrofon sahibi Activity; arka plan servisiyle çift dinlemeyi önler.
+        if (SezaiArkaPlanServisi.calisiyor) {
+            SezaiArkaPlanServisi.durdur(this) // arka_plan tercihini değiştirmez
+            anaIs.postDelayed({ if (gorunur) uyanmaGuncelle() }, 300)
+        }
         uyanmaGuncelle()
     }
 
@@ -816,7 +837,9 @@ class MainActivity : Activity() {
         ilerleme.unregisterOnSharedPreferenceChangeListener(ilerlemeDinleyici)
         sohbetDuraklat()
         sesOnceligi.kapat()
-        dinleme.durdur(); konusma.durdur(); super.onStop()
+        dinleme.durdur(); konusma.durdur()
+        if (arkaPlanAyariAcik() && !BildirimKumanda.sessizMi(this) && !isChangingConfigurations && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
+        super.onStop()
     }
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putBoolean("web_secimi", webSecimi.isChecked)

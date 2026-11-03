@@ -31,7 +31,7 @@ class YankiHatTestActivity : Activity() {
     private val kaynakKilidi = Any()
     private val pcmKilidi = Any()
     private val rapor = JSONObject()
-    private val pcm = ShortArray(24000 * 12)
+    private val pcm = ShortArray(48000 * 12)
     private var pcmSayisi = 0
     private var pcmTamam = false
     private var hamTepe = 0
@@ -97,7 +97,7 @@ class YankiHatTestActivity : Activity() {
                     }
                 }
             }
-            tts!!.konus("Bu, ses hattını kontrol etmek için hazırlanmış kısa bir deneme cümlesidir.",
+            tts!!.konus(if (intent.getBooleanExtra("yalniz_tanici", false)) "Dur. Sezai. Dur. Sezai." else "Bu, ses hattını kontrol etmek için hazırlanmış kısa bir deneme cümlesidir.",
                 bitince = { anaIs.post { if (etkin.get()) kayitBaslat() } },
                 hata = { anaIs.post { bitir("TTS_HATASI") } })
         } }
@@ -110,11 +110,41 @@ class YankiHatTestActivity : Activity() {
             pcmTamam = true
             rapor.put("tts_pcm_hz", hz).put("tts_pcm_bicim", bicim).put("tts_pcm_kanal", kanal)
                 .put("tts_pcm_ornek", pcmSayisi).put("tts_ham_tepe", hamTepe)
-            if (hz != 24000 || bicim != AudioFormat.ENCODING_PCM_16BIT || kanal != 1 || pcmSayisi == 0 || hamTepe == 0) {
+            if (hz !in setOf(16000, 24000, 48000) || bicim != AudioFormat.ENCODING_PCM_16BIT || kanal != 1 || pcmSayisi == 0 || hamTepe == 0) {
                 bitir("PCM_DESTEKLENMIYOR"); return
             }
         }
         anaIs.removeCallbacksAndMessages(null)
+        if (intent.getBooleanExtra("yalniz_tanici", false)) {
+            // Bilinen yapay cümle doğrudan modele gider; mikrofon ve hoparlör açılmaz.
+            calisan = true
+            Thread({
+                try {
+                    YankiOturumu(hz).use { donusum ->
+                        YankiCagriTanisi(File(filesDir, "vosk-model-small-tr-0.3")).use { tani ->
+                            val giris = ShortArray(hz / 100)
+                            val cikis = ShortArray(160)
+                            var i = 0
+                            while (i < pcmSayisi && etkin.get()) {
+                                giris.fill(0)
+                                val n = minOf(giris.size, pcmSayisi - i)
+                                pcm.copyInto(giris, 0, i, i + n)
+                                tani.ekle(cikis, donusum.donustur(giris, cikis))
+                                i += n
+                            }
+                            tani.tamamla()
+                            tani.close()
+                            val sonuc = tani.rapor()
+                            anaIs.post { rapor.put("yapay_cagri_tanisi", sonuc) }
+                        }
+                    }
+                    anaIs.post { calisan = false; bitir("TANICI_KONTROL_BITTI") }
+                } catch (e: Exception) {
+                    anaIs.post { calisan = false; rapor.put("hata_turu", e.javaClass.simpleName); bitir("TANICI_KONTROL_HATASI") }
+                }
+            }, "sezai-yapay-cagri").start()
+            return
+        }
         anaIs.postDelayed({ bitir("HAT_ZAMAN_ASIMI") }, 15000)
         yazi.text = if (genlik == 0f) "Sessiz referans hattı: mikrofon açık, çıkış sesi sıfır."
             else "Referanslı yankı denemesi: mikrofon ve kontrollü ses açık."

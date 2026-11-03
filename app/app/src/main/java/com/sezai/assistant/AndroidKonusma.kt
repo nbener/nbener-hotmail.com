@@ -83,6 +83,8 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     // Yalnız açıkça bağlanan tüketiciye, callback süresinde kullanılmak üzere PCM.
     // Normal uygulama tüketici bağlamaz; debug hat belleği sınırlayıp diske yazmaz.
     @Volatile internal var pcmAkisi: ((ByteArray) -> Unit)? = null
+    internal var sozAlindi: (() -> Unit)? = null
+    private val sozKesme by lazy { SozKesme(context) { sozAlindi?.invoke() } }
     private val gorselNesil = AtomicInteger()
     private val gorselAnaIs = Handler(Looper.getMainLooper())
     private var tts: TextToSpeech? = null
@@ -109,11 +111,19 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     override fun konus(metin: String, bitince: (() -> Unit)?, hata: (() -> Unit)?) {
         // Sessiz mod: hiç ses çıkmaz
         if (BildirimKumanda.sessizMi(context)) { bitince?.invoke(); return }
+        sozKesme.durdur()
+        val sesMetni = SesMetni.temizle(metin)
+        if (sesMetni.isBlank()) { durdur(); bitince?.invoke(); return }
+        if (sozAlindi != null) sozKesme.hazirla()
         val sira = gorselNesil.incrementAndGet()
         val konusmaKimligi = "sezai-konus-$sira"
         fun bildir(tur: KonusmaGorselOlayi.Tur, yazi: String = "") {
-            if (gorselOlayi != null) gorselAnaIs.post {
-                if (gorselNesil.get() == sira) gorselOlayi?.invoke(KonusmaGorselOlayi(tur, yazi))
+            gorselAnaIs.post {
+                if (gorselNesil.get() == sira) {
+                    if (tur == KonusmaGorselOlayi.Tur.BASLADI && sozAlindi != null) sozKesme.baslat()
+                    else if (tur != KonusmaGorselOlayi.Tur.BASLADI) sozKesme.durdur()
+                    gorselOlayi?.invoke(KonusmaGorselOlayi(tur, yazi))
+                }
             }
         }
         val t = tts
@@ -134,7 +144,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
             }
             override fun onStart(id: String?) { if (id == konusmaKimligi && dosya == null) bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) }
             override fun onDone(id: String?) {
-                if (id != konusmaKimligi) return
+                if (id != konusmaKimligi || gorselNesil.get() != sira) { dosya?.delete(); return }
                 if (dosya == null) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke(); return }
                 if (gorselNesil.get() != sira) { dosya.delete(); return }
                 guclCal(dosya, sira, { bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) },
@@ -144,17 +154,18 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
             override fun onStop(id: String?, interrupted: Boolean) { if (id == konusmaKimligi) bildir(KonusmaGorselOlayi.Tur.DURDU) }
             @Deprecated("Deprecated in Java")
             override fun onError(id: String?) {
-                if (id == konusmaKimligi) { Log.w("Sezai", "TTS hata"); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
+                if (id == konusmaKimligi && gorselNesil.get() == sira) { Log.w("Sezai", "TTS hata"); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
             }
         })
         // Varsayılan çağrılar aynı null parametreyi kullanır; sistem ses ayarı değiştirilmez.
         val parametre = sesDuzeyi?.let { duzey -> Bundle().apply { putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, duzey) } }
-        val sonuc = if (dosya != null) t.synthesizeToFile(metin, parametre, dosya, konusmaKimligi)
-                    else t.speak(metin, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi)
+        val sonuc = if (dosya != null) t.synthesizeToFile(sesMetni, parametre, dosya, konusmaKimligi)
+                    else t.speak(sesMetni, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi)
         if (sonuc == TextToSpeech.ERROR) { dosya?.delete(); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
     override fun durdur() {
+        sozKesme.durdur()
         val sira = gorselNesil.incrementAndGet()
         if (gorselOlayi != null) gorselAnaIs.post {
             if (gorselNesil.get() == sira) gorselOlayi?.invoke(KonusmaGorselOlayi(KonusmaGorselOlayi.Tur.DURDU))
@@ -176,7 +187,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         return tts?.setVoice(v) == TextToSpeech.SUCCESS
     }
 
-    override fun kapat() { pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
+    override fun kapat() { sozAlindi = null; sozKesme.kapat(); pcmAkisi = null; pcmTanisi = null; durdur(); tts?.shutdown(); tts = null; gorselOlayi = null }
 }
 
 internal data class PcmTaniOlayi(val hz: Int = 0, val bicim: Int = 0, val kanal: Int = 0, val bayt: Int = 0)

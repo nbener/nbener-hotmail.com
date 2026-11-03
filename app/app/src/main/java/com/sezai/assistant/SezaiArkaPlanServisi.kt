@@ -39,7 +39,6 @@ class SezaiArkaPlanServisi : Service() {
     private var konusmaHazir = false
     private var kapaniyor = false
     private var dinleme: AndroidDinleme? = null
-    private val sozKesme by lazy { SozKesme(this) { sozKesildi() } }
     private var konusanNesil = -1
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
@@ -54,8 +53,8 @@ class SezaiArkaPlanServisi : Service() {
             getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
             stopSelf(); return START_NOT_STICKY
         }
-        if (intent?.action == ACIK_ISTEK) getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", true).apply()
         if (BildirimKumanda.sessizMi(this)) { stopSelf(); return START_NOT_STICKY } // sessiz modda mikrofon açılmaz
+        if (intent?.action == ACIK_ISTEK) getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", true).apply()
         if (calisiyor) return START_NOT_STICKY
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Log.w("Sezai", "ARKAPLAN mikrofon izni yok"); stopSelf(); return START_NOT_STICKY
@@ -81,6 +80,7 @@ class SezaiArkaPlanServisi : Service() {
                 getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("ses_adi", null)?.let { konusma?.sesSec(it) }
             }
         }
+        konusma?.sozAlindi = { sozKesildi() }
         uyanma = SezaiUyanma(this) { sezaiDendi() }
         uyanma?.baslat()
         Log.i("Sezai", "ARKAPLAN servis basladi")
@@ -93,27 +93,25 @@ class SezaiArkaPlanServisi : Service() {
         val ses = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (!konusmaHazir || ses.mode != AudioManager.MODE_NORMAL) { yenidenDinle(3000); return }
         val benim = ++nesil
-        sozKesme.hazirla() // model arka planda yüklenir; ilk yanıta kadar hazır olur
         konus("Buyurun, sizi dinliyorum.", benim) { dinleTur(benim, 0) }
     }
 
     // Konuşmayı bitirince devam eder; hata veya iptalde uyanma beklemesine döner
-    private fun konus(metin: String, benim: Int, kesilebilir: Boolean = false, sonra: () -> Unit) {
+    private fun konus(metin: String, benim: Int, sonra: () -> Unit) {
         if (benim != nesil || kapaniyor) return
         val k = konusma
         if (k == null) { uyanmayaDon(benim, 3000); return }
         // Uygulamadaki ses çubuğu ayarı her konuşmadan önce okunur
         val yuzde = getSharedPreferences("ses_ayari", MODE_PRIVATE).getInt("tts_seviye", 100).coerceIn(10, 250)
         k.yuzdeAyarla(yuzde)
-        konusanNesil = if (kesilebilir) benim else -1
+        konusanNesil = benim
         k.konus(metin,
             bitince = { anaIs.post {
-                if (benim == nesil && !kapaniyor) { sozKesme.durdur(); sonra() }
+                if (benim == nesil && !kapaniyor) { konusanNesil = -1; sonra() }
             } },
             hata = { anaIs.post {
-                if (benim == nesil && !kapaniyor) { sozKesme.durdur(); uyanmayaDon(benim, 3000) }
+                if (benim == nesil && !kapaniyor) { konusanNesil = -1; uyanmayaDon(benim, 3000) }
             } })
-        if (kesilebilir) sozKesme.baslat()
     }
 
     // Kullanıcı yanıt okunurken "dur"/"Sezai" dedi: okumayı kes ve yeni isteği dinle
@@ -124,7 +122,7 @@ class SezaiArkaPlanServisi : Service() {
         konusanNesil = -1
         konusma?.durdur()
         val yeni = ++nesil
-        dinleTur(yeni, 0)
+        anaIs.postDelayed({ dinleTur(yeni, 0) }, 200)
     }
 
     private fun uyanmayaDon(benim: Int, gecikmeMs: Long) {
@@ -161,7 +159,7 @@ class SezaiArkaPlanServisi : Service() {
                 val ayar = getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("gorsel_model", null)
                 val yorum = GorselYorum(kasa, saglayici, ayar)
                 yorum.yorumla(jpeg, "Bu resimde ne var? Bana anlat.",
-                    sonuc = { metin -> yorum.kapat(); if (benim == nesil && !kapaniyor) konus(metin.take(1200), benim, kesilebilir = true) { sonra() } },
+                    sonuc = { metin -> yorum.kapat(); if (benim == nesil && !kapaniyor) konus(metin.take(1200), benim) { sonra() } },
                     hata = { m -> yorum.kapat(); if (benim == nesil && !kapaniyor) konus(m.take(250), benim) { uyanmayaDon(benim, 1500) } })
             }
         }
@@ -212,7 +210,7 @@ class SezaiArkaPlanServisi : Service() {
         sohbet?.gonder(metin,
             sonuc = { yanit -> anaIs.post {
                 if (benim != nesil || kapaniyor) return@post
-                konus(yanit.take(1200), benim, kesilebilir = true) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
+                konus(yanit.take(1200), benim) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
             } },
             hata = { mesaj -> anaIs.post {
                 if (benim == nesil && !kapaniyor) konus(mesaj.take(200), benim) { uyanmayaDon(benim, 1500) }
@@ -235,7 +233,6 @@ class SezaiArkaPlanServisi : Service() {
         kapaniyor = true
         anaIs.removeCallbacksAndMessages(null)
         nesil++
-        sozKesme.kapat()
         dinleme?.kapat(); dinleme = null
         sohbet?.kapat(); sohbet = null
         uyanma?.durdur(); uyanma = null

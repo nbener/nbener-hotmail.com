@@ -18,49 +18,64 @@ import java.io.File
 // Sezai bir yanıtı okurken "dur" veya "sezai" sözünü bekler (prototip). Android'in kendi yankı giderme
 // özellikli VOICE_COMMUNICATION kaynağı ve dilbilgisiz (serbest) Vosk çözümü kullanılır: dar dilbilgisi
 // telefonun kendi sesini hedef sözcüğe zorlayıp yanlış tetikliyordu. Ses diske/ağa gitmez, metin saklanmaz.
-// Model ilk kullanımda yüklenir ve servis kapanana kadar bellekte kalır.
+// Model ilk kullanımda tek işçide yüklenir; hazır olunca bekleyen konuşma dinlenir. Kapanış kayıt sonrasına sıralanır.
 internal class SozKesme(private val context: Context, private val tetik: () -> Unit) {
     private val anaIs = Handler(Looper.getMainLooper())
     private val modelYolu = File(context.filesDir, "vosk-model-small-tr-0.3")
-    @Volatile private var model: Model? = null
-    @Volatile private var istenen = false
+    private val isler = java.util.concurrent.Executors.newSingleThreadExecutor()
+    private val nesil = java.util.concurrent.atomic.AtomicInteger()
+    private var model: Model? = null // yalnız tek işçi erişir; kayıt bitmeden kapatılmaz
+    @Volatile private var kapandi = false
     @Volatile private var kayit: AudioRecord? = null
-    private var is_: Thread? = null // yalnız ana iş parçacığında
+
+    private fun modelHazirla(): Model? {
+        if (model == null && File(modelYolu, "final.mdl").isFile) {
+            try { LibVosk.vosk_set_log_level(-1); model = Model(modelYolu.absolutePath) }
+            catch (e: Exception) { Log.w("Sezai", "SOZKESME model yuklenemedi: ${e.javaClass.simpleName}") }
+            catch (e: LinkageError) { Log.w("Sezai", "SOZKESME kutuphane yuklenemedi: ${e.javaClass.simpleName}") }
+        }
+        return model
+    }
 
     fun hazirla() {
-        if (model != null || !File(modelYolu, "final.mdl").isFile) return
-        Thread({
-            try { LibVosk.vosk_set_log_level(-1); model = Model(modelYolu.absolutePath) }
-            catch (e: Throwable) { Log.w("Sezai", "SOZKESME model yuklenemedi: ${e.javaClass.simpleName}") }
-        }, "sezai-sozkesme-model").start()
+        if (!kapandi) isler.execute { if (!kapandi) modelHazirla() }
     }
 
     fun baslat() {
-        val m = model
-        if (m == null) { hazirla(); Log.i("Sezai", "SOZKESME model hazir degil"); return }
-        if (is_?.isAlive == true) return
-        istenen = true
-        is_ = Thread({ calis(m) }, "sezai-sozkesme").also { it.start() }
+        if (kapandi) return
+        durdur()
+        val benim = nesil.get()
+        isler.execute {
+            val m = if (!kapandi && benim == nesil.get()) modelHazirla() else null
+            if (m != null && !kapandi && benim == nesil.get()) calis(m, benim)
+        }
     }
 
     fun durdur() {
-        istenen = false
+        nesil.incrementAndGet()
         try { kayit?.stop() } catch (_: RuntimeException) {}
     }
 
     fun kapat() {
+        if (kapandi) return
+        kapandi = true
         durdur()
-        try { is_?.join(1500) } catch (_: InterruptedException) {}
-        model?.close(); model = null
+        isler.execute { model?.close(); model = null }
+        isler.shutdown()
     }
 
-    private fun calis(m: Model) {
+    private fun calis(m: Model, benim: Int) {
         var tanici: Recognizer? = null
         var mikrofon: AudioRecord? = null
         var aec: AcousticEchoCanceler? = null
         var gurultu: NoiseSuppressor? = null
         var duyuldu = false
         var sure = 0L
+        var ornek = 0L
+        var enerji = 0.0
+        var tepe = 0
+        var tanimaVar = false
+        var susturuldu = false
         try {
             tanici = Recognizer(m, 16000f)
             val enAz = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -70,19 +85,30 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             check(mikrofon.state == AudioRecord.STATE_INITIALIZED) { "MIKROFON" }
             if (AcousticEchoCanceler.isAvailable()) aec = AcousticEchoCanceler.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             if (NoiseSuppressor.isAvailable()) gurultu = NoiseSuppressor.create(mikrofon.audioSessionId)?.also { it.enabled = true }
-            if (!istenen) return
+            val ses = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
+            if (kapandi || benim != nesil.get() || ses.mode != android.media.AudioManager.MODE_NORMAL) return
             kayit = mikrofon
             mikrofon.startRecording()
             check(mikrofon.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "KAYIT" }
-            Log.i("Sezai", "SOZKESME basladi aec=${aec?.enabled} ns=${gurultu?.enabled}")
+            Log.i("Sezai", "SOZKESME basladi aec=${aec?.enabled} ns=${gurultu?.enabled} cihaz=${mikrofon.routedDevice?.type}")
             val veri = ShortArray(1600)
             val bas = System.nanoTime()
-            while (istenen) {
+            var tur = 0
+            while (!kapandi && benim == nesil.get()) {
                 val n = mikrofon.read(veri, 0, veri.size)
                 if (n <= 0) break
-                if (!istenen) break
+                if (kapandi || benim != nesil.get()) break
+                ornek += n
+                for (i in 0 until n) {
+                    val v = veri[i].toInt()
+                    enerji += v.toDouble() * v
+                    tepe = maxOf(tepe, kotlin.math.abs(v))
+                }
+                if (android.os.Build.VERSION.SDK_INT >= 29 && mikrofon.activeRecordingConfiguration?.isClientSilenced == true) susturuldu = true
+                if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) break
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
+                if (metin.isNotBlank()) tanimaVar = true
                 val kelimeler = metin.split(' ')
                 if ("dur" in kelimeler || "sezai" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; break }
             }
@@ -94,8 +120,15 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             kayit = null
             try { mikrofon?.stop() } catch (_: RuntimeException) {}
             aec?.release(); gurultu?.release(); mikrofon?.release(); tanici?.close()
+            val rms = if (ornek > 0) kotlin.math.sqrt(enerji / ornek).toInt() else 0
+            Log.i("Sezai", "SOZKESME olcum ornek=$ornek rms=$rms tepe=$tepe tanima=$tanimaVar susturuldu=$susturuldu")
             Log.i("Sezai", "SOZKESME kaynaklar birakildi")
-            if (duyuldu && istenen) { istenen = false; Log.i("Sezai", "SOZKESME tetik ${sure}ms"); anaIs.post { tetik() } }
+            if (duyuldu) anaIs.post {
+                if (!kapandi && benim == nesil.get()) {
+                    Log.i("Sezai", "SOZKESME tetik ${sure}ms")
+                    durdur(); tetik()
+                }
+            }
         }
     }
 }

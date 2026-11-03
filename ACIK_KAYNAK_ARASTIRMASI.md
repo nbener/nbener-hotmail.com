@@ -21,3 +21,8 @@ Proje özel ve satılacak: GPL/AGPL kod ürüne GÖMÜLMEZ; yalnızca tasarım f
 1. Hız, hız sınırı, uyarılar: Sezai katmanı (GPS + OSM). Rota ve dönüş talimatı Google Haritalar'da (intent `google.navigation:q=`).
 2. Sesli yeteneklerde niyet tanıma ve yürütme ayrı katman olacak (Rhasspy fikri); yetenek kaydı tek yerde (Dicio fikri), kod kopyalanmadan.
 3. Kamera: Camera2 + ImageReader, tek kare, saklanmaz.
+
+
+## 04.11.2026 — mikrofon paylaşımı doğrulaması
+- Android resmî paylaşım belgesi açıldı: https://developer.android.com/media/platform/sharing-audio-input . Kayıt çalışırken başka istemci önceliği nedeniyle uygulama sessiz örnek alabilir; isClientSilenced/activeRecordingConfiguration ile ayrıştırılır. İstenen biçime sistem örnekleme dönüşümü uygular; TTS'nin48kHz olması tek başına16kHz AudioRecord'un bozuk olduğu anlamına gelmez.
+- Cihaz geçmişi: gerçek başarısız konuşma turunda 00:28:22–00:28:39 VOICE_COMMUNICATION Sezai not silenced. Bu tur için Android'in bütünüyle susturması kanıtı yok. 00:28:52 sonraki uyanma kaydında başka tanıma istemcisiyle silenced olayı var; önceki turla karıştırılmadı.

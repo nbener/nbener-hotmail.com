@@ -39,9 +39,14 @@ class KomutCalistirici(private val context: Context) {
             if (komut.gece) "Gece görünümüne geçtim." else "Gündüz görünümüne geçtim."
         }
         is Komut.ArkaPlan -> {
-            context.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("arka_plan", komut.ac).apply()
-            if (komut.ac) { if (BildirimKumanda.sessizMi(context)) "Sessiz moddasınız, önce sessiz moddan çıkın." else { SezaiArkaPlanServisi.baslat(context); "Arka planda dinlemeye başladım." } }
-            else { SezaiArkaPlanServisi.durdur(context); "Arka plan dinlemeyi kapattım." }
+            if (komut.ac && BildirimKumanda.sessizMi(context)) {
+                "Sessiz moddasınız, önce sessiz moddan çıkın."
+            } else {
+                // Reddedilen açma isteği sonraki açılış için dinleme tercihi bırakmamalı.
+                context.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("arka_plan", komut.ac).apply()
+                if (komut.ac) { SezaiArkaPlanServisi.baslat(context); "Arka planda dinlemeye başladım." }
+                else { SezaiArkaPlanServisi.durdur(context); "Arka plan dinlemeyi kapattım." }
+            }
         }
         is Komut.SesAyar -> {
             val o = context.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE)

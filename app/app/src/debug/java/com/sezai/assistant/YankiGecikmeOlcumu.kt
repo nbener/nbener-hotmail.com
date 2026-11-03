@@ -4,7 +4,7 @@ import org.json.JSONObject
 import kotlin.math.abs
 import kotlin.math.sqrt
 
-// 24kHz girişte sekizli ortalama: yalnız sınırlı bellekte 3kHz tanı verisi.
+// 16/24/48kHz girişin her 10ms karesinden 30 ortalama: yalnız sınırlı bellekte 3kHz tanı verisi.
 // Korelasyon bir gecikme ipucudur; insan sesi korunması/yankı kabulü değildir.
 internal class YankiGecikmeOlcumu {
     private val mic = ShortArray(36000)
@@ -14,16 +14,20 @@ internal class YankiGecikmeOlcumu {
     private var kirpilan = 0
 
     fun ekle(giris: ShortArray, referans: ShortArray) {
-        require(giris.size == 240 && referans.size == 240)
+        require(giris.size in setOf(160, 240, 480) && referans.size == giris.size)
         for (v in giris) {
             tepe = maxOf(tepe, abs(v.toInt()))
             if (abs(v.toInt()) >= 32760) kirpilan++
         }
-        for (i in giris.indices step 8) {
+        for (i in 0 until 30) {
             if (sayi == mic.size) break
+            val bas = i * giris.size / 30
+            val son = (i + 1) * giris.size / 30
             var m = 0; var r = 0
-            for (j in i until i + 8) { m += giris[j]; r += referans[j] }
-            mic[sayi] = (m / 8).toShort(); ref[sayi] = (r / 8).toShort(); sayi++
+            for (j in bas until son) { m += giris[j]; r += referans[j] }
+            mic[sayi] = (m / (son - bas)).toShort()
+            ref[sayi] = (r / (son - bas)).toShort()
+            sayi++
         }
     }
 
@@ -68,6 +72,19 @@ internal class YankiGecikmeOlcumu {
             check(!korelasyon(ShortArray(6000), ref, 6000).getBoolean("korelasyon_gecerli"))
             check(!korelasyon(ref, ShortArray(6000), 6000).getBoolean("korelasyon_gecerli"))
             check(!korelasyon(ref, ref, 100).getBoolean("korelasyon_gecerli"))
+            for (kare in listOf(160, 240, 480)) {
+                val olcum = YankiGecikmeOlcumu()
+                for (tur in 0 until 110) {
+                    val veri = ShortArray(kare) { i ->
+                        s = (s*1664525 + 1013904223) and 0xffffffffL
+                        (s shr 16).toShort()
+                    }
+                    olcum.ekle(veri, veri)
+                }
+                val d = olcum.bitir()
+                check(d.getInt("korelasyon_ornek") == 3300)
+                check(d.getInt("korelasyon_gecikme_ms") == 0 && d.getDouble("korelasyon") > 0.999)
+            }
             ref.fill(0)
             return true
         }

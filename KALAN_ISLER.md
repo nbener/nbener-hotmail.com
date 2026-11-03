@@ -466,3 +466,29 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - UI düğmesi denemesinde geçici false görüldü, sonraki kontrolde true kaldı; kalıcı başarı sayılmadı. Sonraki UI dökümü aktarımı FileNotFoundError verdi. Uygulama durdurularak yalnız sessiz tercihi false yapıldı ve yeniden açıldı. Üretim kaynak/APK değiştirilmedi.
 - Son doğrulama: SezaiArkaPlanServisi isForeground=true; 00:13:45 UYANMA mikrofon basladi; 00:14:09 UYANMA sezai duyuldu ve ARKAPLAN sezai duyuldu. Seslenme algılandı; hoparlörden yanıtın duyulması henüz kullanıcıca doğrulanmadı. 00:14:05 STT kod7 de görüldü.
 - Ses ölçümünde MUSIC Muted=true, aynı anda STT hazir ve uygulamanın bip bastırma ADJUST_MUTE olayı vardı; kalıcı susturma kanıtı sayılmadı. Bip bastırma/gerçek duyulabilirlik takibi açık. Mevcut istenen arka plan mikrofonu yeniden etkinleşti; pil ölçülmedi.
+
+
+## 04.11.2026 — emoji seslendirmesi ve ortak söz kesme düzeltmesi
+- Kullanıcı emoji adlarını okumama, konuşurken “dur”/“Sezai” ile susup yeniden dinleme, yeniden yükleyip çalıştırma istedi. Yedek: yedek/emoji-soz-kesme-oncesi-20261104.tar.gz.
+- Kök nedenler: TTS ham emoji metnini alıyordu; söz kesme yalnız servis içindeki bazı model/görsel yanıtlarına bağlıydı. Model hazır değilken baslat() ilk konuşmayı dinlemeden dönüyordu; eski model yükleme/kapatma eşzamanlılığı korumasızdı.
+- SesMetni.kt ortak TTS girişinden emoji/ZWJ/bayrak/ten rengi/tuş dizilerini çıkarır, ekrandaki yanıtı korur. SohbetMotoru emoji ve kendiliğinden emoji adı/gülme betimlemesi üretmemeye yönlendirildi; gerçek model uyumu doğrulanmadı.
+- AndroidKonusma gerçek TTS/AudioTrack başlangıcında yerel SozKesme'yi başlatır; bitiş/durdurma/hata/kapanışta bırakır. SozKesme tek işçi ve nesil denetimiyle model hazır olmasını bekler; iptal edilen tetik yeni konuşmaya geçemez, model kayıt bitmeden kapatılmaz. Android AEC/NS ve serbest Vosk korunur; kısıtlı dur dilbilgisi eklenmedi. Görüşme modu izlenir.
+- MainActivity sözü alınca sesi ve eski geri çağrıları durdurur; sohbet geçmişini silmeden 200ms sonra dinlemeye geçer. Serviste de tüm konuşma yolları aynı bağlantıyı kullanır. Ön planda Activity, arka planda tercih açıksa servis mikrofonu devralır; iki uyanma dinleyicisi önlenir.
+- Ubuntu proot ./build.sh çıkış0. İkinci derlemede Kotlin daemon başlangıç uyarıları görüldü; komut sonunda çıkış0 ve APK üretimi doğrulandı. Gradle debug imzası, zipalign -c4 ve apksigner verify v2=true PASS. APK SHA256: 4515262154a059d7c4425b03ed9f5558aa1efd331e2a65184fff025f8d8f9dd6. Son Kotlin kaynakları APK'dan eski kontrolü geçti.
+- pm install -r -S: Success/çıkış0; Download/Sezai-debug.apk güncellendi. Kurulu APK dinleme9/9, görüşme8/8, sohbet31/31 PASS (sahte tanıma/odak/ağ; gerçek API/insan sesi kabulü değildir). Yerel yeni ses metni8/8, ekran komutu21/21 PASS.
+- Gerçek sesli deneme am start -S --es oto ile açıldı (emoji içeren sabit deneme; ağ model isteği yok). PID15586, 00:28:22 SOZKESME basladi aec=true ns=true görüldü. İnsan “dur”/“Sezai” kesmesinin duyulması/algılanması ve emoji adının kulakla okunmadığı henüz doğrulanmadı; kullanıcı testi soruldu.
+- Pil: yeni servis veya wake lock yok; mevcut yerel Vosk yalnız konuşma sürerken kesme için de mikrofon kullanır. Model bellekte kalır, kapanışta bırakılır; enerji/yanlış tetikleme oranı ölçülmedi. Hoparlör yankısında güvenilirlik açık kabul maddesi. Önceki sessiz mod kayıt sırası düzeltmeleri korundu ve bu APK'ya dahildir.
+
+
+## 04.11.2026 — insan sesi kabulü BAŞARISIZ
+- Kullanıcı yeni kurulan sürüm konuşurken defalarca “Sezai” ve “dur” dediğini, hiç durmadığını açıkça bildirdi. Önceki “kullanıcı kabulü bekliyor” durumu bu tur için BAŞARISIZ olarak güncellendi. Özellik çalışıyor/tamamlandı değildir.
+- PID15586: 00:28:22–00:28:39 arası SOZKESME basladi/kaynaklar birakildi; tetik ve EKRAN soz kesildi olayı yok. Mikrofon açılış olayı hedefi algılama kanıtı değildir.
+- Eski ortak kayıtta serbest Vosk+VOICE_COMMUNICATION/AEC yönteminin insan çağrısını kaçırdığı zaten vardı; aynı yöntemi ortak TTS'ye bağlamak sorunu çözmedi. Kök neden ses işleme/tanıma ayrımında henüz doğrulanmadı.
+- Uygulama konuşması durduruldu. Sonraki: mevcut referanslı AEC hattında aynı sesin dar/serbest tanıyıcı bayraklarını karşılaştıran sınırlı gerçek cihaz ölçümü; başarısız yöntemi tekrar başarılı diye sunma. Emoji filtresi JVM geçişi korunur; kulakla ayrı kabul açık.
+
+
+## 04.11.2026 — ses/tanıyıcı ayrıştırması
+- Referanslı eski test ilk iki girişimde Awake ön kontrolünü doğrulayamadı; mikrofon başlamadı. Bağımsız dumpsys Awake gösterdi, uzaktan atomik Awake kontrolüyle Activity başlatıldı. İlk rapor1793741525558423787 PCM_DESTEKLENMIYOR: seçili tr-tr-x-tmc-network48000Hz/PCM16/mono üretiyordu, test yalnız24000 kabul ediyordu. Bu test uyumsuzluğudur; ana16kHz AudioRecord hatası olarak yorumlanmadı.
+- Debug hat48000Hz tampon ve16/24/48 kabulüne genişletildi. Kotlin in-process derlemesi exit0, zipalign/apksigner v2 PASS, pm install Success.
+- Kurulu tanı APK'sında1793742004841504438 yalnız yapay “Dur. Sezai. Dur. Sezai.” PCM tanıyıcı kontrolü TANICI_KONTROL_BITTI. Mikrofon/hoparlör açılmadı.39360 örnek16kHz çözüldü; dar ve serbest tanıyıcının her ikisinde dur=true/sezai=true. Dar kesin güven1.0, dur270ms/sezai570ms. Bu sentetik TTS sözcük yeteneği kanıtıdır, insan sesi/söz kesme başarısı değildir.
+- Sonraki kaynak: gecikme tanısı16/24/48kHz her10ms kareyi30örneğe indirir; her hızda sıfır gecikmeli eş sinyal kontrolü eklendi. SozKesme yalnız sayısal örnek/RMS/tepe/tanıma-var/sistemce-susturuldu tanısı üretir; ham ses/metin tutulmaz. Bu son değişikliklerin derlemesi sürüyor, insan sesi kabulü hâlâ başarısız/açık.

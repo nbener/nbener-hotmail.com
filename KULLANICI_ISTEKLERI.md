@@ -120,3 +120,9 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 
 ## 04.11.2026 — yanıtsız seslenme
 - [ ] “Seslendim Sezai cevap vermedi”: canlı dinleme/servis/hata nedenini bul ve düzelt. Shizuku kapalı, ADB cihaz yok; gerçek cihaz tanılaması ve insan sesi kabulü bekliyor.
+
+
+## 04.11.2026 — emoji okuma ve konuşurken söz kesme
+- [~] Emoji adları (“ağzı açık gülen yüz” vb.) seslendirilmesin: ortak TTS filtresi ve model talimatı eklendi, JVM 8/8 geçti; yeni APK kurulumu ve kulakla kabul bekliyor.
+- [~] Sezai konuşurken “Sezai” veya “dur” deyince susup kullanıcıyı dinlesin, konu korunsun: ortak TTS söz kesme bağlantısı ve tek işçili model yaşam döngüsü; ön plan/arka plan mikrofon devri. Derleme ve insan sesi kabulü sürüyor.
+- Kullanıcı açıkça düzelt, yeniden yükle, çalıştır talimatı verdi.
