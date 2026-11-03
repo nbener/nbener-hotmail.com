@@ -24,15 +24,23 @@ class AndroidDinleme internal constructor(
     private val susturulan = mutableListOf<Int>()
     private val geriAc = Runnable { sesiGeriAc() }
 
+    // Başlangıç ve bitiş bipleri dinleme boyunca susturulur; bitişten sonra kısa gecikmeyle açılır.
+    // Güvenlik: bir olay kaçarsa 30 sn sonra yine de geri açılır.
     private fun sesiSustur() {
         anaIs.removeCallbacks(geriAc)
-        if (susturulan.isNotEmpty()) { anaIs.postDelayed(geriAc, 2500); return }
-        for (akis in intArrayOf(AudioManager.STREAM_MUSIC, AudioManager.STREAM_NOTIFICATION, AudioManager.STREAM_SYSTEM)) {
-            try {
-                if (!ses.isStreamMute(akis)) { ses.adjustStreamVolume(akis, AudioManager.ADJUST_MUTE, 0); susturulan.add(akis) }
-            } catch (e: Exception) { Log.w("Sezai", "BIP susturulamadi akis=$akis ${e.javaClass.simpleName}") }
+        if (susturulan.isEmpty()) {
+            for (akis in intArrayOf(AudioManager.STREAM_MUSIC, AudioManager.STREAM_NOTIFICATION, AudioManager.STREAM_SYSTEM)) {
+                try {
+                    if (!ses.isStreamMute(akis)) { ses.adjustStreamVolume(akis, AudioManager.ADJUST_MUTE, 0); susturulan.add(akis) }
+                } catch (e: Exception) { Log.w("Sezai", "BIP susturulamadi akis=$akis ${e.javaClass.simpleName}") }
+            }
         }
-        anaIs.postDelayed(geriAc, 2500) // hazır olay gelmezse de sesi geri aç
+        anaIs.postDelayed(geriAc, 30000)
+    }
+
+    private fun sesiGeriAcGecikmeli(ms: Long = 250) {
+        anaIs.removeCallbacks(geriAc)
+        if (susturulan.isNotEmpty()) anaIs.postDelayed(geriAc, ms)
     }
 
     private fun sesiGeriAc() {
@@ -62,7 +70,7 @@ class AndroidDinleme internal constructor(
                 Log.w("Sezai", "STT hata kodu=$kod")
                 kapat(); hata(hataMetni(kod))
             }
-            override fun onReadyForSpeech(p: Bundle?) { Log.i("Sezai", "STT hazir"); anaIs.removeCallbacks(geriAc); anaIs.postDelayed(geriAc, 700) }
+            override fun onReadyForSpeech(p: Bundle?) { Log.i("Sezai", "STT hazir") }
             override fun onBeginningOfSpeech() {}
             override fun onRmsChanged(v: Float) {}
             override fun onBufferReceived(b: ByteArray?) {}
@@ -78,9 +86,9 @@ class AndroidDinleme internal constructor(
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
             })
         } catch (_: SecurityException) {
-            if (tanici === r) { kapat(); hata("Mikrofon izni yok") } else sesiGeriAc()
+            if (tanici === r) { kapat(); hata("Mikrofon izni yok") } else sesiGeriAcGecikmeli(0)
         } catch (_: Exception) {
-            if (tanici === r) { kapat(); hata("Dinleme başlatılamadı") } else sesiGeriAc()
+            if (tanici === r) { kapat(); hata("Dinleme başlatılamadı") } else sesiGeriAcGecikmeli(0)
         }
     }
 
@@ -97,7 +105,7 @@ class AndroidDinleme internal constructor(
         // destroy sırasında gelen eski olaylar yeni oturumu kapatmamalı.
         val eski = tanici
         tanici = null
-        sesiGeriAc()
+        sesiGeriAcGecikmeli()
         eski?.kapat()
     }
 }

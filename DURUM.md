@@ -804,3 +804,12 @@ Son güncelleme: 2026-10-29
 - AndroidDinleme.kt: dinle() başlarken MUSIC/NOTIFICATION/SYSTEM akışlarından yalnız zaten kapalı olmayanlar ADJUST_MUTE ile susturulur; onReadyForSpeech'ten 700 ms sonra (en geç 2,5 sn) ADJUST_UNMUTE ile geri açılır; kapat() ve hata yollarında da geri açılır.
 - Doğrulama: build çıkış 0, kurulum Success, dinleme testi 9/9, test sonrası dumpsys: akışlar susturulu kalmadı. 
 - DENENMEDİ: bipin gerçekten duyulmadığı (kullanıcı kulağı gerekir; bip hangi akıştan çalıyor kesin değil, çıkarım). Bip hâlâ duyulursa akış listesi/süre ayarlanacak. Risk: sustur-aç arasında uygulama çökerse ilgili akış sessiz kalabilir (ses tuşuyla düzelir).
+
+
+## 03.11.2026 — bip düzeltmesi 2 (başlangıç + bitiş biplerini birlikte sustur)
+- Kullanıcı bildirimi: dinleme başlarken ve bitince (yeşil mikrofon göstergesi açılıp kapanırken) iki "gling" duyuluyor; "sanki iki Sezai konuşuyor" hissi.
+- Neden (çıkarım): ilk düzeltme yalnız başlangıcı susturuyordu (hazır olayından 700 ms sonra geri açıyordu); bitiş bipi susturma kalktıktan sonra çalıyordu.
+- AndroidDinleme.kt: susturma dinleme boyunca tutulur, kapat() ile (sonuç/hata) 250 ms gecikmeli geri açılır; güvenlik zaman aşımı 30 sn. Risk: sonuçtan hemen sonra gelen yerel yanıt TTS'inin ilk ~250 ms'si kısık olabilir.
+- Doğrulama: build çıkış 0, imza+zipalign OK, kurulum Success, dinleme testi 9/9. Kullanıcı kulağıyla bip kontrolü YAPILMADI.
+- "İki Sezai" hissi: logda yalnız servis tetiklendi (uygulama içi "UYANMA tetiklendi" yok); iki ayrı ses kaynağı doğrulanmadı, bu iki bipten kaynaklanıyor olabilir (varsayım).
+- Servis çalışıyor: ses_ayari arka_plan=true, "ARKAPLAN sezai duyuldu" görüldü; "STT hata kodu=7" (konuşma duyulmadı) ile bitti. Kilitliyken/Termux'ta tam akış hâlâ test edilmedi.
