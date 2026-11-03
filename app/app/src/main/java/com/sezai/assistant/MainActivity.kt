@@ -179,6 +179,9 @@ class MainActivity : Activity() {
         webSecimi = android.widget.CheckBox(this).apply {
             text = "Webde araştır · Groq (kota/ücret)"; textSize = 14f
             setTextColor(Color.parseColor(r("#405B6A"))); minHeight = dp(48)
+            buttonTintList = android.content.res.ColorStateList(
+                arrayOf(intArrayOf(android.R.attr.state_checked), intArrayOf()),
+                intArrayOf(Color.parseColor(rLink()), Color.parseColor(r("#405B6A"))))
         }
         kutu.addView(webSecimi, LinearLayout.LayoutParams(-1, -2).apply { topMargin = dp(10) })
         mesajAlani = EditText(this).apply {

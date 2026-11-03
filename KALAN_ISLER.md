@@ -438,3 +438,11 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [~] Sesli kumanda: görünüm, arka plan dinleme, ses seviyesi, sessiz mod, not, hafıza kodlandı; uyanma anahtarı ve ekran yardımcısı ayarı açık.
 - [~] Hafıza: "hatırla ..." ve "ne hatırlıyorsun" kodlandı/kuruldu; sohbet modeline bağlama (onaylı) ve "unut" açık.
 - [~] Sessiz/pasif mod: düğme + sesli komut + bildirim düğmesi kodlandı; cihaz kabulü bekliyor.
+
+
+## 03.11.2026 — web araştırma kutusu gece kontrastı
+- `..` devamıyla MainActivity.kt içindeki Webde araştır kutusunun işaret rengi mevcut gece/gündüz paletine bağlandı: seçili rLink(), boş durum metin rengi. Düşük kontrastın kodda doğrulanan nedeni, kutunun sistem temasına bırakılmasıydı.
+- Yedek: yedek/web-kutu-kontrast-oncesi-20261103.tar.gz.
+- Kurulum engeli: yapılandırılmış rish id çıkış1, Server is not running; adb devices -l boş. Android izinleri değiştirilmedi. Shizuku yeniden çalışınca APK kurulup gece/gündüz boş/seçili kutu görsel olarak denenecek.
+- Yeni servis, mikrofon döngüsü veya wake lock eklenmedi; pil ölçülmedi. Bipin duyulmadığı ve diğer insan sesi kabul işleri açık.
+- Sonuç: Ubuntu proot ./build.sh çıkış0, zipalign -c 4 PASS, apksigner verify --verbose v2=true PASS, ekran JVM21/21 PASS, git diff --check PASS. Kotlin daemon ilk başlangıç uyarısına rağmen birleşik komut çıkış0. JVM testi UI rengini doğrulamaz. Yeni APK kurulmadı; cihaz kabulü bekliyor.

@@ -813,3 +813,11 @@ Son güncelleme: 2026-10-29
 - Doğrulama: build çıkış 0, imza+zipalign OK, kurulum Success, dinleme testi 9/9. Kullanıcı kulağıyla bip kontrolü YAPILMADI.
 - "İki Sezai" hissi: logda yalnız servis tetiklendi (uygulama içi "UYANMA tetiklendi" yok); iki ayrı ses kaynağı doğrulanmadı, bu iki bipten kaynaklanıyor olabilir (varsayım).
 - Servis çalışıyor: ses_ayari arka_plan=true, "ARKAPLAN sezai duyuldu" görüldü; "STT hata kodu=7" (konuşma duyulmadı) ile bitti. Kilitliyken/Termux'ta tam akış hâlâ test edilmedi.
+
+
+## 03.11.2026 — web araştırma kutusu gece kontrastı
+- `..` devamıyla MainActivity.kt içindeki Webde araştır kutusunun işaret rengi mevcut gece/gündüz paletine bağlandı: seçili rLink(), boş durum metin rengi. Düşük kontrastın kodda doğrulanan nedeni, kutunun sistem temasına bırakılmasıydı.
+- Yedek: yedek/web-kutu-kontrast-oncesi-20261103.tar.gz.
+- Kurulum engeli: yapılandırılmış rish id çıkış1, Server is not running; adb devices -l boş. Android izinleri değiştirilmedi. Shizuku yeniden çalışınca APK kurulup gece/gündüz boş/seçili kutu görsel olarak denenecek.
+- Yeni servis, mikrofon döngüsü veya wake lock eklenmedi; pil ölçülmedi. Bipin duyulmadığı ve diğer insan sesi kabul işleri açık.
+- Sonuç: Ubuntu proot ./build.sh çıkış0, zipalign -c 4 PASS, apksigner verify --verbose v2=true PASS, ekran JVM21/21 PASS, git diff --check PASS. Kotlin daemon ilk başlangıç uyarısına rağmen birleşik komut çıkış0. JVM testi UI rengini doğrulamaz. Yeni APK kurulmadı; cihaz kabulü bekliyor.

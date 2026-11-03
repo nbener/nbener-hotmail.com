@@ -470,3 +470,11 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Gerçek UI: Sezai paketinde13 düğüm, Ekranda ne var? başlığı=true, Yorumla ve oku düğmesi enabled=true. Mevcut kod düğmeyi yalnız boş olmayan metinde etkinleştirir: bu koşulda dış pencere yolunun boş olmayan metin döndürdüğü çıkarılır. Beklenen boş/metin açıklaması önekleri XML'de eşleşmedi; açıklama metni kabulü başarılı sayılmadı. Hangi uygulama/pencere metninin geldiği, doğruluğu ve kapsamı doğrulanmadı; tam ekran görsel analizi değildir.
 - Yorumla ve oku tıklanmadı, ekran içeriği rapora/sohbete yazılmadı, test bu içerikle API çağrısı başlatmadı. İnsan sesiyle tetikleme denenmedi. MainActivity gerçek açılışı yapıldı; ayarlı uyanma/arka plan dinlemesinin açılıştaki etkisi ayrıca ölçülmedi, bu deneme mikrofon açılmadı iddiası taşımaz.
 - Kaynak/APK değişmedi. Önceki59 sessiz kontrol bu tur tekrarlanmadı. Sonraki: kullanıcı açık uygulama ile alınan metni karşılaştırmalı; ardından isterse Yorumla ve oku ile model kabulü. Arka plan sesli ekran komutu, söz kesme ve pil ölçümü açık.
+
+
+## 03.11.2026 — web araştırma kutusu gece kontrastı
+- `..` devamıyla MainActivity.kt içindeki Webde araştır kutusunun işaret rengi mevcut gece/gündüz paletine bağlandı: seçili rLink(), boş durum metin rengi. Düşük kontrastın kodda doğrulanan nedeni, kutunun sistem temasına bırakılmasıydı.
+- Yedek: yedek/web-kutu-kontrast-oncesi-20261103.tar.gz.
+- Kurulum engeli: yapılandırılmış rish id çıkış1, Server is not running; adb devices -l boş. Android izinleri değiştirilmedi. Shizuku yeniden çalışınca APK kurulup gece/gündüz boş/seçili kutu görsel olarak denenecek.
+- Yeni servis, mikrofon döngüsü veya wake lock eklenmedi; pil ölçülmedi. Bipin duyulmadığı ve diğer insan sesi kabul işleri açık.
+- Sonuç: Ubuntu proot ./build.sh çıkış0, zipalign -c 4 PASS, apksigner verify --verbose v2=true PASS, ekran JVM21/21 PASS, git diff --check PASS. Kotlin daemon ilk başlangıç uyarısına rağmen birleşik komut çıkış0. JVM testi UI rengini doğrulamaz. Yeni APK kurulmadı; cihaz kabulü bekliyor.
