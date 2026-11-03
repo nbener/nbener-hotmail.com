@@ -491,3 +491,10 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Tanılama: yapılandırılmış Shizuku/rish `id` isteği “Server is not running”; `adb devices -l` bağlı cihaz göstermedi. Bu durum uygulamanın susmasının nedeni olarak kabul edilmedi; canlı servis/tercih/logcat kontrolünü engelliyor.
 - Kaynak incelemesi: sessiz mod uyanma/arka plan dinlemesini kapatır; arka planda seslenme için dinleme servisi gerekir. Cihazdaki güncel tercihler doğrulanamadı.
 - Üretim kaynağı değiştirilmedi; derleme, kurulum ve insan sesi testi yapılmadı. Önceden mevcut değişiklikler korundu. Sonraki: Shizuku yeniden başlatılınca servis, sessiz/arka_plan/uyanma tercihleri ve yalnız ilgili hata olaylarını kontrol et; ardından gerçek seslenme kabulü. Yeni mikrofon döngüsü veya pil yükü eklenmedi.
+
+
+## 04.11.2026 — bağlantı ve yanıtsız seslenme cihaz tanılaması
+- Shizuku uid=2000(shell) bağlantısı çalıştı; ADB listesi boş kaldı. İlk canlı bulgu: sessiz=true, arka_plan=true, uyanma=true; Sezai servisi yok. Sessiz mod dinlemeyi engelliyordu.
+- UI düğmesi denemesinde geçici false görüldü, sonraki kontrolde true kaldı; kalıcı başarı sayılmadı. Sonraki UI dökümü aktarımı FileNotFoundError verdi. Uygulama durdurularak yalnız sessiz tercihi false yapıldı ve yeniden açıldı. Üretim kaynak/APK değiştirilmedi.
+- Son doğrulama: SezaiArkaPlanServisi isForeground=true; 00:13:45 UYANMA mikrofon basladi; 00:14:09 UYANMA sezai duyuldu ve ARKAPLAN sezai duyuldu. Seslenme algılandı; hoparlörden yanıtın duyulması henüz kullanıcıca doğrulanmadı. 00:14:05 STT kod7 de görüldü.
+- Ses ölçümünde MUSIC Muted=true, aynı anda STT hazir ve uygulamanın bip bastırma ADJUST_MUTE olayı vardı; kalıcı susturma kanıtı sayılmadı. Bip bastırma/gerçek duyulabilirlik takibi açık. Mevcut istenen arka plan mikrofonu yeniden etkinleşti; pil ölçülmedi.
