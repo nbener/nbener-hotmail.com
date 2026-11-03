@@ -821,3 +821,16 @@ Son güncelleme: 2026-10-29
 - Kurulum engeli: yapılandırılmış rish id çıkış1, Server is not running; adb devices -l boş. Android izinleri değiştirilmedi. Shizuku yeniden çalışınca APK kurulup gece/gündüz boş/seçili kutu görsel olarak denenecek.
 - Yeni servis, mikrofon döngüsü veya wake lock eklenmedi; pil ölçülmedi. Bipin duyulmadığı ve diğer insan sesi kabul işleri açık.
 - Sonuç: Ubuntu proot ./build.sh çıkış0, zipalign -c 4 PASS, apksigner verify --verbose v2=true PASS, ekran JVM21/21 PASS, git diff --check PASS. Kotlin daemon ilk başlangıç uyarısına rağmen birleşik komut çıkış0. JVM testi UI rengini doğrulamaz. Yeni APK kurulmadı; cihaz kabulü bekliyor.
+
+
+## 03.11.2026 — sessiz modda reddedilen arka plan isteği
+- `..` devamı ve kullanıcının düzelt/yükle/test et talimatı sürdürüldü. Kota başlangıç %3/%57.
+- Kök neden: KomutCalistirici ve SezaiArkaPlanServisi ACIK_ISTEK yolunda arka_plan=true, sessiz kontrolünden önce yazılıyordu. Reddedilen istek sonraki açılışa tercih bırakabiliyordu (kod bulgusu; cihazda yeniden üretilmedi). Her iki yolda sessiz kontrolü kayıt öncesine alındı. DURDUR yolu korundu.
+- Yedekler: yedek/sessiz-arka-plan-oncesi-20261103.tar.gz ve yedek/sessiz-servis-oncesi-20261103.tar.gz. Yeni servis, mikrofon döngüsü veya wake lock yok; pil ölçülmedi.
+
+
+## 04.11.2026 — seslenince yanıt vermeme bildirimi
+- Kullanıcı Sezai diye seslendiğinde yanıt alamadığını bildirdi. Kök neden henüz doğrulanmadı.
+- Tanılama: yapılandırılmış Shizuku/rish `id` isteği “Server is not running”; `adb devices -l` bağlı cihaz göstermedi. Bu durum uygulamanın susmasının nedeni olarak kabul edilmedi; canlı servis/tercih/logcat kontrolünü engelliyor.
+- Kaynak incelemesi: sessiz mod uyanma/arka plan dinlemesini kapatır; arka planda seslenme için dinleme servisi gerekir. Cihazdaki güncel tercihler doğrulanamadı.
+- Üretim kaynağı değiştirilmedi; derleme, kurulum ve insan sesi testi yapılmadı. Önceden mevcut değişiklikler korundu. Sonraki: Shizuku yeniden başlatılınca servis, sessiz/arka_plan/uyanma tercihleri ve yalnız ilgili hata olaylarını kontrol et; ardından gerçek seslenme kabulü. Yeni mikrofon döngüsü veya pil yükü eklenmedi.

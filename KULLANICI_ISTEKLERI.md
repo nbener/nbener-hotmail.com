@@ -116,3 +116,7 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - "İcondaki tüm özelliklere sesle kumanda olsun": AÇIK İŞ (ses komutu kapsamı genişletilecek).
 - "Sesle kendini geliştirecek, öğrenecek, öğrendiğini hatırlayacak": AÇIK İŞ; tanım netleşmeli (kullanıcının öğrettiği bilgi/tercihlerin kalıcı hafızası; uygulamanın kendi kodunu değiştirmesi kapsam dışı/güvensiz).
 - "Tamamen sessiz pasif moda getirecek buton ve sesle kumanda": AÇIK İŞ.
+
+
+## 04.11.2026 — yanıtsız seslenme
+- [ ] “Seslendim Sezai cevap vermedi”: canlı dinleme/servis/hata nedenini bul ve düzelt. Shizuku kapalı, ADB cihaz yok; gerçek cihaz tanılaması ve insan sesi kabulü bekliyor.
