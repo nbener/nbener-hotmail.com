@@ -15,6 +15,7 @@ p.add_argument('--genlik', type=float, default=0.2)
 p.add_argument('--cikis', choices=['asistan', 'medya'], default='asistan')
 p.add_argument('--referans-gecikme-ms', type=int, default=0)
 p.add_argument('--cagri-tanisi', action='store_true', help='Temiz16kHz seste dur/Sezai bayrakları; çalmayı kesmez')
+p.add_argument('--ham-mikrofon', action='store_true', help='Desteklenirse işlenmemiş giriş; AGC kapalı karşılaştırma')
 p.add_argument('--arka-plan', action='store_true')
 p.add_argument('--ekran-bekle', type=int, default=0, metavar='SANIYE',
                help='Ekranın kullanıcı tarafından açılmasını en çok 60 saniye bekle; ekranı açmaz')
@@ -30,7 +31,7 @@ def cihaz(komut, iki_akis=False):
     r = subprocess.run(['sh', str(rish), '-c', komut], env=env, text=True,
                        capture_output=True, timeout=20)
     if r.returncode: raise SystemExit('Cihaz komutu başarısız: ' + str(r.returncode))
-    return r.stdout + r.stderr if iki_akis else r.stdout
+    return r.stdout + r.stderr # rish cihaz bilgilerini iki kanaldan da iletebilir
 
 kimlik = str(time.time_ns())
 ekran_son = time.monotonic() + a.ekran_bekle
@@ -54,7 +55,8 @@ print('Test:', kimlik, a.kip, 'çıkış katsayısı:', a.genlik, flush=True)
 cihaz('am start -W -f 0x18000000 -n com.sezai.assistant/.YankiHatTestActivity --es kip ' + a.kip +
       ' --es test_id ' + kimlik + ' --ef genlik ' + str(a.genlik) + ' --es cikis ' + a.cikis +
       ' --ei referans_gecikme_ms ' + str(a.referans_gecikme_ms) +
-      ' --ez cagri_tanisi ' + str(a.cagri_tanisi).lower())
+      ' --ez cagri_tanisi ' + str(a.cagri_tanisi).lower() +
+      ' --ez ham_mikrofon ' + str(a.ham_mikrofon).lower())
 dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_' + kimlik + '.json')
 hazir_dosya = Path('/sdcard/Download/SEZAI_AEC_HAT_HAZIR_' + kimlik + '.json')
 try:

@@ -126,3 +126,5 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - [~] Emoji adları (“ağzı açık gülen yüz” vb.) seslendirilmesin: ortak TTS filtresi ve model talimatı eklendi, JVM 8/8 geçti; yeni APK kurulumu ve kulakla kabul bekliyor.
 - [~] Sezai konuşurken “Sezai” veya “dur” deyince susup kullanıcıyı dinlesin, konu korunsun: ortak TTS söz kesme bağlantısı ve tek işçili model yaşam döngüsü; ön plan/arka plan mikrofon devri. Derleme ve insan sesi kabulü sürüyor.
 - Kullanıcı açıkça düzelt, yeniden yükle, çalıştır talimatı verdi.
+
+- 04.11 son durum: emoji filtresi imzalı APK ile yüklü (JVM8/8; kulakla kabul açık). “Dur/Sezai” insan kabulü BAŞARISIZ; bitmedi.48 sessiz kontrol ve yapay JNI geçti. Ham mikrofon/AGC karşılaştırması kilit açılması bekliyor; kullanıcı aynı isteği yeniden anlatmak zorunda değil.

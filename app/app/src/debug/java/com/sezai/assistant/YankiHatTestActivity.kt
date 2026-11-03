@@ -158,6 +158,7 @@ class YankiHatTestActivity : Activity() {
         var aec: YankiOturumu? = null
         var yazici: Thread? = null
         var cagriTanisi: YankiCagriTanisi? = null
+        var otomatikKazanc: android.media.audiofx.AutomaticGainControl? = null
         val yazmaBitti = AtomicBoolean(false)
         var sonuc = "HAT_BITTI"
         val olcum = JSONObject()
@@ -181,7 +182,12 @@ class YankiHatTestActivity : Activity() {
             val recMin = AudioRecord.getMinBufferSize(hz, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
             val outMin = AudioTrack.getMinBufferSize(hz, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT)
             check(recMin > 0 && outMin > 0) { "TAMPON" }
-            mikrofon = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, hz,
+            val ses = getSystemService(AUDIO_SERVICE) as android.media.AudioManager
+            val hamIstendi = intent.getBooleanExtra("ham_mikrofon", false)
+            val hamDestek = ses.getProperty(android.media.AudioManager.PROPERTY_SUPPORT_AUDIO_SOURCE_UNPROCESSED) == "true"
+            val kaynak = if (hamIstendi && hamDestek) MediaRecorder.AudioSource.UNPROCESSED else MediaRecorder.AudioSource.VOICE_RECOGNITION
+            olcum.put("ham_mikrofon_istendi", hamIstendi).put("ham_mikrofon_destek", hamDestek)
+            mikrofon = AudioRecord(kaynak, hz,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(recMin * 2, kare * 8))
             hoparlor = AudioTrack.Builder().setAudioAttributes(AudioAttributes.Builder()
                 .setUsage(cikisKullanimi).setContentType(AudioAttributes.CONTENT_TYPE_SPEECH).build())
@@ -189,6 +195,11 @@ class YankiHatTestActivity : Activity() {
                     .setEncoding(AudioFormat.ENCODING_PCM_16BIT).build())
                 .setBufferSizeInBytes(maxOf(outMin * 2, kare * 8)).setTransferMode(AudioTrack.MODE_STREAM).build()
             check(mikrofon.state == AudioRecord.STATE_INITIALIZED && hoparlor.state == AudioTrack.STATE_INITIALIZED)
+            if (hamIstendi && android.media.audiofx.AutomaticGainControl.isAvailable()) {
+                otomatikKazanc = android.media.audiofx.AutomaticGainControl.create(mikrofon.audioSessionId)
+                otomatikKazanc?.enabled = false
+            }
+            olcum.put("otomatik_kazanc_etkin", otomatikKazanc?.enabled)
             aec = YankiOturumu(hz)
             val rec = mikrofon
             val track = hoparlor
@@ -293,7 +304,7 @@ class YankiHatTestActivity : Activity() {
             try { yazici?.join(1000) } catch (_: InterruptedException) { Thread.currentThread().interrupt() }
             val yaziciDurdu = yazici?.isAlive != true
             if (yaziciDurdu) hoparlor?.release()
-            mikrofon?.release(); aec?.close()
+            otomatikKazanc?.release(); mikrofon?.release(); aec?.close()
             cagriTanisi?.let {
                 it.close()
                 olcum.put("cagri_tanisi", it.rapor())
