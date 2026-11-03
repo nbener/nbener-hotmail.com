@@ -790,3 +790,10 @@ Son güncelleme: 2026-10-29
 - Shizuku çalıştı (kullanıcı başlattı). APK kuruldu: pm install Success, lastUpdateTime=2026-11-03 01:06:54.
 - Cihaz: test/yorumla_test.sh hata=0 (son N not cümleleri dahil); test/sohbet_test.py 31/31 (sahte ağ; gerçek model/API kullanılmadı).
 - HÂLÂ DENENMEDİ: modelin hafızayı gerçek yanıtta kullandığı (gerçek API + kullanıcı anahtarı gerekir, hafıza metni dışarı gider), sesli komutla uçtan uca not/hafıza, bildirim düğmeleri.
+
+
+## 03.11.2026 — gece görünümü görsel kontrol (cihaz ekran görüntüsü)
+- /sdcard/Download/sezai-gece.png (03:43, ekran açık, gece varsayılan) incelendi: arka plan, kartlar, yazılar ve düğmeler okunaklı; karakter yeşil/koyu palette doğru.
+- BULGU 1: "Webde araştır" onay kutusunun kenarlığı koyu zeminde neredeyse görünmüyor (düşük kontrast). Henüz düzeltilmedi.
+- BULGU 2: "Çalışma durumu" kartı eski metni gösteriyor (Son bildirim 29.10 13:56). Güncel olmayabilir; kaynağı doğrulanmadı.
+- Gece görünümüne düğmeyle geçiş, diğer ekranların (ekran yardımcısı, ayar) koyu temaya uyumu hâlâ kontrol edilmedi.
