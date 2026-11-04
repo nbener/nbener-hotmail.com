@@ -571,3 +571,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 
 ## 05.11.2026 — kilitli dinleme devam kontrolü
 - Kullanıcının ~ devamıyla cihaz bağlantısı yeniden denendi. Ubuntu proot içindeki yapılandırılmış rish id: exit1, Server is not running; adb devices-l: bağlı cihaz yok. Canlı tercih/servis/mikrofon/logcat, son APK kurulumu ve fiziksel kilit kabulü doğrulanamadı. Yeni kaynak değişikliği yapılmadı; af2be42 düzeltmesi ve imzalı APK korunuyor. Bağlantı olmadan yeni varsayımsal ses düzeltmesi yapılmadı. Sonraki: kullanıcı Shizuku başlatınca önce kurulu APK/arka_plan/sessiz/servis durumunu oku, sonra kilitli gerçek çağrı testini yürüt. Ek pil yükü yok.
+
+
+## 05.11.2026 — kullanıcı Shizuku çalışıyor dedi; köprü ayrıştırması
+- Kullanıcı Shizuku ekranında çalışıyor yazdığını doğruladı. Buna rağmen Ubuntu proot rish id, doğrudan Termux rish id ve araç kısıtı dışında onaylı doğrudan rish id ayrı ayrı exit1 Server is not running verdi. Bu durum kullanıcının söylediğini geçersiz saymaz; arayüz/köprü uyumsuzluğunun nedeni henüz bilinmiyor.
+- rish betiği /root/rish/rish içeriği kontrol edildi; RISH_APPLICATION_ID=com.termux verilerek çağrılıyor, dex mevcut. Dosyalar/izinler değiştirilmedi. codex-android doctor--json tüm raporlanan kontroller PASS; bu tanı Shizuku veya Sezai kabulü değildir.
+- Shizuku resmî kaynak arama sonucu bu hata metninin boş Binder alındığı dalda üretildiğini gösteriyor: https://github.com/RikkaApps/Shizuku/blob/master/shell/src/main/java/rikka/shizuku/shell/ShizukuShellLoader.java . Sunucuyu kapatma/yeniden başlatma veya Android ayarı değişikliği yapılmadı. Sonraki: Shizuku ana ekranındaki sürüm/çalışma durumunu görselle karşılaştır; köprü kurulunca kilitli servis/tercih/mikrofon testine devam et. Yeni APK/üretim kodu/pil değişikliği yok.
