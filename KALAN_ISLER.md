@@ -556,3 +556,8 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [ ] Kullanıcı ana ekrana Termux:Widget ekleyip fiziksel düğmeleri ve kompakt tuşların rahatlığını denesin.
 - [ ] İstenirse Gboard yüksekliğini kendi arayüzünden ayarla; Termux ek tuş düzeni bundan ayrıdır.
 - [ ] Kullanıcının belirlediği parolayla panel yedek işlemini ve özel klasöre geri açmayı doğrula. Derleme/kurulum menüsü mevcut build.sh'yi çağırır; bu panel turunda yeni APK denenmedi.
+
+
+## 05.11.2026 — tek satır / dikte kabulü
+- [x] Tek satır ve sesliyaz/panel ses kuruldu; cihazda1x8/reload ve sessiz kontroller geçti.
+- [ ] Kullanıcı kabukta Ses ile Türkçe dikteyi, sonra Yapıştır akışını denesin. Codex/Claude içinde Gboard mikrofonu kullanılmalı. Gerçek ses kabulü henüz yok.

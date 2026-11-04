@@ -591,3 +591,11 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - PASS koruma: terminal dışından yedek isteği anlaşılır hata ve exit1 ile reddedildi.
 - AÇIK: Widget fiziksel tıklama, gerçek SD parola yedeği/geri yükleme, panelden APK derleme/kurulum. Gboard değiştirilmedi; yeni servis veya wake lock yok.
 - Görsel sınır: rish üzerinden PNG/base64 aktarımı iki denemede doğrulanamadı; ikinci turda veri stderr kanalına da geldi. Kök neden kesinleştirilmedi. Ekran görüntüsü üzerinden fiziksel tuş okunaklılığı kabulü yapılmadı.
+
+
+## 05.11.2026 — tek satır ve Türkçe sesli yazma
+- Kullanıcı tek satır düzenini deneme ve Türkçe sesli klavye ekleme istedi. Önceki kaynak/kayıtlar yedek/tek-satir-ses-oncesi-* arşivinde, etkin iki satır ayarı yedek/termux-iki-satir-* içinde özel olarak korundu; Git'e eklenmedi.
+- tuslar tek: 1x8 ek tuş uygulandı/reload exit0; eski kompakt/tam/eski profiller korunur. Yatay kayan sayfa değil; popup tuşlar yukarı kaydırılarak kullanılır.
+- sesliyaz komutu ve panel ses/menü8 eklendi: Termux Dialog speech cihaz dilini kullanır. Sistem/Gboard tr-TR ve Gboard RECORD_AUDIO izni doğrulandı. Kurulu SpeechToTextAPI0.53.0 en-US sabit olduğundan kullanılmadı. Dialog mikrofon izni gerektiğinde Android tarafından sorulur; gerçek dikte henüz denenmedi.
+- Ses düğmesi kabuk makrosudur; sonuç yalnız panoya alınır, otomatik komut çalıştırma/gönderim yok. Codex/Claude içinde doğrudan dikte için mevcut Türkçe Gboard mikrofonu kullanılır. Gboard özel ayarı değiştirilmedi.
+- PASS: Python AST, ShellCheck, diff--check; geçici dosyalarda tek/kompakt/tam/eski geçişi/özgün dosyaya birebir dönüş; sahte API ile Türkçe metin→pano, iptal ve ağ hatasında pano koruması. Bunlar insan sesi kabulü değildir. Gerçek kayıt/mikrofon testi yapılmadı; yeni servis/wake lock yok.

@@ -935,3 +935,11 @@ Son güncelleme: 2026-10-29
 - Gerçek panel durum/pil/araç kontrolü ve etkileşimli menü giriş/geri dönüş/çıkış geçti; Python sözdizimi, ShellCheck, diff--check geçti. Geçici dosyalarda kompakt→tam→özgün kayıpsız geçiş geçti (reload sahte; fiziksel UI testi değil). Cihazda kompakt uygulama/reload exit0; kaydedilmiş 2x8 düzen ve tema koruması doğrulandı.
 - SD kaynak yedeği henüz gerçek kullanıcı parolasıyla oluşturulmadı/geri açılmadı. Derleme/kurulum düğmeleriyle yeni APK üretilmedi. Yeni servis/wake lock/otomatik başlangıç yok.
 - Görsel sınır: rish üzerinden PNG/base64 aktarımı iki denemede doğrulanamadı; ikinci turda veri stderr kanalına da geldi. Kök neden kesinleştirilmedi. Ekran görüntüsü üzerinden fiziksel tuş okunaklılığı kabulü yapılmadı.
+
+
+## 05.11.2026 — tek satır ve Türkçe sesli yazma
+- Kullanıcı tek satır düzenini deneme ve Türkçe sesli klavye ekleme istedi. Önceki kaynak/kayıtlar yedek/tek-satir-ses-oncesi-* arşivinde, etkin iki satır ayarı yedek/termux-iki-satir-* içinde özel olarak korundu; Git'e eklenmedi.
+- tuslar tek: 1x8 ek tuş uygulandı/reload exit0; eski kompakt/tam/eski profiller korunur. Yatay kayan sayfa değil; popup tuşlar yukarı kaydırılarak kullanılır.
+- sesliyaz komutu ve panel ses/menü8 eklendi: Termux Dialog speech cihaz dilini kullanır. Sistem/Gboard tr-TR ve Gboard RECORD_AUDIO izni doğrulandı. Kurulu SpeechToTextAPI0.53.0 en-US sabit olduğundan kullanılmadı. Dialog mikrofon izni gerektiğinde Android tarafından sorulur; gerçek dikte henüz denenmedi.
+- Ses düğmesi kabuk makrosudur; sonuç yalnız panoya alınır, otomatik komut çalıştırma/gönderim yok. Codex/Claude içinde doğrudan dikte için mevcut Türkçe Gboard mikrofonu kullanılır. Gboard özel ayarı değiştirilmedi.
+- PASS: Python AST, ShellCheck, diff--check; geçici dosyalarda tek/kompakt/tam/eski geçişi/özgün dosyaya birebir dönüş; sahte API ile Türkçe metin→pano, iptal ve ağ hatasında pano koruması. Bunlar insan sesi kabulü değildir. Gerçek kayıt/mikrofon testi yapılmadı; yeni servis/wake lock yok.

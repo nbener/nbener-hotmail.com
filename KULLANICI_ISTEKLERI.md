@@ -151,3 +151,8 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - Kullanıcı pano/Termux:API kurulumu, ek araçlar, uygun büyük dosyaların SD karta taşınması ve Türkçe kontrol paneli istedi. API/pano çalıştı; araçlar kuruldu; 15 büyük indirme dosyası SD'ye SHA256 doğrulamasıyla taşındı (kayıt SD/Termux-Tasinan-20261105/tasima-kaydi.json).
 - “Süper, kullanışlı, görsel ve pratik Termux; klavye daha az yer tutsun, bütün özellikler korunsun, şimdiki güzel hali yedeklensin”: özgün görünüm özel alanda yedeklendi; lacivert tema korundu; 2 satırlı kompakt düzen ve eski 5 satırlı tam düzen arasında geçiş, tek komutla özgün ayara dönüş hazır.
 - Türkçe panel ve dört ana ekran kısayolu hazır; Widget kuruldu. Android başlatıcısına widget ekleme ve fiziksel kullanım kabulü açık. Gboard yüksekliği ayrı ayardır; değiştirilmedi.
+
+
+## 05.11.2026 — tek satır ve Türkçe ses
+- [x] “Yap bakayım, ayrıca sesli klavye de ekle TR olsun”: tek satır8tuş ve Ses/pano dikte aracı kuruldu; önceki profiller/yedekler korundu. Mevcut Gboard Türkçe.
+- [ ] Gerçek Türkçe insan sesiyle Ses düğmesi/dikte ve Gboard mikrofonu kullanım kabulü. Sürekli mikrofon açılmadı.

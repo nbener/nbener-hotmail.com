@@ -40,6 +40,17 @@ KOMPAKT = [
      tus('KEYBOARD', display='Klavye', popup='DRAWER')]
 ]
 
+TEK = [[
+    tus('ESC', popup=tus(macro='CTRL c', display='Durdur')),
+    tus('TAB', popup=tus(macro='CTRL r', display='Ara')),
+    tus('CTRL', popup='ALT'),
+    tus('LEFT', popup='UP'), tus('RIGHT', popup='DOWN'),
+    tus('PASTE', display='Yapistir', popup='ENTER'),
+    tus(macro='sesliyaz ENTER', display='Ses',
+        popup=tus(macro='panel ENTER', display='Panel')),
+    tus('KEYBOARD', display='Klavye', popup='DRAWER')
+]]
+
 
 def ayar_degistir(metin, ad, deger):
     desen = re.compile(r'^\s*' + re.escape(ad) + r'\s*=.*$', re.MULTILINE)
@@ -59,8 +70,8 @@ def uygula(profil):
         metin = asil.read_text()
     else:
         metin = mevcut.read_text()
-        if profil == 'kompakt':
-            deger = json.dumps(KOMPAKT, ensure_ascii=True)
+        if profil in ('kompakt', 'tek'):
+            deger = json.dumps(TEK if profil == 'tek' else KOMPAKT, ensure_ascii=True)
         else:
             eslesme = re.search(r'^\s*extra-keys\s*=\s*(.*)$', asil.read_text(), re.MULTILINE)
             if not eslesme or eslesme.group(1).rstrip().endswith('\\'):
@@ -78,26 +89,27 @@ def uygula(profil):
     sonuc = subprocess.run(['termux-reload-settings'], timeout=15, check=False)
     if sonuc.returncode:
         raise RuntimeError('Ayar kaydedildi fakat yeniden yükleme başarısız. termux-reload-settings komutunu tekrar dene.')
-    print({'kompakt': 'Kompakt düzen: 2 satır. Yukarı kaydırılan tuşlar ek işlev açar.',
+    print({'tek': 'Tek satır: tuşları yukarı kaydırarak ek işlevleri açabilirsin.',
+           'kompakt': 'Kompakt düzen: 2 satır. Yukarı kaydırılan tuşlar ek işlev açar.',
            'tam': 'Tam düzen: eski beş satırın bütün tuşları korundu.',
            'eski': 'Özgün termux.properties yedeği geri yüklendi.'}[profil])
-    print('Tam düzen: tuslar tam | Kompakt: tuslar kompakt | Eski ayarlar: tuslar eski')
+    print('Tek: tuslar tek | İki: tuslar kompakt | Tam: tuslar tam | Özgün: tuslar eski')
 
 
 def main():
     parser = argparse.ArgumentParser(description='Termux ek tuş düzeni')
-    parser.add_argument('profil', nargs='?', choices=['kompakt', 'tam', 'eski'])
+    parser.add_argument('profil', nargs='?', choices=['tek', 'kompakt', 'tam', 'eski'])
     args = parser.parse_args()
     profil = args.profil
     if not profil:
         if not sys.stdin.isatty():
             parser.print_help()
             return 0
-        print('\n1  Kompakt: 2 satır\n2  Tam: eski 5 satır\n3  Özgün ayarları geri yükle\n0  Vazgeç')
+        print('\n1  Kompakt: 2 satır\n2  Tam: eski 5 satır\n3  Özgün ayarları geri yükle\n4  Tek satır + Türkçe sesli yazma\n0  Vazgeç')
         secim = input('Seçimin: ').strip()
         if secim == '0':
             return 0
-        profil = {'1': 'kompakt', '2': 'tam', '3': 'eski'}.get(secim)
+        profil = {'1': 'kompakt', '2': 'tam', '3': 'eski', '4': 'tek'}.get(secim)
         if not profil:
             raise RuntimeError('Geçersiz seçim; ayarlar değiştirilmedi.')
     uygula(profil)
