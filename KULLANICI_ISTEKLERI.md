@@ -128,3 +128,8 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - Kullanıcı açıkça düzelt, yeniden yükle, çalıştır talimatı verdi.
 
 - 04.11 son durum: emoji filtresi imzalı APK ile yüklü (JVM8/8; kulakla kabul açık). “Dur/Sezai” insan kabulü BAŞARISIZ; bitmedi.48 sessiz kontrol ve yapay JNI geçti. Ham mikrofon/AGC karşılaştırması kilit açılması bekliyor; kullanıcı aynı isteği yeniden anlatmak zorunda değil.
+
+
+## 04.11.2026 — olgunlaştırma ve ses yok
+- [~] Eksikleri tamamla, test et, projeyi olgunlaştır: sürüm doğrulama/kurulum hata kontrolü düzeltildi; yerel testler geçti, cihaz köprüsü bekleniyor.
+- [ ] “Sesi hiç çıkmıyor”: öncelikli gerçek cihaz tanısı ve düzeltme. Sessiz tercih/mute/TTS/odak nedeni henüz doğrulanmadı; Shizuku bağlantısı gerekli.
