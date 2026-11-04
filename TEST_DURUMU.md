@@ -567,3 +567,7 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - git diff--check PASS; Ubuntu proot ./build.sh çalışıyor, sonucu aşağıdaki son doğrulama kaydında belirtilecek. Cihaz testi/kurulum ve fiziksel kilit/“Sezai” çağrısı kabulü henüz yok. Sonraki: Shizuku açılınca tercihleri/servisi kontrol et, yeni APK'yı kur, kilitlemeden önce/sonra mikrofon ve uyanma olaylarını ölç, insan sesiyle yanıtı doğrula.
 
 - SON DOĞRULAMA 05.11.2026 00:00–00:02: Ubuntu proot ./build.sh exit0; zipalign-c4 PASS,apksigner verify v2=true PASS. APK SHA256:1c75d03649adf22af1c35f7027b2b68c9a88f09b53010e01ebab71736ccb5e7a. Download/Sezai-debug.apk aynı SHA256 ile güncellendi. termux-open kurulum isteği exit0. Kurulum tamamlandı/servis kilitte çalışıyor/insan çağrısı algılandı denmedi; köprü ve fiziksel test bekliyor. Yaşam döngüsü değişikliğine derleme doğrulaması yapıldı; yerel JVM testini gerçek kilit testi gibi sunma.
+
+
+## 05.11.2026 — kilitli dinleme devam kontrolü
+- Kullanıcının ~ devamıyla cihaz bağlantısı yeniden denendi. Ubuntu proot içindeki yapılandırılmış rish id: exit1, Server is not running; adb devices-l: bağlı cihaz yok. Canlı tercih/servis/mikrofon/logcat, son APK kurulumu ve fiziksel kilit kabulü doğrulanamadı. Yeni kaynak değişikliği yapılmadı; af2be42 düzeltmesi ve imzalı APK korunuyor. Bağlantı olmadan yeni varsayımsal ses düzeltmesi yapılmadı. Sonraki: kullanıcı Shizuku başlatınca önce kurulu APK/arka_plan/sessiz/servis durumunu oku, sonra kilitli gerçek çağrı testini yürüt. Ek pil yükü yok.
