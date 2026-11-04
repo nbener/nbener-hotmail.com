@@ -227,3 +227,31 @@ Kaynaklar: https://alphacephei.com/vosk/models , https://alphacephei.com/vosk/an
 - SON APK testleri: dinleme9/9,görüşme8/8,sohbet31/31 PASS; JNI/yapay AEC test1793743686349828025 PASS (16/24/48kHz,gecikme,kare/kapatma,yapay yakın sinyal). Bunlar insan söz kesme kabulü değildir. Emoji JVM8/8 ve ekran JVM21/21 önceki aynı kaynak aşamasında geçti; kullanıcı kulakla emoji kabulünü ayrıca bildirmedi.
 - Ana ekran için am start -S gönderildi; ekran kilitli olduğu için kullanıcıya görünürlük/gerçek mikrofon kabulü iddia edilmedi. Pil/yankı/insan dur-Sezai kabulü açık. Yeni servis/wake lock yok; sürekli yeni ses denemesi döngüsü başlatılmadı.
 - Sonraki somut iş: kullanıcı ekranı açınca --ham-mikrofon --referans-gecikme-ms0 ile aynı referanslı kısa ölçüm; kırpılma,gecikme ve tanıyıcı güvenini önceki koşulla karşılaştır. İnsan kabulü geçmeden dur/Sezai özelliğini tamamlandı sayma.
+
+
+## 05.11.2026 — kod incelemesi (yalnız okuma; bulut oturumu, cihaz/derleme yok)
+Kaynak: SozKesme.kt, AndroidKonusma.kt, MainActivity.kt, SezaiArkaPlanServisi.kt. Kod değiştirilmedi, APK üretilmedi, cihazda hiçbir şey ölçülmedi.
+
+### Kodun gösterdiği (doğrudan okundu)
+- AndroidKonusma.kt:123 TTS onStart'ta sozKesme.baslat(), bitiş/hata/durdurmada durdur() çağırır.
+- SozKesme.kt:83 kayıt VOICE_COMMUNICATION, 16 kHz; AcousticEchoCanceler ve NoiseSuppressor aynı oturuma bağlanır (satır 86-87).
+- SozKesme.kt:80,113 tanıma Vosk small-tr-0.3, dilbilgisiz; her 100 ms blokta kısmi/kesin metin boşluktan bölünür, tetik yalnız tam "dur" veya "sezai" kelimesidir.
+- AndroidKonusma.kt:98 TTS USAGE_ASSISTANT/CONTENT_TYPE_SPEECH; varsayılan yol t.speak (satır 163, TTS servis süreci). Ses %100 üstündeyse synthesizeToFile + kendi AudioTrack (satır 131).
+- SozKesme.kt:89 ve SezaiArkaPlanServisi.kt:94 ses modu MODE_NORMAL değilse söz kesme başlamaz (görüşme önceliği). Modu MODE_IN_COMMUNICATION'a çekmek bu korumaları ve GorusmeOnceligi'ni etkiler.
+- MainActivity.kt:152 tetik gelse bile gorunur && konusuyor && !sessiz değilse olay sessizce yutulur.
+- Sessiz hata (SozKesme.kt:31-50): filesDir/vosk-model-small-tr-0.3/final.mdl yoksa modelHazirla() null döner ve calis hiç çalışmaz; log yazılmaz. Model APK içinde değil. Yeni kurulum/veri silinmesinde özellik sessizce ölü kalır. Bu, 04.11 başarısızlığının nedeni DEĞİL (o turda SOZKESME basladi logu vardı); ayrı bir kusurdur.
+
+### Çıkarım (doğrulanmadı)
+1. Yerleşik AEC büyük olasılıkla TTS'i referans almıyor: platform AEC genelde VoIP çıkış yolunu (USAGE_VOICE_COMMUNICATION / MODE_IN_COMMUNICATION) referans alır; TTS ayrı süreçten USAGE_ASSISTANT ile çalıyor. Ölçülen 0,23 dB azalma bunu destekler, kanıtlamaz.
+2. Telefonun kendi sesi mikrofonda baskınken serbest Vosk, kısa "dur" sözünü (~270 ms) TTS metni altında kaçırıyor olabilir.
+3. Referanslı hatta sabit gecikme varsayımı (120 ms) düşük korelasyon verdi; çıkış gecikmesi cihaz/yola göre değişebilir.
+
+### Seçenekler (küçükten büyüğe; seçim kullanıcıya aittir, uygulanmadı)
+- A. Ölçüm: --ham-mikrofon (UNPROCESSED/VOICE_RECOGNITION) ile referanslı karşılaştırma; kod değişikliği yok. Sıradaki iş budur.
+- B. Cümle aralarında dinleme: SiraliSeslendirme.parcala sınırı 2800 karakter; cümle düzeyine inip aralarda 300-500 ms yalnız dinleme. Yankı sorunu yok, pil dostu; gecikme bir cümle kadar.
+- C. Referansa dayalı enerji eşiği: pcmAkisi ile TTS PCM'inden beklenen yankı zarfı tahmin edilir, mikrofon bunu aşarsa ses kısılıp tanımaya geçilir. Tam AEC gerektirmez; önce A ile yankı tahmin edilebilirliği görülmeli.
+- D. Referanslı yazılımsal AEC: Speex JNI denendi, zayıf kaldı; değişken (korelasyonla) gecikme tahmini gerekir. En kapsamlısı.
+- Her seçenekte: SezaiArkaPlanServisi aynı AndroidKonusma'yı kullanır (satır 83), değişiklik iki yolu da etkiler; görüşme önceliği ve pil korunmalı.
+
+### Durum
+- TTS sırasında "dur/Sezai" söz kesme hâlâ BAŞARISIZ/tamamlanmadı. Bu kayıt çözüm veya test sonucu değildir.

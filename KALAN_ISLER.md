@@ -579,3 +579,9 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 ## 05.11.2026 — terminal araçları
 - [x] Fish/Yazi/Micro/Lazygit/Starship kurulumu ve temel doğrulaması tamamlandı.
 - [ ] Kullanıcının telefonda dosya yöneticisi/editör/Git arayüzü rahatlığını denemesi. Varsayılan kabuk değiştirilmedi.
+
+
+## 05.11.2026 — kod incelemesi (bulut, yalnız okuma)
+- [ ] Söz kesme: seçenek A (ham mikrofon ölçümü) cihazda çalıştırılacak; sonra B/C/D'den biri kullanıcıyla seçilecek. Ayrıntı: SOZ_KESME_TASARIMI.md "05.11.2026 — kod incelemesi".
+- [ ] SozKesme model dosyası yoksa sessizce çalışmıyor (SozKesme.kt:31-50): log eklenmesi ayrıca değerlendirilecek; kod değişikliği henüz yapılmadı.
+- [x] GitHub aktarımı: private depo + tek dal istisnası CLAUDE.md'de, scripts/github_aktar.sh eklendi (Termux'ta gerçek çalıştırma henüz yok).
