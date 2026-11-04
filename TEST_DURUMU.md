@@ -599,3 +599,7 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - sesliyaz komutu ve panel ses/menü8 eklendi: Termux Dialog speech cihaz dilini kullanır. Sistem/Gboard tr-TR ve Gboard RECORD_AUDIO izni doğrulandı. Kurulu SpeechToTextAPI0.53.0 en-US sabit olduğundan kullanılmadı. Dialog mikrofon izni gerektiğinde Android tarafından sorulur; gerçek dikte henüz denenmedi.
 - Ses düğmesi kabuk makrosudur; sonuç yalnız panoya alınır, otomatik komut çalıştırma/gönderim yok. Codex/Claude içinde doğrudan dikte için mevcut Türkçe Gboard mikrofonu kullanılır. Gboard özel ayarı değiştirilmedi.
 - PASS: Python AST, ShellCheck, diff--check; geçici dosyalarda tek/kompakt/tam/eski geçişi/özgün dosyaya birebir dönüş; sahte API ile Türkçe metin→pano, iptal ve ağ hatasında pano koruması. Bunlar insan sesi kabulü değildir. Gerçek kayıt/mikrofon testi yapılmadı; yeni servis/wake lock yok.
+
+
+## 05.11.2026 — tuş etiketleri
+- PASS: 51 etiketin [ ] ile kaydı, key/macro alanlarının değişmemesi, tekrar uygulamanın aynı sonucu vermesi, Python AST ve reload exit0. Fiziksel okunaklılık veya gerçek buton kenarlığı kabulü değildir.

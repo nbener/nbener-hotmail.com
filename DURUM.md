@@ -943,3 +943,7 @@ Son güncelleme: 2026-10-29
 - sesliyaz komutu ve panel ses/menü8 eklendi: Termux Dialog speech cihaz dilini kullanır. Sistem/Gboard tr-TR ve Gboard RECORD_AUDIO izni doğrulandı. Kurulu SpeechToTextAPI0.53.0 en-US sabit olduğundan kullanılmadı. Dialog mikrofon izni gerektiğinde Android tarafından sorulur; gerçek dikte henüz denenmedi.
 - Ses düğmesi kabuk makrosudur; sonuç yalnız panoya alınır, otomatik komut çalıştırma/gönderim yok. Codex/Claude içinde doğrudan dikte için mevcut Türkçe Gboard mikrofonu kullanılır. Gboard özel ayarı değiştirilmedi.
 - PASS: Python AST, ShellCheck, diff--check; geçici dosyalarda tek/kompakt/tam/eski geçişi/özgün dosyaya birebir dönüş; sahte API ile Türkçe metin→pano, iptal ve ağ hatasında pano koruması. Bunlar insan sesi kabulü değildir. Gerçek kayıt/mikrofon testi yapılmadı; yeni servis/wake lock yok.
+
+
+## 05.11.2026 — tuş etiketleri
+- Etkin beş satırlık düzende 51 ana/popup etikete [ ] eklendi; key/macro alanları korunarak reload exit0 doğrulandı. Gerçek çizgili düğme kenarlığı yapılmadı; Termux0.118.3 ExtraKeysView ayarlarında bu seçenek bulunmadı. scripts/termux_tuslar.py cerceve komutu/menü5 eklendi. Yedek yedek/cerceve-oncesi-*.properties; yeni servis/pil davranışı yok.

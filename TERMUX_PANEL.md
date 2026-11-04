@@ -19,6 +19,10 @@ seçeneği bulunur. Lacivert tema değiştirilmedi.
   silme, Enter, temizleme ve klavye düğmeleri ikinci satırdadır.
 - `tuslar tam`: önceki beş satırın bütün tuşlarını ve makrolarını getirir.
 - `tuslar eski`: özgün `termux.properties` dosyasını birebir geri yükler.
+- `tuslar cerceve`: etkin düzende etiketlere `[ESC]` benzeri ayraç ekler.
+  Bu, yazı çevresindeki ayraçtır; düğmenin tamamını çevreleyen çizgili kenarlık
+  değildir. Mevcut Termux sürümünde böyle bir ayar bulunmadı. `tuslar tam`,
+  `tuslar tek` veya `tuslar kompakt` seçmek ayraçsız ilgili düzeni açar.
 
 Komut yazan Codex/Claude/Panel düğmelerini kabuk istemindeyken kullan;
 başka bir program açıksa makro metni o programa gider. Yalnız tuş gönderen

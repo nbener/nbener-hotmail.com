@@ -561,3 +561,7 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 ## 05.11.2026 — tek satır / dikte kabulü
 - [x] Tek satır ve sesliyaz/panel ses kuruldu; cihazda1x8/reload ve sessiz kontroller geçti.
 - [ ] Kullanıcı kabukta Ses ile Türkçe dikteyi, sonra Yapıştır akışını denesin. Codex/Claude içinde Gboard mikrofonu kullanılmalı. Gerçek ses kabulü henüz yok.
+
+
+## 05.11.2026 — tuş etiketleri
+- [~] Tuş çerçevesi: [ ] etiket görünümü uygulandı; gerçek düğme kenarlığı mevcut uygulama ayarıyla sağlanmadı. Fiziksel okunaklılığı kullanıcı deneyecek.

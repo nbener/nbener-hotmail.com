@@ -156,3 +156,7 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 ## 05.11.2026 — tek satır ve Türkçe ses
 - [x] “Yap bakayım, ayrıca sesli klavye de ekle TR olsun”: tek satır8tuş ve Ses/pano dikte aracı kuruldu; önceki profiller/yedekler korundu. Mevcut Gboard Türkçe.
 - [ ] Gerçek Türkçe insan sesiyle Ses düğmesi/dikte ve Gboard mikrofonu kullanım kabulü. Sürekli mikrofon açılmadı.
+
+
+## 05.11.2026 — tuş etiketleri
+- Kullanıcı “tuş etrafına çerçeve ekle” istedi. Mevcut sürümde gerçek border ayarı yok; kullanıcıya açıklanarak [ESC] biçiminde etiket ayraçları uygulandı. Gerçek çizgili buton kenarlığı tamamlandı sayılmaz.
