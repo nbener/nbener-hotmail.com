@@ -116,3 +116,10 @@ Henüz kod yazma. Önce şunu yap:
 - Kullanıcının HER isteği KULLANICI_ISTEKLERI.md (ana liste) ve KALAN_ISLER.md'ye yazılır; oturum başında DURUM, KALAN_ISLER, TEST_DURUMU ile birlikte KULLANICI_ISTEKLERI.md ve ACIK_KAYNAK_ARASTIRMASI.md okunur. Kullanıcı aynı şeyi tekrar anlatmak zorunda bırakılmaz.
 - Kullanıcı istekleri tek tek, parça parça yapılır; bir seferde bitmiyorsa her seferinde bir parça eklenir. Eksik yetenekleri ajan bulup listeye ekler. Araştırmada açık kaynak projeler, GitHub ve developer.android.com taranır; lisansa dikkat (GPL gömülmez).
 - Kullanıcı özel olarak şunu istedi: tüm gerekli izinler uygulamaya verilsin (verildi, 31 Ekim) ve yeni özelliklerde gereken izinler eklensin.
+
+
+## GitHub aktarım kuralı — kullanıcı talimatı (05 Kasım 2026)
+- Bölüm 1 ve 9'daki "uzak depo ekleme / GitHub'a koyma" yasağının TEK istisnası: kullanıcının PRIVATE deposu `https://github.com/nbener/nbener-hotmail.com` ve yalnızca `claude/sezai-voice-assistant-7wtvse` dalıdır. Amaç, kodu ve kayıtları bulut oturumundan okuyup analiz edebilmektir. Depo asla public yapılmaz, başka depo/dal eklenmez, force push yapılmaz.
+- Her anlamlı aşamadan sonra (kayıtlar güncellenip yerel commit atıldıktan sonra) `scripts/github_aktar.sh` ile gönderilir. Betik push öncesi anahtar/yedek/APK denetimi yapar; denetim temiz değilse push edilmez ve kullanıcıya bildirilir.
+- Token/parola sohbete, dosyaya, kayda veya komut çıktısına yazılmaz. Push başarısızsa hata olduğu gibi bildirilir; yeni yöntem uydurulmaz. Sonuç DURUM.md'ye tarihle yazılır.
+- Bulut oturumu da bu dala commit atabilir; Termux'ta çalışmaya başlamadan önce `git pull --rebase origin claude/sezai-voice-assistant-7wtvse` yapılır.
