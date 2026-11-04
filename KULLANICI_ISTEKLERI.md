@@ -138,3 +138,10 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 ## 04.11.2026 — konuşma geçmişi görünmüyor/okunmuyor
 - [~] Kullanıcı sesli sohbet yazılarının ve konuşma geçmişinin görünmediğini, sesli okunmadığını bildirdi. Kodda arka plan yanıtının döküme yazılmaması, yeni Activity dökümünün ayrı olması ve ilk motor hazırlığında silinmesi doğrulandı. Ortak sınırlı bellek ve servis kayıt bağlantısı eklendi; disk kalıcılığı eklenmedi.
 - [~] Geçmiş penceresi metin zemini gece/gündüz paletine bağlandı. Sessiz mod/hazır olmayan TTS açıklanır; gerçek cihaz sesi kabulü açık. Shizuku bu tur da Server is not running döndü.
+
+
+## 04.11.2026 — kilitliyken hiç dinlemiyor/cevap vermiyor
+- [ ] Kullanıcı art arda ekran kilitliyken Sezai'nin ses almadığını/cevap vermediğini bildirdi. Gerçek kilitli kullanım kabulü BAŞARISIZ; çalışıyor sayılmaz.
+- [~] Kaynakta mikrofon servisi onResume içinde durdurulup onStop içinde yeniden başlatılıyordu. Başlatma görünürlük bitmeden onPause'a taşındı; sessiz/arka_plan tercihleri korunur. Derleme sürüyor; gerçek nedenin cihaz loguyla doğrulanması ve kilitli insan sesi kabulü açık. Shizuku bu tur exit1 Server is not running.
+
+- 05.11 00:00 son durum: yeni APK derlendi,imza/hizalama doğrulandı,kurulum isteği gönderildi. Gerçek kilitli dinleme/yanıt kabulü hâlâ BAŞARISIZ/açık; Shizuku bağlantısı bekleniyor.

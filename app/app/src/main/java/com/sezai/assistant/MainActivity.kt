@@ -804,6 +804,18 @@ class MainActivity : Activity() {
         getSharedPreferences("gorunum", MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(gorunumDinleyici)
         gorunur = false
         uyanma.durdur()
+        // onStop'ta Activity artık görünmez: Android 14 mikrofon servisini reddedebilir.
+        // Kullanıcının açık arka plan tercihini, görünürlük bitmeden devret.
+        if (arkaPlanAyariAcik() && !BildirimKumanda.sessizMi(this) && !isChangingConfigurations) {
+            sohbetDuraklat()
+            if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) {
+                try { SezaiArkaPlanServisi.baslat(this) }
+                catch (e: RuntimeException) {
+                    Log.w("Sezai", "ARKAPLAN devir baslatilamadi: ${e.javaClass.simpleName}")
+                    sohbetYazisiniGoster("Kilitliyken dinleme başlatılamadı. Sezai'yi açıp Kilitliyken de dinle seçeneğini yeniden açın.")
+                }
+            }
+        }
         super.onPause()
     }
 
@@ -850,7 +862,6 @@ class MainActivity : Activity() {
         sohbetDuraklat()
         sesOnceligi.kapat()
         dinleme.durdur(); konusma.durdur()
-        if (arkaPlanAyariAcik() && !BildirimKumanda.sessizMi(this) && !isChangingConfigurations && !SezaiArkaPlanServisi.calisiyor) arkaPlanBaslat()
         super.onStop()
     }
     override fun onSaveInstanceState(outState: Bundle) {
