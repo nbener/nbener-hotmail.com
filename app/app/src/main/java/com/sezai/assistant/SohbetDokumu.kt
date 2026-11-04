@@ -2,6 +2,10 @@ package com.sezai.assistant
 
 // Yalnız görüntüleme içindir; API bağlamını değiştirmez, diske yazılmaz.
 internal class SohbetDokumu {
+    companion object {
+        // Ekran ve arka plan servisi aynı süreçteki sınırlı dökümü paylaşır; diske yazılmaz.
+        val ortak = SohbetDokumu()
+    }
     private data class Tur(val soru: String, val yanit: String)
     private val turlar = ArrayList<Tur>()
 

@@ -41,7 +41,7 @@ class MainActivity : Activity() {
     }
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
-    private var sohbetDokumu = SohbetDokumu()
+    private var sohbetDokumu = SohbetDokumu.ortak
     private data class SohbetDevri(val motor: SohbetMotoru?, val saglayici: SohbetSaglayici?, val dokum: SohbetDokumu)
     private var sohbetAcik = false
     private var yaziliSohbetAcik = false
@@ -477,7 +477,8 @@ class MainActivity : Activity() {
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
         val cevap = calistirici.calistir(komut)
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
-        durumYazisi.text = cevap
+        sohbetDokumu.ekle(metin, cevap)
+        sohbetYazisiniGoster()
         seslendir(cevap)
     }
 
@@ -660,7 +661,6 @@ class MainActivity : Activity() {
     private fun sohbetHazirla(kasa: AnahtarKasasi, saglayici: SohbetSaglayici) {
         if (sohbet == null || sohbetSaglayicisi != saglayici) {
             sohbet?.kapat()
-            sohbetDokumu.temizle()
             sohbet = SohbetMotoru(kasa, saglayici, { NotDefteri(applicationContext, "hafiza.txt").son(10) })
             sohbetSaglayicisi = saglayici
         }
@@ -694,6 +694,7 @@ class MainActivity : Activity() {
             text = sohbetDokumu.metin().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
             textSize = 18f
             setTextColor(Color.parseColor(r("#172E3D")))
+            setBackgroundColor(Color.parseColor(r("#FFFFFF")))
             setPadding(dp(20), dp(16), dp(20), dp(16))
             setLineSpacing(dp(4).toFloat(), 1f)
             autoLinkMask = android.text.util.Linkify.WEB_URLS
@@ -708,6 +709,16 @@ class MainActivity : Activity() {
     }
 
     private fun gecmisiSesliOku(sohbetSirasi: Int?) {
+        if (BildirimKumanda.sessizMi(this)) {
+            sohbetDuraklat()
+            sohbetYazisiniGoster("Sessiz mod açık. Geçmişi sesli dinlemek için Sessiz mod düğmesinden konuşmaya dönün.")
+            return
+        }
+        if (!konusma.hazirMi()) {
+            sohbetDuraklat()
+            sohbetYazisiniGoster("Ses motoru hazır değil. Biraz sonra Sesli oku düğmesini tekrar deneyin.")
+            return
+        }
         val metin = sohbetDokumu.sesMetni().ifBlank { "Bu oturumda henüz tamamlanmış bir mesaj yok." }
         val nesil = sohbetNesli
         gecmisOkunuyor = true; uyanma.durdur()
@@ -721,7 +732,7 @@ class MainActivity : Activity() {
             }
         }, hata = {
             gecmisOkunuyor = false
-            if (nesil == sohbetNesli) { sohbetDuraklat(); durumYazisi.text = "Geçmiş seslendirilemedi. Konuşma geçmişi düğmesinden okuyabilirsiniz." }
+            if (nesil == sohbetNesli) { sohbetDuraklat(); sohbetYazisiniGoster("Geçmiş seslendirilemedi. Konuşma geçmişi düğmesinden okuyabilirsiniz.") }
         })
     }
 
@@ -745,6 +756,7 @@ class MainActivity : Activity() {
     override fun onResume() {
         super.onResume()
         gorunur = true
+        if (sohbetDokumu.metin().isNotBlank()) sohbetYazisiniGoster()
         BildirimKumanda.arayuzAcik = true
         acikBildirimiGoster()
         sesAyari.registerOnSharedPreferenceChangeListener(sessizDinleyici)

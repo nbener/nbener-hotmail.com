@@ -192,6 +192,7 @@ class SezaiArkaPlanServisi : Service() {
                 konum.al { _, soz -> if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() } }
             } else {
                 val cevap = KomutCalistirici(this).calistir(komut)
+                SohbetDokumu.ortak.ekle(metin, cevap)
                 Log.i("Sezai", "ARKAPLAN yerel komut -> '$cevap'")
                 konus(cevap, benim) { devam() }
             }
@@ -210,6 +211,7 @@ class SezaiArkaPlanServisi : Service() {
         sohbet?.gonder(metin,
             sonuc = { yanit -> anaIs.post {
                 if (benim != nesil || kapaniyor) return@post
+                SohbetDokumu.ortak.ekle(metin, yanit)
                 konus(yanit.take(1200), benim) { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
             } },
             hata = { mesaj -> anaIs.post {

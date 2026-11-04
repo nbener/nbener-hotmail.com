@@ -133,3 +133,8 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 ## 04.11.2026 — olgunlaştırma ve ses yok
 - [~] Eksikleri tamamla, test et, projeyi olgunlaştır: sürüm doğrulama/kurulum hata kontrolü düzeltildi; yerel testler geçti, cihaz köprüsü bekleniyor.
 - [ ] “Sesi hiç çıkmıyor”: öncelikli gerçek cihaz tanısı ve düzeltme. Sessiz tercih/mute/TTS/odak nedeni henüz doğrulanmadı; Shizuku bağlantısı gerekli.
+
+
+## 04.11.2026 — konuşma geçmişi görünmüyor/okunmuyor
+- [~] Kullanıcı sesli sohbet yazılarının ve konuşma geçmişinin görünmediğini, sesli okunmadığını bildirdi. Kodda arka plan yanıtının döküme yazılmaması, yeni Activity dökümünün ayrı olması ve ilk motor hazırlığında silinmesi doğrulandı. Ortak sınırlı bellek ve servis kayıt bağlantısı eklendi; disk kalıcılığı eklenmedi.
+- [~] Geçmiş penceresi metin zemini gece/gündüz paletine bağlandı. Sessiz mod/hazır olmayan TTS açıklanır; gerçek cihaz sesi kabulü açık. Shizuku bu tur da Server is not running döndü.
