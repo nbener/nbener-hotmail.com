@@ -5,6 +5,34 @@ SD karta şifreli kaynak yedeği, Sezai derleme ve derleyip kurma seçenekleri v
 Doğrudan kullanım: `panel durum`, `panel pil`, `panel araclar`, `panel yedek`,
 `panel derle`, `panel kur`, `panel ses`.
 
+## Masaüstü ve eklentiler
+
+`masaustu` veya `panel masaustu` (menü 9) X11 üzerinde XFCE'yi açar.
+Ek tuşların son satırındaki **Masaustu** düğmesi aynı komutu yazar.
+Bu düğme kabuk istemindeyken kullanılmalıdır; Codex/Claude açıkken makro
+metni o programa gider. Mevcut tuşlar korunur; özgün `tuslar eski` dışında
+profiller Masaustu düğmesini de ekler.
+
+Masaüstünü bitirmek için XFCE menüsünden oturumu kapat veya başlatıldığı
+Termux terminalinde Ctrl+C kullan. X11 uygulamasını yalnız gizlemek oturumu
+bitirmeyebilir. Başlatıcı yalnız kendi X11 sürecini kapatır, başka oturumları
+öldürmez. Aynı başlatıcının ikinci açılışı kilitle engellenir; canlı :1 ekranına
+dokunulmaz. Eski soket dosyası canlı sunucu sayılmaz; bağlantı kontrol edilir.
+Bu telefonda termux-am soketi bulunamadığından mevcut Shizuku/rish köprüsü
+uygulama açılışı için yedek yoldur; o da çalışmazsa X11 simgesini elle aç.
+
+Styling zaten kuruluydu. Float 0.17.0, Boot 0.8.1, Tasker eklentisi 0.9.0
+F-Droid'den; X11 APK'sı resmî GitHub nightly yayınından kuruldu. X11 komut
+paketi, XFCE ve D-Bus Termux depolarından kuruldu. Boot/Tasker görev klasörleri
+boştur; açılış görevi veya wake lock eklenmedi. Float kullanımı üstte gösterme
+izni gerektirebilir. Tasker ana uygulaması yok; otomasyon için ayrıca gerekir.
+
+05.11.2026 kısa cihaz turunda XFCE oturumu/panel/pencere yöneticisi ve X11
+ön plan penceresi doğrulandı, Ctrl+C sonrası bu süreçler kapandı. Görsel piksel
+kabulü yapılmadı. Masaüstü başlarken ConsoleKit/sistem bus/bildirim ve bazı
+GStreamer kitaplık uyarıları çıktı; ses/video ve tüm masaüstü özellikleri test
+edilmedi. Float/Boot/Tasker uçtan uca kabulü de açık.
+
 ## Telefona uygun görünüm ve tuşlar
 
 `panel` renkli, dar ekranlara uygun menüyü açar. Menüde **7 — Tuş düzeni**

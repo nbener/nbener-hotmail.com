@@ -160,3 +160,12 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 
 ## 05.11.2026 — tuş etiketleri
 - Kullanıcı “tuş etrafına çerçeve ekle” istedi. Mevcut sürümde gerçek border ayarı yok; kullanıcıya açıklanarak [ESC] biçiminde etiket ayraçları uygulandı. Gerçek çizgili buton kenarlığı tamamlandı sayılmaz.
+
+
+## 05.11.2026 — ayraç görünümü geri alındı
+- Kullanıcı [ ] tuş etiketlerini kötü buldu. tuslar tam ile sade beş satırlık görünüm geri yüklendi; reload exit0, extra-keys değeri özgün yedekle birebir eşit. Ayraç görünümünü kendiliğinden yeniden uygulama.
+
+
+## 05.11.2026 — tüm eklentiler ve masaüstü klavye düğmesi
+- [x] Styling/Float/Boot/Tasker/X11 kurulumları mevcut; XFCE ve masaustu komutu/panel9/Widget kısayolu hazır. Kullanıcı “bu masaüstü yolunu Termux klavyeye ekle” dedi; son satıra Masaustu düğmesi eklendi, diğer tuşlar korundu.
+- [ ] Float izin/kullanım, Boot görev seçimi, Tasker ana uygulama/otomasyon ve masaüstü tüm özellik kabulü. Otomatik görev eklenmedi.

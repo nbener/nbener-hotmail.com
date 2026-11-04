@@ -86,6 +86,15 @@ def cerceveli_etiketler(deger):
     return display_desen.sub(etiket, deger)
 
 
+def masaustu_dugmesi(deger):
+    if re.search(r'''["']masaustu ENTER["']''', deger):
+        return deger
+    if not deger.rstrip().endswith(']]'):
+        raise RuntimeError('Tuş düzeninin son satırı okunamadı; ayar değiştirilmedi.')
+    # Son satıra ekle; mevcut hiçbir tuşu veya makroyu kaldırma.
+    return deger.rstrip()[:-2] + ', ' + json.dumps(tus(macro='masaustu ENTER', display='Masaustu')) + ']]'
+
+
 def uygula(profil):
     yedek = Path((KAYIT / 'aktif-yedek.txt').read_text().strip())
     asil = yedek / 'termux.properties'
@@ -108,6 +117,7 @@ def uygula(profil):
             if not eslesme or eslesme.group(1).rstrip().endswith('\\'):
                 raise RuntimeError('Yedekteki tam tuş düzeni tek satır olarak okunamadı.')
             deger = eslesme.group(1)
+        deger = masaustu_dugmesi(deger)
         metin = ayar_degistir(metin, 'extra-keys', deger)
         metin = ayar_degistir(metin, 'extra-keys-text-all-caps', 'false')
     gecici = mevcut.with_name('termux.properties.panel-tmp')

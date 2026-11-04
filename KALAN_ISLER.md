@@ -565,3 +565,12 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 
 ## 05.11.2026 — tuş etiketleri
 - [~] Tuş çerçevesi: [ ] etiket görünümü uygulandı; gerçek düğme kenarlığı mevcut uygulama ayarıyla sağlanmadı. Fiziksel okunaklılığı kullanıcı deneyecek.
+
+
+## 05.11.2026 — ayraç görünümü geri alındı
+- Kullanıcı [ ] tuş etiketlerini kötü buldu. tuslar tam ile sade beş satırlık görünüm geri yüklendi; reload exit0, extra-keys değeri özgün yedekle birebir eşit. Ayraç görünümünü kendiliğinden yeniden uygulama.
+
+
+## 05.11.2026 — eklenti kabulü
+- [x] Beş eklenti ve XFCE kuruldu; masaustu komutu/klavye düğmesi/panel9 hazır, gerçek açılış ve test sonrası kapanış doğrulandı.
+- [ ] Float üstte gösterme izni/kullanımı, Tasker ana uygulama ve gerçek otomasyon. Boot şu an görevsiz. Masaüstü sistem servisi/GStreamer uyarıları ve ses-video kabulü ayrıca açık.

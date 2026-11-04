@@ -947,3 +947,16 @@ Son güncelleme: 2026-10-29
 
 ## 05.11.2026 — tuş etiketleri
 - Etkin beş satırlık düzende 51 ana/popup etikete [ ] eklendi; key/macro alanları korunarak reload exit0 doğrulandı. Gerçek çizgili düğme kenarlığı yapılmadı; Termux0.118.3 ExtraKeysView ayarlarında bu seçenek bulunmadı. scripts/termux_tuslar.py cerceve komutu/menü5 eklendi. Yedek yedek/cerceve-oncesi-*.properties; yeni servis/pil davranışı yok.
+
+
+## 05.11.2026 — ayraç görünümü geri alındı
+- Kullanıcı [ ] tuş etiketlerini kötü buldu. tuslar tam ile sade beş satırlık görünüm geri yüklendi; reload exit0, extra-keys değeri özgün yedekle birebir eşit. Ayraç görünümünü kendiliğinden yeniden uygulama.
+
+
+## 05.11.2026 — Termux eklentileri ve Masaustu tuşu
+- Kullanıcı bütün önerilen eklentileri, gerekli tamamlayıcıları ve masaüstü yolunun Termux klavyesine eklenmesini istedi. Styling zaten kurulu; Float0.17.0/Boot0.8.1/Tasker0.9.0 APK kurulumları Success, X11 resmî nightly APK Success; beş paket pm path ile doğrulandı. Tasker ana uygulaması kurulu değil; ücretli satın alma yapılmadı. Float üstte gösterme izni/uçtan uca kabulü açık.
+- x11-repo, termux-x11-nightly, XFCE4 ve D-Bus kuruldu (paket yöneticisi başarılı; yaklaşık422MB kurulum alanı). Masaustu komutu ve Widget kısayolu kuruldu; panel9 ve ek tuşların son satırında Masaustu makrosu eklendi. Önceki tuşlar korunur; masaustu-tusu-oncesi ayar yedeği özel yedek/ içinde.
+- İlk testte termux-am soket yok hatası verdi; doğrudan Android am Permission Denial (uid/paket) verdi. Yapılandırılmış rish ile Activity açma yedek yolu eklendi. Eski X1 soketi Connection refused iken canlı sayılıyordu; gerçek Unix bağlantısı kontrolüyle düzeltildi, kullanıcı soketi elle silinmedi.
+- Gerçek masaüstü testi: xfce4-session30349/xfce4-panel30448/xfwm430399 çalıştı; mCurrentFocus com.termux.x11.MainActivity. Ctrl+C çıkış130; ardından XFCE/X11/D-Bus/gpg-agent süreç kontrolünde test süreçleri kalmadı, Termux ön plana getirildi. Sürekli görev/wake lock eklenmedi; Boot/Tasker klasörleri boş.
+- PASS: ShellCheck, Python AST, diff--check; tuş eklemenin mevcut metni koruması/ikinci kopya oluşturmaması, cihaz ayarında tek Masaustu makrosu/reload exit0. Görsel piksel kabulü ve Float/Boot/Tasker gerçek otomasyonu yapılmadı.
+- Masaüstünde ConsoleKit/sistem bus/bildirim ve GStreamer eksik kitaplık uyarıları var; tüm özellikler/ses-video test edilmedi. Android APK kaynağı değiştirilmedi, yeni Sezai APK'sı üretilmedi. Gboard ses ayarı açılmıştı ama kullanıcı başka işe geçti; sesli yazma anahtarının değiştiği/doğrulandığı iddia edilmez.

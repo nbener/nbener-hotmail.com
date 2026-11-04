@@ -103,6 +103,8 @@ def derle(kur=False):
 
 
 def eylem(ad):
+    if ad == 'masaustu':
+        return calistir(['bash', str(PROJE / 'scripts/termux_masaustu.sh')]).returncode
     if ad == 'ses':
         return calistir([sys.executable, str(PROJE / 'scripts/termux_sesliyaz.py')]).returncode
     if ad == 'tuslar':
@@ -124,14 +126,14 @@ def eylem(ad):
 def main():
     os.umask(0o077)
     parser = argparse.ArgumentParser(description='Türkçe Termux kontrol paneli')
-    parser.add_argument('eylem', nargs='?', choices=['durum', 'pil', 'araclar', 'yedek', 'derle', 'kur', 'tuslar', 'ses'])
+    parser.add_argument('eylem', nargs='?', choices=['durum', 'pil', 'araclar', 'yedek', 'derle', 'kur', 'tuslar', 'ses', 'masaustu'])
     args = parser.parse_args()
     if args.eylem:
         return eylem(args.eylem) or 0
     if not sys.stdin.isatty():
         parser.print_help()
         return 0
-    secimler = {'1': 'durum', '2': 'pil', '3': 'araclar', '4': 'yedek', '5': 'derle', '6': 'kur', '7': 'tuslar', '8': 'ses'}
+    secimler = {'1': 'durum', '2': 'pil', '3': 'araclar', '4': 'yedek', '5': 'derle', '6': 'kur', '7': 'tuslar', '8': 'ses', '9': 'masaustu'}
     while True:
         renk = sys.stdout.isatty() and 'NO_COLOR' not in os.environ
         vurgu, son = ('\033[1;36m', '\033[0m') if renk else ('', '')
@@ -140,12 +142,12 @@ def main():
             print(f'  Telefon {shutil.disk_usage("/data").free / 2**30:.1f} GiB boş  ·  Kullanıma hazır')
         except OSError:
             pass
-        print('\n  1  Depolama       2  Pil\n  3  Araç kontrolü  4  Şifreli yedek\n  5  Sezai derle    6  Derle ve kur\n  7  Tuş düzeni     8  Türkçe ses\n  0  Çıkış')
+        print('\n  1  Depolama       2  Pil\n  3  Araç kontrolü  4  Şifreli yedek\n  5  Sezai derle    6  Derle ve kur\n  7  Tuş düzeni     8  Türkçe ses\n  9  Masaüstü       0  Çıkış')
         secim = input('Seçimin: ').strip()
         if secim == '0':
             return 0
         if secim not in secimler:
-            print('0–8 arasında bir seçim yap.')
+            print('0–9 arasında bir seçim yap.')
             continue
         try:
             eylem(secimler[secim])
