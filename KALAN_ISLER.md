@@ -549,3 +549,10 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 
 ## 05.11.2026 — Shizuku açıldıktan sonra yeni bağlantı hatası
 - Kullanıcının actim mesajından sonra doğrudan Termux rish id iki kez denendi: exit1 Request timeout. Önceki Server is not running mesajından farklıdır; bağlantı kurulmadı. Araç, sistemin Termux–Shizuku iletişimini engelliyor olabileceğini ve her iki uygulamanın pil kısıtlarının kontrolünü öneriyor; bu kesin kök neden değildir. Kullanıcıdan ilgili kısıtları kontrol etmesi istenecek. Android ayarı otomatik değiştirilmedi; Sezai canlı servisi/kurulum/insan sesi henüz doğrulanmadı. Üretim kodu değişmedi.
+
+
+## 05.11.2026 — Termux paneli
+- [x] Türkçe panel, dört Widget kısayolu, Widget uygulaması, eski görünüm yedeği ve 2 satırlı kompakt/tam/eski tuş profilleri hazır.
+- [ ] Kullanıcı ana ekrana Termux:Widget ekleyip fiziksel düğmeleri ve kompakt tuşların rahatlığını denesin.
+- [ ] İstenirse Gboard yüksekliğini kendi arayüzünden ayarla; Termux ek tuş düzeni bundan ayrıdır.
+- [ ] Kullanıcının belirlediği parolayla panel yedek işlemini ve özel klasöre geri açmayı doğrula. Derleme/kurulum menüsü mevcut build.sh'yi çağırır; bu panel turunda yeni APK denenmedi.

@@ -924,3 +924,14 @@ Son güncelleme: 2026-10-29
 
 ## 05.11.2026 — Shizuku açıldıktan sonra yeni bağlantı hatası
 - Kullanıcının actim mesajından sonra doğrudan Termux rish id iki kez denendi: exit1 Request timeout. Önceki Server is not running mesajından farklıdır; bağlantı kurulmadı. Araç, sistemin Termux–Shizuku iletişimini engelliyor olabileceğini ve her iki uygulamanın pil kısıtlarının kontrolünü öneriyor; bu kesin kök neden değildir. Kullanıcıdan ilgili kısıtları kontrol etmesi istenecek. Android ayarı otomatik değiştirilmedi; Sezai canlı servisi/kurulum/insan sesi henüz doğrulanmadı. Üretim kodu değişmedi.
+
+
+## 05.11.2026 — Türkçe Termux paneli ve kompakt tuşlar
+- Kullanıcı Termux'u kullanışlı/görsel/pratik hale getirme ve mevcut güzel düzeni yedekleyip ek tuş alanını küçültme istedi. Android uygulama kaynağı değiştirilmedi.
+- scripts/termux_panel.py ve TERMUX_PANEL.md eklendi: Türkçe renkli dar ekran menüsü, boş alan/pil/araç kontrolü, son Git commitinin age ile parolalı SD yedeği, mevcut build.sh üzerinden derleme/kurulum, tuş profilleri. panel komutu Termux bin klasörlerine kuruldu.
+- Termux:Widget F-Droid 0.15.0 kuruldu (pm install Success, pm path doğrulandı). ~/.shortcuts içinde Termux Panel, Pil Bilgisi, Bos Alan, Sezai Derle hazır. Widget'ı başlatıcının ana ekranına kullanıcı eklemeli; fiziksel düğme kabulü yapılmadı.
+- scripts/termux_tuslar.py: kompakt 2x8 tuş uygulandı; eski beş satırdaki tüm makrolar tam profilde korunur. tuslar tam/kompakt/eski komutları var. Lacivert colors.properties bayt bayt aynı. Gboard varsayılan IME; Gboard yüksekliği değiştirilmedi.
+- Özgün .termux, .bashrc/.zshrc ve kısayollar özel ~/.local/share/termux-panel/gorunum-yedek-* altında; aktif-yedek.txt yol, SHA256.json özetler. Yedek özetleri doğrulandı; özel dosyalar Git'e alınmadı.
+- Gerçek panel durum/pil/araç kontrolü ve etkileşimli menü giriş/geri dönüş/çıkış geçti; Python sözdizimi, ShellCheck, diff--check geçti. Geçici dosyalarda kompakt→tam→özgün kayıpsız geçiş geçti (reload sahte; fiziksel UI testi değil). Cihazda kompakt uygulama/reload exit0; kaydedilmiş 2x8 düzen ve tema koruması doğrulandı.
+- SD kaynak yedeği henüz gerçek kullanıcı parolasıyla oluşturulmadı/geri açılmadı. Derleme/kurulum düğmeleriyle yeni APK üretilmedi. Yeni servis/wake lock/otomatik başlangıç yok.
+- Görsel sınır: rish üzerinden PNG/base64 aktarımı iki denemede doğrulanamadı; ikinci turda veri stderr kanalına da geldi. Kök neden kesinleştirilmedi. Ekran görüntüsü üzerinden fiziksel tuş okunaklılığı kabulü yapılmadı.

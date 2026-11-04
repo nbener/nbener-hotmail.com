@@ -145,3 +145,9 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - [~] Kaynakta mikrofon servisi onResume içinde durdurulup onStop içinde yeniden başlatılıyordu. Başlatma görünürlük bitmeden onPause'a taşındı; sessiz/arka_plan tercihleri korunur. Derleme sürüyor; gerçek nedenin cihaz loguyla doğrulanması ve kilitli insan sesi kabulü açık. Shizuku bu tur exit1 Server is not running.
 
 - 05.11 00:00 son durum: yeni APK derlendi,imza/hizalama doğrulandı,kurulum isteği gönderildi. Gerçek kilitli dinleme/yanıt kabulü hâlâ BAŞARISIZ/açık; Shizuku bağlantısı bekleniyor.
+
+
+## 05.11.2026 — kapsamlı ve cep telefonuna uygun Termux
+- Kullanıcı pano/Termux:API kurulumu, ek araçlar, uygun büyük dosyaların SD karta taşınması ve Türkçe kontrol paneli istedi. API/pano çalıştı; araçlar kuruldu; 15 büyük indirme dosyası SD'ye SHA256 doğrulamasıyla taşındı (kayıt SD/Termux-Tasinan-20261105/tasima-kaydi.json).
+- “Süper, kullanışlı, görsel ve pratik Termux; klavye daha az yer tutsun, bütün özellikler korunsun, şimdiki güzel hali yedeklensin”: özgün görünüm özel alanda yedeklendi; lacivert tema korundu; 2 satırlı kompakt düzen ve eski 5 satırlı tam düzen arasında geçiş, tek komutla özgün ayara dönüş hazır.
+- Türkçe panel ve dört ana ekran kısayolu hazır; Widget kuruldu. Android başlatıcısına widget ekleme ve fiziksel kullanım kabulü açık. Gboard yüksekliği ayrı ayardır; değiştirilmedi.

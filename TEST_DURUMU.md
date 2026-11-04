@@ -581,3 +581,13 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 
 ## 05.11.2026 — Shizuku açıldıktan sonra yeni bağlantı hatası
 - Kullanıcının actim mesajından sonra doğrudan Termux rish id iki kez denendi: exit1 Request timeout. Önceki Server is not running mesajından farklıdır; bağlantı kurulmadı. Araç, sistemin Termux–Shizuku iletişimini engelliyor olabileceğini ve her iki uygulamanın pil kısıtlarının kontrolünü öneriyor; bu kesin kök neden değildir. Kullanıcıdan ilgili kısıtları kontrol etmesi istenecek. Android ayarı otomatik değiştirilmedi; Sezai canlı servisi/kurulum/insan sesi henüz doğrulanmadı. Üretim kodu değişmedi.
+
+
+## 05.11.2026 — Termux panel doğrulaması (APK testi değildir)
+- PASS: Python AST, ShellCheck (panel/tuslar/4 kısayol), git diff--check.
+- PASS cihaz: panel durum/pil/araclar; etkileşimli menü 1→geri→0; 27 komut bulundu. Widget pm install Success ve pm path.
+- PASS: özel görünüm yedeği SHA256 dosyaları; mevcut colors.properties özgünle eşit; kompakt kaydı 2x8 ve reload exit0.
+- PASS geçici dosya testi: kompakt/tam/eski profil geçişi ve özgün dosyaya birebir dönüş; reload bu testte taklit edildi, fiziksel tuş testi değildir.
+- PASS koruma: terminal dışından yedek isteği anlaşılır hata ve exit1 ile reddedildi.
+- AÇIK: Widget fiziksel tıklama, gerçek SD parola yedeği/geri yükleme, panelden APK derleme/kurulum. Gboard değiştirilmedi; yeni servis veya wake lock yok.
+- Görsel sınır: rish üzerinden PNG/base64 aktarımı iki denemede doğrulanamadı; ikinci turda veri stderr kanalına da geldi. Kök neden kesinleştirilmedi. Ekran görüntüsü üzerinden fiziksel tuş okunaklılığı kabulü yapılmadı.
