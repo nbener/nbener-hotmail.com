@@ -14,7 +14,7 @@ import tempfile
 
 PROJE = Path(__file__).resolve().parent.parent
 SD = Path('/storage/1AA3-3380')
-ARACLAR = 'git python3 node rg fd fzf jq yq tmux rsync zip 7zz cmake ninja sqlite3 htop ncdu ffmpeg magick tesseract pdftotext nvim shellcheck aria2c age gpg termux-clipboard-set'.split()
+ARACLAR = 'git python3 node rg fd fzf jq yq tmux rsync zip 7zz cmake ninja sqlite3 htop ncdu ffmpeg magick tesseract pdftotext nvim shellcheck aria2c age gpg termux-clipboard-set fish yazi micro lazygit starship'.split()
 
 
 def calistir(komut, **kwargs):

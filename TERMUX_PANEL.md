@@ -33,6 +33,23 @@ kabulü yapılmadı. Masaüstü başlarken ConsoleKit/sistem bus/bildirim ve baz
 GStreamer kitaplık uyarıları çıktı; ses/video ve tüm masaüstü özellikleri test
 edilmedi. Float/Boot/Tasker uçtan uca kabulü de açık.
 
+## Ek terminal araçları
+
+- `fish`: komut önerileri ve otomatik tamamlama. Bu oturumda Starship'in
+  kısa klasör/Git istemi ve mevcut Ubuntu proot Claude yönlendirmesi yüklenir.
+  `exit` ile önceki kabuğa dönülür; varsayılan kabuk ve `.bashrc` değiştirilmedi.
+- `yazi`: terminal dosya yöneticisi.
+- `micro DOSYA`: metin düzenleyici.
+- `lazygit`: bulunduğun Git deposunun menülü yönetimi; commit/push işlemlerini
+  kendiliğinden yapmaz.
+- `starship`: Fish içinde etkinleşen istem görünümü. Kullanıcı ayarı
+  `~/.config/termux-panel/starship.toml`; Fish ayarı
+  `~/.config/fish/conf.d/sezai-panel.fish`. Depodaki asılları `config/termux/`.
+
+05.11.2026: beş komutun başlangıç/sürüm kontrolü, Starship istem üretimi,
+Fish sözdizimi ve etkileşimli ayar yüklemesi geçti. Bütün dosya işlemleri veya
+editör/Git arayüzü işlevleri test edilmedi. Yeni arka plan süreci eklenmedi.
+
 ## Telefona uygun görünüm ve tuşlar
 
 `panel` renkli, dar ekranlara uygun menüyü açar. Menüde **7 — Tuş düzeni**

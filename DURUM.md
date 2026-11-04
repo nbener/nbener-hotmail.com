@@ -960,3 +960,9 @@ Son güncelleme: 2026-10-29
 - Gerçek masaüstü testi: xfce4-session30349/xfce4-panel30448/xfwm430399 çalıştı; mCurrentFocus com.termux.x11.MainActivity. Ctrl+C çıkış130; ardından XFCE/X11/D-Bus/gpg-agent süreç kontrolünde test süreçleri kalmadı, Termux ön plana getirildi. Sürekli görev/wake lock eklenmedi; Boot/Tasker klasörleri boş.
 - PASS: ShellCheck, Python AST, diff--check; tuş eklemenin mevcut metni koruması/ikinci kopya oluşturmaması, cihaz ayarında tek Masaustu makrosu/reload exit0. Görsel piksel kabulü ve Float/Boot/Tasker gerçek otomasyonu yapılmadı.
 - Masaüstünde ConsoleKit/sistem bus/bildirim ve GStreamer eksik kitaplık uyarıları var; tüm özellikler/ses-video test edilmedi. Android APK kaynağı değiştirilmedi, yeni Sezai APK'sı üretilmedi. Gboard ses ayarı açılmıştı ama kullanıcı başka işe geçti; sesli yazma anahtarının değiştiği/doğrulandığı iddia edilmez.
+
+
+## 05.11.2026 — Fish, Yazi, Micro, Lazygit ve Starship
+- Kullanıcı beş aracın hepsini kurmamı istedi. Termux pkg: fish4.9.3/yazi26.9.1/micro2.0.15/lazygit0.66.2/starship1.27.0 ve bağımlılıklar başarıyla kuruldu (119MB tahmini kurulum alanı); son boş alan6.3GB.
+- config/termux/fish.fish ve starship.toml eklendi; kullanıcı .config dizinine kuruldu. Fish isteğe bağlı açılır; varsayılan kabuk/.bashrc/terminal renkleri değiştirilmedi. Fish içinde mevcut Claude proot yönlendirmesi ve sade Starship istemi yüklenir. Panel araç kontrolüne beş komut eklendi.
+- PASS: beş komut sürüm/başlangıç, Fish syntax ve etkileşimli Claude/fish_prompt fonksiyon yüklenmesi, TOML parse, gerçek Starship prompt üretimi (stderr boş), diff--check. Yazi/Micro/Lazygit bütün etkileşimli işlevleri kabul edildi denmedi. Yeni servis/wake lock yok.

@@ -574,3 +574,8 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 ## 05.11.2026 — eklenti kabulü
 - [x] Beş eklenti ve XFCE kuruldu; masaustu komutu/klavye düğmesi/panel9 hazır, gerçek açılış ve test sonrası kapanış doğrulandı.
 - [ ] Float üstte gösterme izni/kullanımı, Tasker ana uygulama ve gerçek otomasyon. Boot şu an görevsiz. Masaüstü sistem servisi/GStreamer uyarıları ve ses-video kabulü ayrıca açık.
+
+
+## 05.11.2026 — terminal araçları
+- [x] Fish/Yazi/Micro/Lazygit/Starship kurulumu ve temel doğrulaması tamamlandı.
+- [ ] Kullanıcının telefonda dosya yöneticisi/editör/Git arayüzü rahatlığını denemesi. Varsayılan kabuk değiştirilmedi.

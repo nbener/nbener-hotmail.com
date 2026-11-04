@@ -1,0 +1,21 @@
+# Klasör ve Git durumu; ağ çağrısı veya arka plan süreci yok.
+add_newline = false
+format = "$directory$git_branch$git_status$character"
+command_timeout = 500
+
+[directory]
+truncation_length = 2
+truncate_to_repo = true
+style = "bold cyan"
+
+[git_branch]
+symbol = "git:"
+format = "[$symbol$branch]($style) "
+style = "purple"
+
+[git_status]
+style = "yellow"
+
+[character]
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
