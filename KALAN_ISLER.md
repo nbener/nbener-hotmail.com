@@ -598,3 +598,9 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - rish uid2000,ekran Awake/kilitsiz;ses modu sahibi PID0. Audio policy kablolu kulaklık/mikrofonu bağlı gösteriyor (AUDIO_DEVICE_OUT_WIRED_HEADSET/IN_WIRED_HEADSET,mCurDeviceTypeSet0x4). Hoparlör ön koşulu sağlanmadığından mikrofon/TTS testi başlatılmadı. Kullanıcıya çıkarıp hazır olduğunu bildirmesi soruldu;yanıt bekleniyor.
 - Protokol SOZ_KESME_TASARIMI son kaydında: sessiz/insansız1,sessiz/insan10,sesli/insansız1,sesli/insan10 ayrı kısa oturum. Her hedef5 insan teyitli deneme;aynı ses dar/serbest tanıyıcıya gider,serbest sayısal güven toplanmaz. Yanlış pozitif kontrolleri yalnız oturum bayrağıdır. Üretim VOICE_COMMUNICATION hattıyla özdeş test değildir.
 - Yeni test sonucu yok,kod/APK değişmedi,tercih/sistem ses ayarı değiştirilmedi,yeni servis/wake lock yok,pil ölçülmedi. İnsan söz kesme kabulü hâlâ BAŞARISIZ/açık. Önceki0.998 teyitsiz/yapay başarı sayılmaz. Önceki GitHub aktarım sonucu yerel07be185 bu kayıtlarla birlikte taşınacak.
+
+
+## 2026-11-05T03:20:21+03:00 — iş birliği temiz APK
+- [x] eeb2c44 commitli/temiz ağaçtan kod değişmeden build,zipalign,v2 imza,doğrudan kurulum ve üç kopyada SHA256 eşleşmesi doğrulandı;DEBUG imza,v3 yok.71/71 yeni APK kontrolü PASS;gerçek ses kabulü değildir.
+- [ ] build.sh kur çıkış0 olmasına rağmen ilk kurulumun gerçekleşmemesi ayrıca araştırılmalı;bu tur doğrudan pm install -r -S Success ve kurulu hash ile çözüldü,kaynak değiştirilmedi.
+- [ ] Yorumlama sonrası mikrofon running gözlendi;force-stop temizliğiyle kapandı. Açan yol/tercih etkisi ayrıştırılmadı. İnsan söz kesme ve hoparlör protokolü açık. Kota%82 nedeniyle yeni işe geçilmedi.
