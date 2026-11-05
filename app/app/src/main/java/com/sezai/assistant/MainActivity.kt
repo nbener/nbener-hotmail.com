@@ -298,6 +298,7 @@ class MainActivity : Activity() {
                 seslendir("Merhaba, ben Sezai. Ben ${sesSirasi + 1} numaralı sesim.")
             }
         }
+        dugme("Çıkış (Sezai'yi tamamen kapat)") { BildirimKumanda.tamCikis(this) }
         window.statusBarColor = Color.parseColor(r("#F3F7F8")); window.navigationBarColor = Color.parseColor(r("#F3F7F8"))
         window.decorView.systemUiVisibility = if (gece) 0 else (android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR)
         karakter?.geceOnizleme = gece
@@ -775,6 +776,7 @@ class MainActivity : Activity() {
         gorunur = true
         if (sohbetDokumu.metin().isNotBlank()) sohbetYazisiniGoster()
         BildirimKumanda.arayuzAcik = true
+        BildirimKumanda.anaEkran = this
         acikBildirimiGoster()
         sesAyari.registerOnSharedPreferenceChangeListener(sessizDinleyici)
         sesAyari.registerOnSharedPreferenceChangeListener(sesDinleyici)
@@ -892,6 +894,7 @@ class MainActivity : Activity() {
     override fun onRetainNonConfigurationInstance(): Any = SohbetDevri(sohbet, sohbetSaglayicisi, sohbetDokumu)
 
     override fun onDestroy() {
+        if (BildirimKumanda.anaEkran === this) BildirimKumanda.anaEkran = null
         if (!isChangingConfigurations) getSystemService(android.app.NotificationManager::class.java).cancel(BildirimKumanda.ACIK_BILDIRIM)
         if (!isChangingConfigurations) BildirimKumanda.arayuzAcik = false
         if (!isChangingConfigurations) sohbet?.kapat()

@@ -40,6 +40,25 @@ object BildirimKumanda {
     const val SES_ARTIR = "com.sezai.assistant.SES_ARTIR"
     const val SES_AZALT = "com.sezai.assistant.SES_AZALT"
     const val UYANMA_DEGISTIR = "com.sezai.assistant.UYANMA_DEGISTIR"
+    const val CIKIS = "com.sezai.assistant.CIKIS"
+
+    @Volatile var anaEkran: android.app.Activity? = null // Çıkışta ana ekranı da görev listesinden kaldırmak için
+
+    // Tam çıkış: arka plan dinleme tercihi kapatılır, servis durur, bildirimler kalkar, ekran kapanır, süreç sonlanır
+    fun tamCikis(c: Context) {
+        val uygulama = c.applicationContext
+        arayuzAcik = false
+        uygulama.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
+        SezaiArkaPlanServisi.durdur(uygulama)
+        val y = uygulama.getSystemService(NotificationManager::class.java)
+        y.cancelAll()
+        anaEkran?.finishAndRemoveTask()
+        // Kapanış geri çağrıları bildirimi yeniden koyamasın diye süreç gecikmeyle sonlandırılır
+        android.os.Handler(android.os.Looper.getMainLooper()).postDelayed({
+            y.cancelAll()
+            android.os.Process.killProcess(android.os.Process.myPid())
+        }, 700)
+    }
 
     private fun yayin(c: Context, kod: Int, eylem: String) =
         PendingIntent.getBroadcast(c, kod, Intent(c, SessizAlici::class.java).setAction(eylem), PendingIntent.FLAG_IMMUTABLE)
@@ -72,6 +91,7 @@ object BildirimKumanda {
         v.setOnClickPendingIntent(R.id.b_ses_az, yayin(c, 14, SES_AZALT))
         v.setOnClickPendingIntent(R.id.b_ses_art, yayin(c, 15, SES_ARTIR))
         v.setOnClickPendingIntent(R.id.b_uyanma, yayin(c, 16, UYANMA_DEGISTIR))
+        v.setOnClickPendingIntent(R.id.b_cikis, yayin(c, 17, CIKIS))
         v.setOnClickPendingIntent(R.id.b_arka, arkaPlanAksiyonu(c, arka).actionIntent)
         return Notification.Builder(c, kanal)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
@@ -84,6 +104,7 @@ object BildirimKumanda {
 class SessizAlici : BroadcastReceiver() {
     override fun onReceive(c: Context, i: Intent) {
         val ses = c.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE)
+        if (i.action == BildirimKumanda.CIKIS) { BildirimKumanda.tamCikis(c); return }
         when (i.action) {
             BildirimKumanda.SESSIZ_DEGISTIR -> BildirimKumanda.sessizAyarla(c, !BildirimKumanda.sessizMi(c))
             BildirimKumanda.GORUNUM_DEGISTIR -> {

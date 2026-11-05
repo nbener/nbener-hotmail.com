@@ -110,3 +110,11 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - DENENMEDİ: onay sonrası "evet"/"hayır" yanıtının cihazda uçtan uca çalışması (am start intent'i yalnız soğuk başlatmada işlenir; aynı süreçte iki komut gönderilemedi) ve gerçek mikrofonla onay. Onay mantığı için birim testi eklenmedi. Soru sesli çıkıyor mu insan kabulü yok.
 - Test sırasında `sessiz` önce true bulundu (başlangıçta nedeni bilinmiyor); test sonunda `false` bırakıldı.
 - Push hâlâ bekliyor (kimlik bilgisi yok).
+
+
+### 2026-11-05 — Tam "Çıkış" düğmesi (Telefon-Claude, kullanıcı isteği)
+- İstek: bildirimde ve ana ekranda "Çıkış"; Sezai her yerden (bellek + bildirim) kapansın.
+- Değişen: BildirimKumanda.kt (`tamCikis`: arka_plan=false, servis durdur, tüm bildirimler iptal, ana ekran finishAndRemoveTask, 700 ms sonra süreç sonlandırma; `CIKIS` eylemi; `anaEkran` referansı), bildirim_kumanda.xml (yeni satır, b_cikis), MainActivity.kt ("Çıkış (Sezai'yi tamamen kapat)" düğmesi).
+- Cihazda doğrulandı (APK SHA256 37049bc0…, soğuk açılış sonrası ana ekran düğmesine dokunma): süreç yok (pidof boş), MainActivity yok, servis yok, `arka_plan=false`, aktif bildirim listesinde Sezai yok (yalnız mArchive geçmişinde). 71 test yeniden: bkz. aşağıdaki sonuç satırı.
+- DENENMEDİ: bildirimdeki Çıkış düğmesine gerçek dokunuş (aynı `tamCikis` işlevini çağırır, ama düğme ayrıca tıklanmadı); arka plan servisi çalışırken çıkış; erişilebilirlik hizmeti açıkken (sistem süreç öldükten sonra hizmeti yeniden bağlayabilir).
+- Davranış notu: çıkış `arka_plan` tercihini kapatır; sonraki açılışta arka plan dinleme kendiliğinden başlamaz.
