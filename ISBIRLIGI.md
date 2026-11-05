@@ -164,3 +164,10 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Doğrulandı: sağlam ölçümle (NotificationRecord + servis + arka_plan, boş okuma yeniden denemeli) dört dokunuşluk açma/kapama: açınca id 41 servis=1 arka=true, kapatınca id 42 servis=0 arka=false; her okumada bir panel var. 71/71 test.
 - Ölçüm notu: Shizuku/rish okumaları arada boş dönüyor; önceki "belirip kaybolma" ölçümleri bu yüzden güvenilmezdi, sonuçlara dayanılmadı.
 - DENENMEDİ: dokunuştan <1 sn içindeki ara an (ölçüm gecikmesi nedeniyle); göz kabulü kullanıcıda.
+
+
+### 2026-11-05 — `sessiz` tercihini kim yazıyor? (Telefon-Claude, salt-okuma kod incelemesi)
+- Doğrulandı (kod): `sessiz` tercihini yalnız `BildirimKumanda.sessizAyarla` yazıyor; çağıranlar: bildirim Sessiz düğmesi, bildirim Arka düğmesi (sessizdeyken çıkarır), ana ekran Sessiz düğmesi ve sesli komut (KomutCalistirici → Komut.Sessiz). Başka yazıcı yok; test betikleri tercihi yazmıyor (yorumlama testleri yalnız YORUM günlüğü üretir).
+- Doğrulandı (günlük): 08:37:59'da arka plan sesli komutla `sessiz=true` yaptı (kayıtlı olay). Bu oturumda 10:30'da kendi test komutum da (eski APK) true yaptı.
+- Çıkarım (doğrulanmadı): "kendiliğinden true" gözlemlerinin kalanı sesli komut (ortam konuşması/yanlış tanıma) veya kullanıcının düğme dokunuşudur. Eşleşme alt dizge araması: `m.contains("sessiz ol")` "sessiz olsun/olur mu" gibi ifadelerde de tetikler; "pasif ol" aynı biçimde. Onay istemi artık yanlış açmayı engeller; eşleşmenin kendisi sıkılaştırılmadı (kod değişikliği istenmedi).
+- Öneri (yapılmadı, onay bekler): "sessiz ol" / "pasif ol" eşleşmesini tam sözcük sınırına bağlamak ve yorumlanan cümleyi günlüğe kısaltılmış yazmak.
