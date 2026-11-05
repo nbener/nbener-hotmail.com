@@ -43,11 +43,13 @@ object BildirimKumanda {
     const val CIKIS = "com.sezai.assistant.CIKIS"
     const val ARKA_DEGISTIR = "com.sezai.assistant.ARKA_DEGISTIR"
 
+    @Volatile var cikiyor = false // Tam çıkış başladı: panel yeniden konmaz
     @Volatile var anaEkran: android.app.Activity? = null // Çıkışta ana ekranı da görev listesinden kaldırmak için
 
     // Tam çıkış: arka plan dinleme tercihi kapatılır, servis durur, bildirimler kalkar, ekran kapanır, süreç sonlanır
     fun tamCikis(c: Context) {
         val uygulama = c.applicationContext
+        cikiyor = true
         arayuzAcik = false
         uygulama.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
         SezaiArkaPlanServisi.durdur(uygulama)
@@ -116,8 +118,9 @@ class SessizAlici : BroadcastReceiver() {
         if (i.action == BildirimKumanda.CIKIS) { BildirimKumanda.tamCikis(c); return }
         if (i.action == BildirimKumanda.ARKA_DEGISTIR) {
             // Açıksa kapatır; kapalıysa açar. Dokunuş açık bir istektir: sessiz moddaysa sessizden de çıkar (yoksa düğme hiçbir şey yapmazdı)
+            android.util.Log.i("Sezai", "PANEL arka dugmesi: calisiyor=${SezaiArkaPlanServisi.calisiyor} sessiz=${BildirimKumanda.sessizMi(c)}")
             if (SezaiArkaPlanServisi.calisiyor) {
-                ses.edit().putBoolean("arka_plan", false).apply(); SezaiArkaPlanServisi.durdur(c)
+                ses.edit().putBoolean("arka_plan", false).commit(); SezaiArkaPlanServisi.durdur(c)
             } else {
                 if (BildirimKumanda.sessizMi(c)) BildirimKumanda.sessizAyarla(c, false)
                 ses.edit().putBoolean("arka_plan", true).apply(); SezaiArkaPlanServisi.baslat(c)

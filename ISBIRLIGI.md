@@ -135,3 +135,11 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - DENENMEDİ: Sessiz, Gündüz, Uyan, Ses ± düğmelerinin bildirimden dokunuşu (Gündüz denemesinde tercih değişmedi; çökmeyle aynı döneme denk geldi, düzeltme sonrası yeniden denenmedi); düğme renginin yeni halinin insan gözüyle kabulü; sessiz modda Arka dokunuşunun sessizi kapatması kullanıcı onaylı mı.
 - Not: "sessiz" tercihi oturum boyunca birkaç kez kendiliğinden true göründü; neden bilinmiyor (SessizAlici/sesli komut/diğer). Test sonunda sessiz=false, arka_plan=false.
 - Temizlik: uiautomator dökümleri bildirim içeriği taşıdığı için cihazdan silindi.
+
+
+### 2026-11-05 — "Arka açık/kapalı sorunlu": çift panel ve kaybolan panel (Telefon-Claude)
+- Bulgu 1 (doğrulandı, cihaz): servis çalışırken iki panel vardı (id 41 "Arka: açık" + eski id 42 "Arka: kapalı"); kullanıcı eskisine dokununca hiçbir şey olmuyordu. Düzeltme: servis `calisiyor=true` olunca `acikBildirimiGuncelle` çağırıp eski paneli kaldırıyor.
+- Bulgu 2 (kullanıcı bildirdi, ana ekran kapalıyken yeniden üretildi): "Arka: açık"a dokununca bildirim tamamen kayboluyordu; servis durunca açık panel yalnız ana ekran açıkken (arayuzAcik) yeniden konuyordu. Düzeltme: servis onDestroy artık tam Çıkış yapılmadıysa (`BildirimKumanda.cikiyor` false) paneli yeniden koyuyor; panel yalnız "Çıkış" ile kalkar.
+- Doğrulandı: geri tuşuyla ana ekran kapalı; bildirimden Arka aç → servis başladı, tek panel id 41; Arka: açık'a dokunuş → servis durdu, arka_plan=false, panel id 42 kaldı. Günlükte `PANEL arka dugmesi` kararı yazılıyor. 71/71 test.
+- Düzeltme: arka_plan tercihi bu yolda `commit()` ile yazılıyor (apply gecikmesi önlenir).
+- DENENMEDİ: sessiz modda Arka aç; Çıkış'tan sonra panelin geri gelmediği bu kodla yeniden doğrulanmadı (önceki sürümde doğrulanmıştı; `cikiyor` bayrağı eklendi); uygulama son uygulamalardan kaydırılarak kapatılınca panel kalıyor mu (süreç ölürse bildirim eski kalabilir).

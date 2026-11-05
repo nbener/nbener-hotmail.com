@@ -82,6 +82,7 @@ class SezaiArkaPlanServisi : Service() {
             Log.w("Sezai", "ARKAPLAN on plan baslatilamadi: ${e.javaClass.simpleName}"); stopSelf(); return START_NOT_STICKY
         }
         calisiyor = true
+        BildirimKumanda.acikBildirimiGuncelle(this) // servis kendi panelini gösterir; eski "açık" paneli kaldırılır (çift panel olmasın)
         konusma = AndroidKonusma(this, "com.google.android.tts") { hazir ->
             anaIs.post {
                 if (kapaniyor) return@post
@@ -273,7 +274,8 @@ class SezaiArkaPlanServisi : Service() {
         uyanma?.durdur(); uyanma = null
         konusma?.kapat(); konusma = null
         calisiyor = false
-        if (BildirimKumanda.arayuzAcik) BildirimKumanda.acikBildirimiGuncelle(this)
+        // Panel, tam Çıkış yapılana kadar kalır (ana ekran kapalı olsa bile); servis durunca açık panel yeniden konur
+        if (!BildirimKumanda.cikiyor) BildirimKumanda.acikBildirimiGuncelle(this)
         Log.i("Sezai", "ARKAPLAN servis durdu")
         super.onDestroy()
     }
