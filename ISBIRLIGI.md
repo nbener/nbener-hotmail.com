@@ -125,3 +125,13 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Düzeltme: BildirimKumanda.bildirimIzniVar (SDK<33 ise serbest); MainActivity'deki iki kontrol bunu kullanıyor.
 - Cihazda doğrulandı (APK SHA256 756308babe436652…): soğuk açılışta aktif bildirim id=42 (kanal sezai_acik); bildirim genişletilince Sessiz, Arka planda dinle, Gündüz/Gece, Uyanma, Çıkış düğmeleri görünüyor; bildirimdeki Çıkış'a dokunuş → süreç yok, ana ekran yok, aktif bildirim yok. 71 test yeniden: yukarıdaki dört betik çıkış 0 (sonuçlar komut çıktısında).
 - DENENMEDİ: Android 13+ cihazda izin akışı; arka plan servisi çalışırken bildirimle çıkış; Sessiz/Gündüz/Uyanma düğmelerine bildirimden dokunuş.
+
+
+### 2026-11-05 — Bildirim paneli: iki sıra düğme, açık renk, "Arka" düğmesi, çökme (Telefon-Claude, kullanıcı geri bildirimi)
+- İstek/bulgular: (1) düğmeler bildirim kapalıyken de iki sıra görünsün; (2) koyu renk pasif sanılıyordu; (3) "Arka" düğmesine dokununca açılıp kapanmıyor, uygulama açılıyordu.
+- Yapılan: bildirim_kumanda_kucuk.xml (iki sıra: Sessiz|Arka|Çıkış, Gündüz|Uyan|Ses −|Ses +; kapalı görünümde), düğme rengi açık (#E6F1F3, koyu kalın yazı, çerçeve); "Arka" düğmesi artık yayın eylemi ARKA_DEGISTIR (açıksa kapatır, kapalıysa açar; sessiz moddaysa sessizden de çıkar, çünkü aksi halde düğme hiçbir şey yapmıyordu — bilinçli davranış değişikliği).
+- Bulunan GERÇEK HATA: sessiz modda startForegroundService ile başlayan servis startForeground çağırmadan stopSelf yapınca ForegroundServiceDidNotStartInTimeException ile süreç çöküyordu (logcat 11:52). Düzeltme: SezaiArkaPlanServisi.baslat sessiz/mikrofon izni yoksa başlatmaz; servis sessiz dalında önce startForeground sonra durur.
+- Doğrulandı (APK 8fb325a3380f…, cihaz): kapalı bildirimde iki sıra düğme görünür (dump); Arka: kapalı → dokunuş → servis başladı, mikrofon başladı (günlük); Arka: açık → dokunuş → servis durdu, arka_plan=false, panel "Arka: kapalı"e döndü; çökme kaydı yok. 71 test yeniden 71/71 (9+31+8+23).
+- DENENMEDİ: Sessiz, Gündüz, Uyan, Ses ± düğmelerinin bildirimden dokunuşu (Gündüz denemesinde tercih değişmedi; çökmeyle aynı döneme denk geldi, düzeltme sonrası yeniden denenmedi); düğme renginin yeni halinin insan gözüyle kabulü; sessiz modda Arka dokunuşunun sessizi kapatması kullanıcı onaylı mı.
+- Not: "sessiz" tercihi oturum boyunca birkaç kez kendiliğinden true göründü; neden bilinmiyor (SessizAlici/sesli komut/diğer). Test sonunda sessiz=false, arka_plan=false.
+- Temizlik: uiautomator dökümleri bildirim içeriği taşıdığı için cihazdan silindi.

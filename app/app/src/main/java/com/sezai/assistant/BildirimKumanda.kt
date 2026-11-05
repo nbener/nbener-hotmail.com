@@ -41,6 +41,7 @@ object BildirimKumanda {
     const val SES_AZALT = "com.sezai.assistant.SES_AZALT"
     const val UYANMA_DEGISTIR = "com.sezai.assistant.UYANMA_DEGISTIR"
     const val CIKIS = "com.sezai.assistant.CIKIS"
+    const val ARKA_DEGISTIR = "com.sezai.assistant.ARKA_DEGISTIR"
 
     @Volatile var anaEkran: android.app.Activity? = null // Çıkışta ana ekranı da görev listesinden kaldırmak için
 
@@ -85,23 +86,27 @@ object BildirimKumanda {
         val sessiz = sessizMi(c)
         val gece = c.getSharedPreferences("gorunum", Context.MODE_PRIVATE).getBoolean("gece", true)
         val uyanma = c.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).getBoolean("uyanma", true)
-        val v = android.widget.RemoteViews(c.packageName, R.layout.bildirim_kumanda)
-        v.setTextViewText(R.id.b_sessiz, if (sessiz) "Sessizden çık" else "Sessiz")
-        v.setTextViewText(R.id.b_arka, if (arka) "Arka planı kapat" else "Arka planda dinle")
-        v.setTextViewText(R.id.b_gorunum, if (gece) "Gündüz" else "Gece")
-        v.setTextViewText(R.id.b_uyanma, if (uyanma) "Uyanma: açık" else "Uyanma: kapalı")
-        v.setOnClickPendingIntent(R.id.b_sessiz, yayin(c, 10, SESSIZ_DEGISTIR))
-        v.setOnClickPendingIntent(R.id.b_gorunum, yayin(c, 13, GORUNUM_DEGISTIR))
-        v.setOnClickPendingIntent(R.id.b_ses_az, yayin(c, 14, SES_AZALT))
-        v.setOnClickPendingIntent(R.id.b_ses_art, yayin(c, 15, SES_ARTIR))
-        v.setOnClickPendingIntent(R.id.b_uyanma, yayin(c, 16, UYANMA_DEGISTIR))
-        v.setOnClickPendingIntent(R.id.b_cikis, yayin(c, 17, CIKIS))
-        v.setOnClickPendingIntent(R.id.b_arka, arkaPlanAksiyonu(c, arka).actionIntent)
+        // Aynı düğmeler iki görünümde: kapalıyken iki sıra küçük düğme, genişletilince büyük düzen
+        fun doldur(v: android.widget.RemoteViews, kisa: Boolean = false) {
+            v.setTextViewText(R.id.b_sessiz, if (sessiz) (if (kisa) "Sesli" else "Sessizden çık") else "Sessiz")
+            v.setTextViewText(R.id.b_arka, if (kisa) (if (arka) "Arka: açık" else "Arka: kapalı") else if (arka) "Arka planı kapat" else "Arka planda dinle")
+            v.setTextViewText(R.id.b_gorunum, if (gece) "Gündüz" else "Gece")
+            v.setTextViewText(R.id.b_uyanma, if (kisa) (if (uyanma) "Uyan: açık" else "Uyan: kapalı") else if (uyanma) "Uyanma: açık" else "Uyanma: kapalı")
+            v.setOnClickPendingIntent(R.id.b_sessiz, yayin(c, 10, SESSIZ_DEGISTIR))
+            v.setOnClickPendingIntent(R.id.b_gorunum, yayin(c, 13, GORUNUM_DEGISTIR))
+            v.setOnClickPendingIntent(R.id.b_ses_az, yayin(c, 14, SES_AZALT))
+            v.setOnClickPendingIntent(R.id.b_ses_art, yayin(c, 15, SES_ARTIR))
+            v.setOnClickPendingIntent(R.id.b_uyanma, yayin(c, 16, UYANMA_DEGISTIR))
+            v.setOnClickPendingIntent(R.id.b_cikis, yayin(c, 17, CIKIS))
+            v.setOnClickPendingIntent(R.id.b_arka, yayin(c, 18, ARKA_DEGISTIR))
+        }
+        val v = android.widget.RemoteViews(c.packageName, R.layout.bildirim_kumanda).also { doldur(it) }
+        val kucuk = android.widget.RemoteViews(c.packageName, R.layout.bildirim_kumanda_kucuk).also { doldur(it, true) }
         return Notification.Builder(c, kanal)
             .setSmallIcon(android.R.drawable.ic_btn_speak_now)
             .setContentTitle(if (sessiz) "Sezai · sessiz modda" else if (arka) "Sezai · dinliyor (mikrofon açık)" else "Sezai açık")
             .setContentIntent(ac).setOnlyAlertOnce(true)
-            .setStyle(Notification.DecoratedCustomViewStyle()).setCustomBigContentView(v)
+            .setStyle(Notification.DecoratedCustomViewStyle()).setCustomContentView(kucuk).setCustomBigContentView(v)
     }
 }
 
@@ -109,6 +114,17 @@ class SessizAlici : BroadcastReceiver() {
     override fun onReceive(c: Context, i: Intent) {
         val ses = c.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE)
         if (i.action == BildirimKumanda.CIKIS) { BildirimKumanda.tamCikis(c); return }
+        if (i.action == BildirimKumanda.ARKA_DEGISTIR) {
+            // Açıksa kapatır; kapalıysa açar. Dokunuş açık bir istektir: sessiz moddaysa sessizden de çıkar (yoksa düğme hiçbir şey yapmazdı)
+            if (SezaiArkaPlanServisi.calisiyor) {
+                ses.edit().putBoolean("arka_plan", false).apply(); SezaiArkaPlanServisi.durdur(c)
+            } else {
+                if (BildirimKumanda.sessizMi(c)) BildirimKumanda.sessizAyarla(c, false)
+                ses.edit().putBoolean("arka_plan", true).apply(); SezaiArkaPlanServisi.baslat(c)
+            }
+            BildirimKumanda.acikBildirimiGuncelle(c)
+            return
+        }
         when (i.action) {
             BildirimKumanda.SESSIZ_DEGISTIR -> BildirimKumanda.sessizAyarla(c, !BildirimKumanda.sessizMi(c))
             BildirimKumanda.GORUNUM_DEGISTIR -> {

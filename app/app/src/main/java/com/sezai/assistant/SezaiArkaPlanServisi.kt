@@ -29,7 +29,12 @@ class SezaiArkaPlanServisi : Service() {
         @Volatile var calisiyor = false
             private set
 
-        fun baslat(context: Context) = context.startForegroundService(Intent(context, SezaiArkaPlanServisi::class.java))
+        // Sessiz modda ya da mikrofon izni yokken başlatılmaz: ön plana geçmeden kapanan servis Android'i çökertir
+        fun baslat(context: Context) {
+            if (BildirimKumanda.sessizMi(context) ||
+                context.checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) return
+            context.startForegroundService(Intent(context, SezaiArkaPlanServisi::class.java))
+        }
         fun durdur(context: Context) { context.stopService(Intent(context, SezaiArkaPlanServisi::class.java)) }
     }
 
@@ -54,7 +59,11 @@ class SezaiArkaPlanServisi : Service() {
             getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
             stopSelf(); return START_NOT_STICKY
         }
-        if (BildirimKumanda.sessizMi(this)) { stopSelf(); return START_NOT_STICKY } // sessiz modda mikrofon açılmaz
+        if (BildirimKumanda.sessizMi(this)) {
+            // Sessiz modda mikrofon açılmaz. startForegroundService ile gelindiyse önce ön plana geçmek şart (yoksa süreç çöker)
+            try { bildirimKur(); startForeground(BILDIRIM, bildirim(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE) } catch (e: Exception) { Log.w("Sezai", "ARKAPLAN sessizde on plan: ${e.javaClass.simpleName}") }
+            stopForeground(STOP_FOREGROUND_REMOVE); stopSelf(); return START_NOT_STICKY
+        }
         if (intent?.action == ACIK_ISTEK) getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", true).apply()
         if (calisiyor) return START_NOT_STICKY
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
