@@ -966,3 +966,9 @@ Son güncelleme: 2026-10-29
 - Kullanıcı beş aracın hepsini kurmamı istedi. Termux pkg: fish4.9.3/yazi26.9.1/micro2.0.15/lazygit0.66.2/starship1.27.0 ve bağımlılıklar başarıyla kuruldu (119MB tahmini kurulum alanı); son boş alan6.3GB.
 - config/termux/fish.fish ve starship.toml eklendi; kullanıcı .config dizinine kuruldu. Fish isteğe bağlı açılır; varsayılan kabuk/.bashrc/terminal renkleri değiştirilmedi. Fish içinde mevcut Claude proot yönlendirmesi ve sade Starship istemi yüklenir. Panel araç kontrolüne beş komut eklendi.
 - PASS: beş komut sürüm/başlangıç, Fish syntax ve etkileşimli Claude/fish_prompt fonksiyon yüklenmesi, TOML parse, gerçek Starship prompt üretimi (stderr boş), diff--check. Yazi/Micro/Lazygit bütün etkileşimli işlevleri kabul edildi denmedi. Yeni servis/wake lock yok.
+
+
+## 05.11.2026 03:02 — seçenek A kısa gerçek ölçüm
+- Kod değiştirilmeden test1793836904904059763 HAT_BITTI/çıkış0. Ham giriş isteği desteklenmedi:VOICE_RECOGNITION/kablolu kulaklık,kaydırma0ms. Kırpılan0,tepe3191,enerji farkı8.240455dB,korelasyon-0.094741/gecikme128ms;dar dur güven0.401320,Sezai0.997825;serbest iki hedef=false. Koşullar kontrol edilmediğinden nedensel iyileşme/insan kabulü yok.
+- İlk PCM0 denemesi sessiz tercihten;ses tercihleri geçici değişiklik sonrası finally ile tamamen geri yüklendi(sessiz=true). Mikrofon kaynakları bırakıldı,appops running yok. İnsan çağrısı teyidi bekliyor;normal söz kesme BAŞARISIZ/açık. Pil ölçülmedi,yeni servis/wake lock yok.
+- TEST_DURUMU.md,SOZ_KESME_TASARIMI.md,KALAN_ISLER.md güncellendi;öncesi kayıt/tercih yedekleri Git dışında. Uygulama/test kodu,APK ve sistem ses seviyesi değişmedi. GitHub aktarım sonucu ayrı yerel commit ile aşağıya yazılacak.

@@ -622,3 +622,29 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Kullanıcı beş aracın hepsini kurmamı istedi. Termux pkg: fish4.9.3/yazi26.9.1/micro2.0.15/lazygit0.66.2/starship1.27.0 ve bağımlılıklar başarıyla kuruldu (119MB tahmini kurulum alanı); son boş alan6.3GB.
 - config/termux/fish.fish ve starship.toml eklendi; kullanıcı .config dizinine kuruldu. Fish isteğe bağlı açılır; varsayılan kabuk/.bashrc/terminal renkleri değiştirilmedi. Fish içinde mevcut Claude proot yönlendirmesi ve sade Starship istemi yüklenir. Panel araç kontrolüne beş komut eklendi.
 - PASS: beş komut sürüm/başlangıç, Fish syntax ve etkileşimli Claude/fish_prompt fonksiyon yüklenmesi, TOML parse, gerçek Starship prompt üretimi (stderr boş), diff--check. Yazi/Micro/Lazygit bütün etkileşimli işlevleri kabul edildi denmedi. Yeni servis/wake lock yok.
+
+
+## 05.11.2026 03:02 — seçenek A: ham mikrofon isteğiyle gerçek referanslı ölçüm
+- Uygulama/test kodu değiştirilmedi. Başlangıçta rish -c id uid=2000(shell), ekran mWakefulness=Awake, showing=false/inputRestricted=false doğrulandı. git pull --rebase origin claude/sezai-voice-assistant-7wtvse: Already up to date. Kota %60/%11; sınır aşılmadı.
+- İlk test1793836854560180042 çıkış1/PCM_DESTEKLENMIYOR: TTS PCM hızı/örnek sayısı0. Cihazda sessiz=true doğrulandı; AndroidKonusma bu tercihte sentez yapmadan bitince çağırır. Mikrofon/AEC ölçümü başlamadı; bu sonuç ham mikrofon başarısızlığı değildir.
+- Kullanıcının istediği kısa ölçüm için sessiz tercihi geçici false yapıldı; başlangıç/sonda uygulama durdurularak tercih önbelleği ayrıştırıldı. finally ile tüm ses tercihleri geri yüklendi, XML içerik eşitliği doğrulandı: sessiz=true. Sistem ses seviyesi değiştirilmedi. Kayıt dosyalarının tar.gz ve ses tercihlerinin izin600 XML yedeği yedek/ içinde, Git dışında.
+- Komut: python3 test/yanki_hat_test.py --kip yanki --genlik 0.2 --cikis medya --cagri-tanisi --ham-mikrofon --referans-gecikme-ms 0.
+- Gerçek test1793836904904059763 çıkış0/HAT_BITTI; medya10/15,genlik0.2, tr-tr-x-tmc-network48kHz/PCM16/mono;233928 örnek tam çalındı.509kare/5090ms;492 zaman eşleşmesi,14 zaman damgası yok;underrun1.81440 temiz16kHz örneğin tamamı tanıyıcılara verilip çözüldü; kaynaklar_birakildi=true,kisisel_ses_saklandi=false.
+- ham_mikrofon_istendi=true ancak ham_mikrofon_destek=false: gerçek kaynak6/VOICE_RECOGNITION; UNPROCESSED çalıştı denemez. otomatik_kazanc_etkin alanı raporda yok; AGC'nin kapatıldığı doğrulanmadı. Giriş ve çıkış cihaz türü3 (kablolu mikrofonlu kulaklık). Bu koşul hoparlör üstüne insan konuşması kabulü değildir; eski turla aynı fiziksel yol olduğu doğrulanmadı.
+
+| Ölçüt | Önceki1793742312461281925 | Yeni1793836904904059763 |
+| --- | --- | --- |
+| Referans kaydırması |120ms|0ms|
+| Mikrofon tepe / kırpılan örnek |32768 /4139|3191 /0|
+| Toplam giriş/çıkış enerji farkı |0.232dB|8.240455dB|
+| Korelasyon / kalan gecikme |0.1349 /-82ms|-0.094741 /128ms|
+| Dar tanıyıcı dur güveni |0.4137|0.401320|
+| Dar tanıyıcı Sezai güveni |Önceki özette sayısal değer yok|0.997825|
+| Serbest tanıyıcı dur /Sezai |false /false|false /false|
+
+- Yeni dar tanıyıcı dur/sezai aday ve kesin bayrakları true;dur269ms,sezai330ms,ilk çağrı ses konumu1400ms. Bu ses konumudur,insan söz başlangıcından gecikme değildir. Serbest tanıyıcı sayısal kelime güveni mevcut kodda toplanmıyor; güven0 diye yazılmaz. Tanıyıcı CPU1618ms,max çağrı duvar215ms;AEC+dönüşüm CPU141ms. Bunlar enerji/pil ölçümü değildir.
+- Yorum: kırpılma bu turda yok;dur güveni yükselmedi,serbest tanıma düzelmedi. Korelasyonun mutlak değeri0.135→0.095 ile hâlâ zayıf;negatif tepe ve128ms güvenilir üretim gecikmesi kabul edilmez. Enerji farkı+8dB civarı artsa da bu toplam enerjidir,ayrıştırılmış yankı veya insan sesi koruma ölçütü değildir. Kaynak/AGC,referans kaydırması,fiziksel ses yolu ve insan/ortam koşulları eşitlenmediğinden nedensel A/B başarı iddiası yok.
+- İnsan bu turda dur/Sezai söyledi mi teyit soruldu; kayıt anında yanıt yok. Dar bayraklar/yüksek Sezai güveni insan kabulü sayılmadı. Test otomatik çalma kesmez;normal uygulamada TTS üstünde söz kesme BAŞARISIZ/açık kalır.
+- 05.11 kod incelemesine açıklama:0.232dB ayrı Speex debug hattının toplam enerji farkıdır;normal SozKesme içindeki Android AEC'nin TTS referansı almadığını destekleyen doğrudan ölçüm değildir. Bu platform-AEC iddiası doğrulanmamış hipotez olarak kalır.
+- Son appops RECORD_AUDIO running yok,süre5s354ms;ses modu sahibi PID0. Ses modu/odak korumaları değiştirilmedi;GorusmeOnceligi kullanan sınırlı test çalıştı. Gerçek görüşme testi yapılmadı. Yeni servis/wake lock/sürekli döngü yok;yalnız kısa kayıt/çalma/tanıma maliyeti,pil ölçülmedi. Yeni APK üretilmedi/kurulmadı;uygulama kaynağı değişmediğinden yeni imza/hizalama işlemi yapılmadı.
+- Sonraki: aynı fiziksel ses yolu/aynı çıkış düzeyinde insan teyitli sessiz-asistan ve TTS-üstü kontrolleri;ham kaynak desteklenmediği ve AGC durumu bilinmediği açık tutulmalı. Sabit gecikme/enerji eşiği veya dar dilbilgisi üretime bağlanmadı.

@@ -585,3 +585,10 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [ ] Söz kesme: seçenek A (ham mikrofon ölçümü) cihazda çalıştırılacak; sonra B/C/D'den biri kullanıcıyla seçilecek. Ayrıntı: SOZ_KESME_TASARIMI.md "05.11.2026 — kod incelemesi".
 - [ ] SozKesme model dosyası yoksa sessizce çalışmıyor (SozKesme.kt:31-50): log eklenmesi ayrıca değerlendirilecek; kod değişikliği henüz yapılmadı.
 - [x] GitHub aktarımı: private depo + tek dal istisnası CLAUDE.md'de, scripts/github_aktar.sh eklendi (Termux'ta gerçek çalıştırma henüz yok).
+
+
+## 05.11.2026 03:02 — seçenek A ölçümü yapıldı, kabul açık
+- [x] rish uid2000,ekran Awake/kilitsiz; gerçek test1793836904904059763 HAT_BITTI/çıkış0,kaynaklar bırakıldı. --ham-mikrofon --referans-gecikme-ms0;cihaz UNPROCESSED desteklemiyor,kaynak VOICE_RECOGNITION,AGC etkinlik alanı yok. Giriş/çıkış kablolu kulaklık(tür3);gerçek hoparlör kabulü değildir.
+- [ ] Kırpılan4139→0,tepe32768→3191,enerji farkı0.232→8.240455dB;korelasyon0.1349→-0.094741/gecikme128ms;dar dur güven0.4137→0.401320,Sezai0.997825;serbest iki hedef=false. Koşullar eşitlenmedi;iyileşmenin nedeni doğrulanmadı,üretim gecikmesi seçilmedi. Serbest sayısal güven toplanmıyor.
+- [ ] İnsan çağrısı teyidi/sessiz kontrol/aynı fiziksel yol ve TTS-üstü kabul;özellik hâlâ BAŞARISIZ/açık. Yapay/teyitsiz ses insan kabulü değildir. Ayrıntı TEST_DURUMU ve SOZ_KESME_TASARIMI son kaydında.
+- İlk1793836854560180042 PCM0 nedeniyle ölçüme geçmedi:sessiz=true. Tercih test için geçici kapatıldı,finally ile tüm ses tercihleri XML eşitliğiyle geri yüklendi(sessiz=true). Sistem ses ayarı/kod değişmedi,yeni APK yok. Yeni servis/wake lock yok,pil ölçülmedi.
