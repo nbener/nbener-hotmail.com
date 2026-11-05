@@ -972,3 +972,9 @@ Son güncelleme: 2026-10-29
 - Kod değiştirilmeden test1793836904904059763 HAT_BITTI/çıkış0. Ham giriş isteği desteklenmedi:VOICE_RECOGNITION/kablolu kulaklık,kaydırma0ms. Kırpılan0,tepe3191,enerji farkı8.240455dB,korelasyon-0.094741/gecikme128ms;dar dur güven0.401320,Sezai0.997825;serbest iki hedef=false. Koşullar kontrol edilmediğinden nedensel iyileşme/insan kabulü yok.
 - İlk PCM0 denemesi sessiz tercihten;ses tercihleri geçici değişiklik sonrası finally ile tamamen geri yüklendi(sessiz=true). Mikrofon kaynakları bırakıldı,appops running yok. İnsan çağrısı teyidi bekliyor;normal söz kesme BAŞARISIZ/açık. Pil ölçülmedi,yeni servis/wake lock yok.
 - TEST_DURUMU.md,SOZ_KESME_TASARIMI.md,KALAN_ISLER.md güncellendi;öncesi kayıt/tercih yedekleri Git dışında. Uygulama/test kodu,APK ve sistem ses seviyesi değişmedi. GitHub aktarım sonucu ayrı yerel commit ile aşağıya yazılacak.
+
+
+## 2026-11-05T03:03:59+03:00 — GitHub aktarım sonucu
+- İstenen dosya adı taramaları boş;eklenen satırlarda anahtar örüntüsü yok. scripts/github_aktar.sh geçmiş dosya/içerik denetimlerini geçti,çıkış0.
+- Başarılı: 6f3f62d..0761717 HEAD -> claude/sezai-voice-assistant-7wtvse;TAMAM:0761717. Yalnız izin verilen https://github.com/nbener/nbener-hotmail.com deposuna ve dala normal push;force kullanılmadı,başka uzak/dal eklenmedi. Token/parola çıktıya veya kayda yazılmadı.
+- Bu aktarım sonucu kullanıcı talimatıyla ayrı yerel commit olarak tutulur;0761717 uzak dala gönderildi,bu sonuç commit’i sonraki anlamlı aktarımda taşınabilir.
