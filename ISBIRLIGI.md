@@ -150,3 +150,9 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Doğrulanan: ActivityManager "Start proc … for IpmLaunch {MainActivity}" — başlatan Samsung IPM ön yükleme/ısıtma mekanizması; yeni süreçte Sezai günlüğü YOK, aktif panel 0, servis 0, ekranda değil (odak Termux), erişilebilirlik hizmetlerinde Sezai yok. Yani Sezai kendini yeniden başlatmıyor; görünür bir etkisi yok.
 - Çıkarım (kanıt sınırlı): bu, cihaz üreticisinin arka plan önyüklemesi olabilir; kesin neden doğrulanmadı. Süreç sıfırlansın isteniyorsa `am force-stop` benzeri ek bir adım uygulama içinden yapılamaz.
 - Panel/servis/mikrofon: Çıkış sonrası hepsi kapalı (doğrulandı). Hâlâ denenmedi: sessiz modda Arka dokunuşu, son uygulamalardan kaydırarak kapatma.
+
+
+### 2026-11-05 — Bildirim düğmelerinin dokunuş testi (Telefon-Claude, cihaz, bildirim açık)
+- Gündüz/Gece, Uyan, Ses −, Ses + : her biri tercihi değiştirdi ve geri dönüşü çalıştı (tts_seviye 138→113→138); başlangıç değerlerine geri alındı.
+- Sessiz: dokunuş sessiz=true yaptı. Sessiz modda "Arka: kapalı" dokunuşu: sessiz=false + arka_plan=true (bilinçli tasarım), "Arka: açık" dokunuşu: arka_plan=false. Çökme kaydı 0.
+- Tam kullanıcı akışı kabulü (insan gözüyle düğme renkleri/okunabilirlik) ve son uygulamalardan kaydırarak kapatma hâlâ denenmedi. Tercihler test sonunda başlangıç değerlerinde bırakıldı (kontrol çıktısı sohbette).
