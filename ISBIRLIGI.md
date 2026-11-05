@@ -48,3 +48,12 @@ Sayılarla raporla (5 denemede kaç). Kullanıcı her denemeyi söylediğini tey
 - Ubuntu proot ./build.sh çıkış0;native kontrol ve zipalign-c4 PASS;apksigner verify v2=true,v3=false,mevcut DEBUG imza. APK SHA256:cfabd39f5d14a309a4e82744c52149fb65b16fea5bd1182cbbd61b0b8f970517. Download kopyası güncellendi;pm install-r-S stdin aktarımı çıkış0/Success. Kurulu base.apk SHA256 aynı.
 - Gerçek cihaz query-activities ACTION_ASSIST/CATEGORY_DEFAULT için com.sezai.assistant/.MainActivity bulundu. Kullanıcının açık seçme talimatıyla normal cmd role add-role-holder android.app.role.ASSISTANT com.sezai.assistant 0 çalıştırıldı;rol yeterliliği atlatılmadı. get-role-holders=com.sezai.assistant;settings secure assistant=com.sezai.assistant/.MainActivity doğrulandı. Cihaz yardımcısı ayarı ManageAssistActivity açıldı(Status:ok).
 - Bu yeni APK için derleme/imza/kurulum/manifest çözümleme ve rol ataması doğrulandı;önceki71 test sonucu bu APK'da tekrar koşulmadı. Fiziksel tuş/hareketle asistan çağrısı,insan sesi ve gerçek görüşme kabulü ayrıca açık. Söz kesme BAŞARISIZ/açık kalır;varsayılan asistan seçimi bunu çözmez. Erişilebilirlik yetkisi ayrı,bu işlemde değiştirilmedi.
+
+
+## 2026-11-05T03:47:37+03:00 — Telefon-Claude: Görev 1 yinelemesi (HEAD d7e051c)
+- Başlangıç: git pull --rebase origin claude/sezai-voice-assistant-7wtvse "up to date"; git status temiz; HEAD d7e051c. Kaynak kod değiştirilmedi.
+- Oturum zaten Ubuntu proot içinde; "proot-distro login ubuntu -- ..." komutu şu hatayı verdi: "Error: attempted to run proot-distro in a proot session..." (çıkış 0 görünse de derleme çalışmadı). Çözüm: /root/sezai içinde ./build.sh doğrudan çalıştırıldı.
+- ./build.sh çıkış 0; native SHA256 kontrolü PASS; apksigner verify v2=true, v3=false (DEBUG imza; release anahtarı oluşturulmadı). zipalign -c 4 OK. APK SHA256: cfabd39f5d14a309a4e82744c52149fb65b16fea5bd1182cbbd61b0b8f970517.
+- Aynı SHA256: /sdcard/Download/Sezai-debug.apk ve cihazdaki kurulu base.apk (lastUpdateTime 2026-11-05 03:30:55). Yeniden kurulum gerekmedi. Kurulum için RISH_APPLICATION_ID=com.termux verilmeli, aksi halde rish hata verir.
+- am start MainActivity: Status ok, COLD; öne GrantPermissionsActivity (izin penceresi) çıktı, kullanıcı yanıtı bekliyor.
+- Bu tur test paketi (71 test) çalıştırılmadı; yalnız derleme/imza/hash/başlatma doğrulandı. Söz kesme BAŞARISIZ/açık; yapay ses insan kabulü sayılmadı.
