@@ -118,3 +118,10 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Cihazda doğrulandı (APK SHA256 37049bc0…, soğuk açılış sonrası ana ekran düğmesine dokunma): süreç yok (pidof boş), MainActivity yok, servis yok, `arka_plan=false`, aktif bildirim listesinde Sezai yok (yalnız mArchive geçmişinde). 71 test yeniden: bkz. aşağıdaki sonuç satırı.
 - DENENMEDİ: bildirimdeki Çıkış düğmesine gerçek dokunuş (aynı `tamCikis` işlevini çağırır, ama düğme ayrıca tıklanmadı); arka plan servisi çalışırken çıkış; erişilebilirlik hizmeti açıkken (sistem süreç öldükten sonra hizmeti yeniden bağlayabilir).
 - Davranış notu: çıkış `arka_plan` tercihini kapatır; sonraki açılışta arka plan dinleme kendiliğinden başlamaz.
+
+
+### 2026-11-05 — Açılışta bildirim paneli çıkmıyordu (Telefon-Claude, kullanıcı bildirimi)
+- Kök neden (doğrulandı): cihaz Android 12 (ro.build.version.sdk=31). POST_NOTIFICATIONS izni SDK 33'te geldi; BildirimKumanda.acikBildirimiGuncelle ve MainActivity bu izni kontrol edip Android 12'de hep "yok" sonucu alıyor, bildirimi hiç koymuyordu. `pm grant` bu yüzden "Unknown permission" verdi. Başta "izin reddedildi" varsayımı YANLIŞTI.
+- Düzeltme: BildirimKumanda.bildirimIzniVar (SDK<33 ise serbest); MainActivity'deki iki kontrol bunu kullanıyor.
+- Cihazda doğrulandı (APK SHA256 756308babe436652…): soğuk açılışta aktif bildirim id=42 (kanal sezai_acik); bildirim genişletilince Sessiz, Arka planda dinle, Gündüz/Gece, Uyanma, Çıkış düğmeleri görünüyor; bildirimdeki Çıkış'a dokunuş → süreç yok, ana ekran yok, aktif bildirim yok. 71 test yeniden: yukarıdaki dört betik çıkış 0 (sonuçlar komut çıktısında).
+- DENENMEDİ: Android 13+ cihazda izin akışı; arka plan servisi çalışırken bildirimle çıkış; Sessiz/Gündüz/Uyanma düğmelerine bildirimden dokunuş.

@@ -66,8 +66,12 @@ object BildirimKumanda {
     // Kapalıyken tek satır; açılınca 6 düğmeli kumanda paneli (yalnız dokunmayla çalışır, servis yok)
     @Volatile var arayuzAcik = false // MainActivity yaşıyorsa bildirim güncellenir (kapandıktan sonra hortlamaz)
 
+    // POST_NOTIFICATIONS izni Android 13 (SDK 33) ile geldi; eski sürümlerde izin yoktur ve bildirim serbesttir
+    fun bildirimIzniVar(c: Context) = android.os.Build.VERSION.SDK_INT < 33 ||
+        c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+
     fun acikBildirimiGuncelle(c: Context) {
-        if (c.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS) != android.content.pm.PackageManager.PERMISSION_GRANTED) return
+        if (!bildirimIzniVar(c)) return
         val y = c.getSystemService(NotificationManager::class.java)
         if (SezaiArkaPlanServisi.calisiyor) { y.cancel(ACIK_BILDIRIM); return } // servis aynı paneli kendi bildiriminde gösterir
         y.notify(ACIK_BILDIRIM, panel(c, KANAL).build())

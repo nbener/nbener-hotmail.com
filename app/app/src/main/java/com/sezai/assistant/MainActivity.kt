@@ -392,7 +392,7 @@ class MainActivity : Activity() {
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 1); return
         }
-        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (!BildirimKumanda.bildirimIzniVar(this)) {
             requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4)
         }
         SezaiArkaPlanServisi.baslat(this)
@@ -796,7 +796,7 @@ class MainActivity : Activity() {
     }
 
     private fun acikBildirimiGoster() {
-        if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+        if (!BildirimKumanda.bildirimIzniVar(this)) {
             if (!bildirimIzniIstendi) { bildirimIzniIstendi = true; requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 4) }
             return
         }
