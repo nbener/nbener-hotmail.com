@@ -187,3 +187,16 @@ object KomutYorumlayici {
         return if (bulundu && toplam > 0) toplam else null
     }
 }
+
+// Sessiz moda geçmeden önce istenen sözlü onayı yorumlar (yanlış duyma sessiz modu açmasın diye)
+object SessizOnayi {
+    private val tr = Locale("tr", "TR")
+    private fun temiz(metin: String) = metin.lowercase(tr).trim().trim('.', ',', '!', '?', ' ')
+    fun evetMi(metin: String): Boolean = temiz(metin).let { m ->
+        m == "evet" || m == "olur" || m == "tamam" || m == "onaylıyorum" || m == "evet geç" || m == "evet geçebilirsin" || m == "geç"
+    }
+    fun hayirMi(metin: String): Boolean = temiz(metin).let { m ->
+        m.startsWith("hayır") || m.startsWith("vazgeç") || m == "yok" || m == "olmaz" || m == "istemiyorum" || m == "geçme"
+    }
+    const val SORU = "Sessiz moda geçeyim mi? Evet ya da hayır deyin."
+}

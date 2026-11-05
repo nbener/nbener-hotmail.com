@@ -468,13 +468,30 @@ class MainActivity : Activity() {
         startActivity(android.content.Intent(this, EkranIncelemeActivity::class.java))
     }
 
+    private var sessizOnayBekliyor = false // sessiz moda geçmeden önce onay
+
     private fun komutVer(metin: String) {
         sohbetDuraklat()
+        if (sessizOnayBekliyor) {
+            sessizOnayBekliyor = false
+            if (SessizOnayi.evetMi(metin) || SessizOnayi.hayirMi(metin)) {
+                val cevap = if (SessizOnayi.evetMi(metin)) calistirici.calistir(Komut.Sessiz(true)) else "Tamam, sessiz moda geçmedim."
+                Log.i("Sezai", "KOMUT sessiz mod onay yaniti -> '$cevap'")
+                sohbetDokumu.ekle(metin, cevap); sohbetYazisiniGoster(); seslendir(cevap)
+                return
+            }
+        }
         if (SohbetKomutlari.ekranInceleMi(metin)) { ekraniIncele(); return }
         if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
+        if (komut is Komut.Sessiz && komut.ac) {
+            sessizOnayBekliyor = true
+            Log.i("Sezai", "KOMUT sessiz mod onay istendi")
+            sohbetDokumu.ekle(metin, SessizOnayi.SORU); sohbetYazisiniGoster(); seslendir(SessizOnayi.SORU)
+            return
+        }
         val cevap = calistirici.calistir(komut)
         Log.i("Sezai", "KOMUT '$metin' -> '$cevap'")
         sohbetDokumu.ekle(metin, cevap)

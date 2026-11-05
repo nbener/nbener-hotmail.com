@@ -101,3 +101,12 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Çalıştırıldı: dinleme_test 9/9, sohbet_test 31/31, gorusme_test 8/8, cihaz_yorumla_test 23/23; toplam 71/71 PASS, hepsi çıkış 0. Derleme (build.sh çıkış 0, zipalign OK, v2 imza) aynı turda yapıldı.
 - Kapsam sınırı: sahte ağ/tanıma/odak olayları ve yalnız yorumlama. Gerçek API, insan sesi, telefon/WhatsApp görüşmesi ve söz kesme kabulü DEĞİLDİR; söz kesme BAŞARISIZ/açık kalır.
 - Push hâlâ bekliyor (kimlik bilgisi yok).
+
+
+### 2026-11-05 — Sessiz moda geçmeden önce sözlü onay (Telefon-Claude, kullanıcı isteği)
+- Neden: 08:37'de arka plan, duyulan bir sözü sessiz mod komutu sayıp onaysız `sessiz=true` yaptı (KomutYorumlayici.kt alt dizge eşleşmesi). Tetikleyen cümle metni günlükte yok.
+- Değişen dosyalar: KomutYorumlayici.kt (yeni `SessizOnayi`: evet/hayır yorumu + soru metni), SezaiArkaPlanServisi.kt (`sessizOnayBekliyor`; "Sessiz moda geçeyim mi? Evet ya da hayır deyin." sorar, sonraki sözde evet→geçer, hayır→geçmez, başka söz→onay iptal; takip sınırında geçmez), MainActivity.kt (aynı akış, ana ekran komutVer). Sessizden ÇIKMA onaysız kalır.
+- Doğrulanan: build.sh çıkış 0; APK SHA256 b1ecf08a…b02f elle kuruldu (pm install -r Success; `build.sh kur` bu ortamda KURMADI, eski APK kalmıştı); cihazda soğuk başlatma ile "sessiz modu ac" → günlükte `onay istendi`, `sessiz=false` kaldı. 71 test yeni APK'da 71/71 PASS (9+31+8+23).
+- DENENMEDİ: onay sonrası "evet"/"hayır" yanıtının cihazda uçtan uca çalışması (am start intent'i yalnız soğuk başlatmada işlenir; aynı süreçte iki komut gönderilemedi) ve gerçek mikrofonla onay. Onay mantığı için birim testi eklenmedi. Soru sesli çıkıyor mu insan kabulü yok.
+- Test sırasında `sessiz` önce true bulundu (başlangıçta nedeni bilinmiyor); test sonunda `false` bırakıldı.
+- Push hâlâ bekliyor (kimlik bilgisi yok).

@@ -42,6 +42,7 @@ class SezaiArkaPlanServisi : Service() {
     private var konusanNesil = -1
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
+    private var sessizOnayBekliyor = false // sessiz moda geçmeden önce sözlü onay
     private var nesil = 0 // eski geri çağrıların yeni turu bozmasını önler
     private val enFazlaTakip = 4
 
@@ -128,6 +129,7 @@ class SezaiArkaPlanServisi : Service() {
     private fun uyanmayaDon(benim: Int, gecikmeMs: Long) {
         if (benim != nesil || kapaniyor) return
         nesil++
+        sessizOnayBekliyor = false
         dinleme?.kapat(); sohbet?.iptal()
         yenidenDinle(gecikmeMs)
     }
@@ -166,6 +168,23 @@ class SezaiArkaPlanServisi : Service() {
     }
 
     private fun yanitla(metin: String, benim: Int, takip: Int) {
+        if (sessizOnayBekliyor) {
+            sessizOnayBekliyor = false
+            val devamEt = { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
+            if (SessizOnayi.evetMi(metin)) {
+                val cevap = KomutCalistirici(this).calistir(Komut.Sessiz(true))
+                SohbetDokumu.ortak.ekle(metin, cevap)
+                Log.i("Sezai", "ARKAPLAN sessiz mod onaylandi")
+                konus(cevap, benim) { devamEt() }
+                return
+            }
+            if (SessizOnayi.hayirMi(metin)) {
+                Log.i("Sezai", "ARKAPLAN sessiz mod onaylanmadi")
+                konus("Tamam, sessiz moda geçmedim.", benim) { devamEt() }
+                return
+            }
+            // Başka bir söz geldi: onay iptal, cümle normal işlenir
+        }
         if (SohbetKomutlari.bitirMi(metin)) {
             konus("Tamam, çağırdığınızda buradayım.", benim) { uyanmayaDon(benim, 1500) }; return
         }
@@ -190,6 +209,11 @@ class SezaiArkaPlanServisi : Service() {
                 val konum = KonumYardimcisi(this)
                 if (!konum.izinVarMi()) { konus("Konum izni verilmemiş. Uygulamadan izin verebilirsiniz.", benim) { uyanmayaDon(benim, 1500) }; return }
                 konum.al { _, soz -> if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() } }
+            } else if (komut is Komut.Sessiz && komut.ac) {
+                if (takip >= enFazlaTakip) { konus("Sessiz moda geçmedim.", benim) { uyanmayaDon(benim, 1500) }; return }
+                sessizOnayBekliyor = true
+                Log.i("Sezai", "ARKAPLAN sessiz mod onay istendi")
+                konus(SessizOnayi.SORU, benim) { dinleTur(benim, takip + 1) }
             } else {
                 val cevap = KomutCalistirici(this).calistir(komut)
                 SohbetDokumu.ortak.ekle(metin, cevap)
