@@ -1022,3 +1022,11 @@ Son güncelleme: 2026-10-29
 
 ## 2026-11-05T03:47:37+03:00 — Görev 1 yinelemesi ve uygulama başlatma
 - HEAD d7e051c'den temiz derleme: build.sh çıkış 0, zipalign OK, apksigner v2=true/v3=false (DEBUG), SHA256 cfabd39f…0517 kurulu APK ile birebir aynı. Kaynak değişmedi. 71 test bu turda koşulmadı. Ayrıntı ISBIRLIGI.md. Uygulama açıldı, izin penceresi bekliyor.
+
+
+## 2026-11-05 — Telefon-Claude: ses tanısı, sessiz onayı, Çıkış, bildirim paneli
+- HEAD b8fab24 + bu kayıt. Debug APK (imza v2, DEBUG) cihaza elle kuruldu (build.sh kur bu ortamda kurmuyor; sdcard→/data/local/tmp→pm install -r).
+- Ses: kök neden büyük olasılıkla kablolu kulaklık yönlendirmesi + yanlış tetiklenen sessiz mod; kullanıcı kulaklık çıkarınca sesi duydu.
+- Yeni: sessiz mod onayı, tam Çıkış (ana ekran+bildirim), bildirim paneli (2 sıra açık renkli düğme, Arka aç/kapat), Android 12 bildirim izni düzeltmesi, sessizde ön plan servisi çökmesi düzeltmesi, FGS IMMEDIATE.
+- Testler: 9+31+8+23 = 71/71 PASS (sahte ağ/tanıma; insan sesi, söz kesme ve gerçek görüşme kabulü değildir; söz kesme açık).
+- GitHub: push BAŞARISIZ — kimlik bilgisi yok (`could not read Username`); gönderilmeyen yerel commit sayısı 13. Token sohbete/dosyaya yazılmadı. Ayrıntı ISBIRLIGI.md.

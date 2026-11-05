@@ -182,3 +182,10 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 ## 05.11.2026 — cihaz yardımcısı
 - [x] Kullanıcı isteğiyle ACTION_ASSIST eklendi,yeni debug APK derlendi/hizalama-imza/kurulu SHA256 doğrulandı;Android ASSISTANT rolü Sezai’ye verildi.
 - [ ] Fiziksel asistan tuş/hareketi ve insan sesi kabulü;erişilebilirlik ayrı yetkidir. Sürekli yeni dinleme eklenmedi,söz kesme açık. Kota yeni kullanıcı talimatıyla%90. Ayrıntı DURUM/TEST_DURUMU son kaydında.
+
+
+## 05.11.2026 — ses tanısı, sessiz onayı, çıkış, bildirim paneli
+- [~] “Sesi hiç çıkmıyor” tanısı yapıldı: kablolu kulaklık (h2w) yönlendirmesi + sesli komutla yanlışlıkla açılan sessiz mod; kulaklık çıkarılınca kullanıcı sesi duydu. Sessiz modu neyin tetiklediği ve STT kod 7 açık; madde kullanıcı teyidi olmadan kapatılmadı. Ayrıntı ISBIRLIGI.md.
+- [x] Sessiz moda geçmeden önce sözlü onay iste (Evet/Hayır). Soru sorma cihazda doğrulandı; evet/hayır yanıtı uçtan uca denenmedi.
+- [x] Sezai'ye ve bildirime "Çıkış": her yerden (bellek, bildirim, ekran) tamamen kapansın. Cihazda doğrulandı; süreç numarası Samsung ön yüklemesiyle yeniden görünebilir (Sezai bir şey yapmıyor).
+- [x] Sezai açıldığı an bildirim çubuğu otomatik açılsın, çıkınca kapansın; bildirimde iki sıra, açık renkli, kullanılabilir düğme menüsü. Android 12 izin hatası, çift panel, panel kaybolması ve servis çökmesi düzeltildi. Renk/okunabilirlik insan kabulü açık.

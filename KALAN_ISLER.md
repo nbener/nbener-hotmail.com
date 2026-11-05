@@ -609,3 +609,13 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 ## 05.11.2026 — cihaz yardımcısı
 - [x] Kullanıcı isteğiyle ACTION_ASSIST eklendi,yeni debug APK derlendi/hizalama-imza/kurulu SHA256 doğrulandı;Android ASSISTANT rolü Sezai’ye verildi.
 - [ ] Fiziksel asistan tuş/hareketi ve insan sesi kabulü;erişilebilirlik ayrı yetkidir. Sürekli yeni dinleme eklenmedi,söz kesme açık. Kota yeni kullanıcı talimatıyla%90. Ayrıntı DURUM/TEST_DURUMU son kaydında.
+
+
+## 05.11.2026 — ses tanısı ve bildirim paneli (Telefon-Claude)
+- [x] Bildirim paneli: iki sıra düğme, açık renk, Arka aç/kapat, Çıkış, Android 12 bildirim izni, çift panel, FGS gecikmesi, sessizde servis çökmesi. APK 71/71 test PASS.
+- [x] Sessiz moda geçmeden önce sözlü onay (soru doğrulandı).
+- [ ] Sessiz onayında "evet"/"hayır" yanıtının cihazda uçtan uca denenmesi ve birim testi.
+- [ ] Sessiz modu yanlışlıkla neyin tetiklediği (tanıma metni günlükte yok); `sessiz` tercihi oturumda birkaç kez kendiliğinden true göründü, neden bilinmiyor.
+- [ ] STT hata kodu=7 nedeni.
+- [ ] Bildirim düğme renklerinin insan kabulü; son uygulamalardan kaydırınca panel davranışı.
+- [ ] GitHub push: kimlik bilgisi tanımlanmadı (`could not read Username`); 13 yerel commit bekliyor.
