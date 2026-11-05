@@ -143,3 +143,10 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Doğrulandı: geri tuşuyla ana ekran kapalı; bildirimden Arka aç → servis başladı, tek panel id 41; Arka: açık'a dokunuş → servis durdu, arka_plan=false, panel id 42 kaldı. Günlükte `PANEL arka dugmesi` kararı yazılıyor. 71/71 test.
 - Düzeltme: arka_plan tercihi bu yolda `commit()` ile yazılıyor (apply gecikmesi önlenir).
 - DENENMEDİ: sessiz modda Arka aç; Çıkış'tan sonra panelin geri gelmediği bu kodla yeniden doğrulanmadı (önceki sürümde doğrulanmıştı; `cikiyor` bayrağı eklendi); uygulama son uygulamalardan kaydırılarak kapatılınca panel kalıyor mu (süreç ölürse bildirim eski kalabilir).
+
+
+### 2026-11-05 — Çıkış sonrası süreç "geri geliyor" incelemesi (Telefon-Claude)
+- Gözlem: bildirimden Çıkış → süreç ölüyor (ActivityManager 12:23:52 "has died"), ~3 sn sonra yeni pid (18133) görünüyor.
+- Doğrulanan: ActivityManager "Start proc … for IpmLaunch {MainActivity}" — başlatan Samsung IPM ön yükleme/ısıtma mekanizması; yeni süreçte Sezai günlüğü YOK, aktif panel 0, servis 0, ekranda değil (odak Termux), erişilebilirlik hizmetlerinde Sezai yok. Yani Sezai kendini yeniden başlatmıyor; görünür bir etkisi yok.
+- Çıkarım (kanıt sınırlı): bu, cihaz üreticisinin arka plan önyüklemesi olabilir; kesin neden doğrulanmadı. Süreç sıfırlansın isteniyorsa `am force-stop` benzeri ek bir adım uygulama içinden yapılamaz.
+- Panel/servis/mikrofon: Çıkış sonrası hepsi kapalı (doğrulandı). Hâlâ denenmedi: sessiz modda Arka dokunuşu, son uygulamalardan kaydırarak kapatma.
