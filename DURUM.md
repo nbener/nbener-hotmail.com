@@ -1001,3 +1001,8 @@ Son güncelleme: 2026-10-29
 - Son yorumlama testinden sonra appops RECORD_AUDIO running görüldü. Testin MainActivity açılışları nedeniyle kaynak bırakma ayrıca ele alındı;kesin açan yol ayrıştırılmadı. Temizlikte am force-stop ile uygulama durduruldu;son appops running yok doğrulandı. Cihazda ilk sessiz=true sorgusu vardı;test sonu running gözlemi bu tercihin bütün test boyunca korunduğu iddiasına izin vermez. Tercih bu aşamada elle değiştirilmedi.
 - Pil: yeni servis/wake lock/kod eklenmedi;derleme ve sınırlı cihaz testleri tüketimi var,pil ölçülmedi. Görüşme korumaları değiştirilmedi. TTS dur/Sezai insan kabulü BAŞARISIZ/açık;temiz derleme çözüm değildir. Görev2 protokolü insan/hoparlör koşullarıyla ayrıca bekliyor.
 - Kota başlangıç%73/%13,kurulum sonrası%79/%14,başlatılmış test paketi bitiminde%82/%14:sınır görüldüğünde yeni görev/ölçüm başlatılmadı;yalnız test temizliği,kayıt ve mevcut aşamanın aktarımı kapatılıyor.
+
+
+## 2026-11-05T03:21:08+03:00 — temiz APK kayıtlarının GitHub aktarımı
+- scripts/github_aktar.sh çıkış0/TAMAM:745425a;7541d34..745425a HEAD -> claude/sezai-voice-assistant-7wtvse. İstenen dosya taramaları boş,eklenen satır anahtar kontrolü ve betiğin geçmiş kontrolü temiz. Yalnız yetkili private depoya/dala normal push;force/başka dal yok,token kayda/çıktıya yazılmadı.
+- Aktarım sonucu ayrı yerel commit olarak tutuldu. Kota%82 nedeniyle yeni görev başlatılmadan duruldu;test mikrofonu force-stop ile kapatılmış durumda.
