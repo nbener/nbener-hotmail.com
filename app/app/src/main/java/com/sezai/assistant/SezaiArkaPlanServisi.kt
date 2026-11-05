@@ -263,7 +263,10 @@ class SezaiArkaPlanServisi : Service() {
         yonetici.createNotificationChannel(NotificationChannel(KANAL, "Sezai dinleme", NotificationManager.IMPORTANCE_LOW))
     }
 
-    private fun bildirim(): Notification = BildirimKumanda.panel(this, KANAL, true).setOngoing(true).build()
+    // Android 12+ ön plan servisi bildirimini ~10 sn geciktirir; bu sürede panel ekranda olmazdı, bu yüzden hemen gösterilir
+    private fun bildirim(): Notification = BildirimKumanda.panel(this, KANAL, true).setOngoing(true).also {
+        if (android.os.Build.VERSION.SDK_INT >= 31) it.setForegroundServiceBehavior(Notification.FOREGROUND_SERVICE_IMMEDIATE)
+    }.build()
 
     override fun onDestroy() {
         kapaniyor = true

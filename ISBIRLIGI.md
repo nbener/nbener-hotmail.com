@@ -156,3 +156,11 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Gündüz/Gece, Uyan, Ses −, Ses + : her biri tercihi değiştirdi ve geri dönüşü çalıştı (tts_seviye 138→113→138); başlangıç değerlerine geri alındı.
 - Sessiz: dokunuş sessiz=true yaptı. Sessiz modda "Arka: kapalı" dokunuşu: sessiz=false + arka_plan=true (bilinçli tasarım), "Arka: açık" dokunuşu: arka_plan=false. Çökme kaydı 0.
 - Tam kullanıcı akışı kabulü (insan gözüyle düğme renkleri/okunabilirlik) ve son uygulamalardan kaydırarak kapatma hâlâ denenmedi. Tercihler test sonunda başlangıç değerlerinde bırakıldı (kontrol çıktısı sohbette).
+
+
+### 2026-11-05 — Arka açılırken bildirimin kaybolması: FGS gecikmesi (Telefon-Claude, kullanıcı bildirdi)
+- Bulgu (cihazda yeniden üretildi): "Arka: kapalı"ya dokununca eski panel (id 42) hemen kalkıyor, servis paneli (id 41) Android 12'nin ön plan servisi bildirim gecikmesi yüzünden birkaç sn sonra geliyordu; arada bildirim yoktu.
+- Düzeltme: servis bildirimi `setForegroundServiceBehavior(FOREGROUND_SERVICE_IMMEDIATE)` (SDK≥31) ile hemen gösteriliyor.
+- Doğrulandı: sağlam ölçümle (NotificationRecord + servis + arka_plan, boş okuma yeniden denemeli) dört dokunuşluk açma/kapama: açınca id 41 servis=1 arka=true, kapatınca id 42 servis=0 arka=false; her okumada bir panel var. 71/71 test.
+- Ölçüm notu: Shizuku/rish okumaları arada boş dönüyor; önceki "belirip kaybolma" ölçümleri bu yüzden güvenilmezdi, sonuçlara dayanılmadı.
+- DENENMEDİ: dokunuştan <1 sn içindeki ara an (ölçüm gecikmesi nedeniyle); göz kabulü kullanıcıda.
