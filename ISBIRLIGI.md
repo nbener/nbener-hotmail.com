@@ -86,3 +86,12 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 
 ### Önerilen sonraki adım (yapılmadı, kullanıcı onayıyla)
 Önce kulaklık/adaptörü fiziksel olarak çıkarıp jakı kontrol et; sonra Sezai'ye konuş dedirtip `dumpsys media.audio_flinger` çıkış cihazının 0x2'ye dönüp dönmediğine bak. Dönmezse h2w sahte bağlı durumu araştırılır. Kod değişikliği bu bulguya göre ayrıca planlanır.
+
+
+### Ek 2026-11-05 — Kulaklık çıkarıldıktan sonra yeniden test (Telefon-Claude)
+- Kulaklık çıkarılınca: bağlı cihaz yalnızca `speaker`, AudioFlinger çıkışı 0x2 (hoparlör), STREAM_MUSIC 15/15, Muted=false. Kablolu kulaklık (h2w) yönlendirmesi ses sorununun parçasıydı (doğrulandı).
+- İkinci neden: `ses_ayari` içinde `sessiz=true` bulundu. Logcat 08:37:59: arka plan, bir sesli komutu sessiz mod komutu sayıp "Sessiz moda geçtim..." yanıtıyla servisi durdurdu. Tanınan cümlenin metni günlükte yok; hangi söz bunu tetikledi BİLİNMİYOR.
+- Test: kullanıcı onayıyla uygulamanın kendi yolu kullanıldı (`am start --es komut "sessiz modu kapat"`, sonra `--es oto "Merhaba, ses testi."`). Komuttan hemen sonraki okumada `sessiz=true` görünüyordu (gecikme mi, intent ulaşmadı mı doğrulanmadı). Seslendirmede Google TTS oynatıcısı hoparlöre (DeviceId 1469) başladı. KULLANICI SESİ DUYDUĞUNU bildirdi (insan kabulü: ses çıkıyor).
+- Logcat'te `STT hata kodu=7` (eşleşme yok) ve art arda STT olayları var; nedeni çözülmedi.
+- Sonuç: "Sesi hiç çıkmıyor" şikayeti için kök neden büyük olasılıkla kulaklık yönlendirmesi + yanlışlıkla tetiklenen sessiz mod. Kod değişikliği yapılmadı. Açık: sessiz modun yanlış tetiklenmesi (tanıma metni ve eşik), `sessiz` tercihinin son değeri, STT kod 7. KULLANICI_ISTEKLERI'ndeki "Sesi hiç çıkmıyor" maddesi kullanıcıyla teyit edilmeden kapatılmadı.
+- Push: github_aktar.sh kimlik bilgisi olmadığı için başarısız (`could not read Username`); gönderim bekliyor.
