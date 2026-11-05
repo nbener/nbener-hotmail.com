@@ -95,3 +95,9 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Logcat'te `STT hata kodu=7` (eşleşme yok) ve art arda STT olayları var; nedeni çözülmedi.
 - Sonuç: "Sesi hiç çıkmıyor" şikayeti için kök neden büyük olasılıkla kulaklık yönlendirmesi + yanlışlıkla tetiklenen sessiz mod. Kod değişikliği yapılmadı. Açık: sessiz modun yanlış tetiklenmesi (tanıma metni ve eşik), `sessiz` tercihinin son değeri, STT kod 7. KULLANICI_ISTEKLERI'ndeki "Sesi hiç çıkmıyor" maddesi kullanıcıyla teyit edilmeden kapatılmadı.
 - Push: github_aktar.sh kimlik bilgisi olmadığı için başarısız (`could not read Username`); gönderim bekliyor.
+
+
+### Ek 2026-11-05 — 71 testlik paket (HEAD 9379a09, APK SHA256 cfabd39f…0517)
+- Çalıştırıldı: dinleme_test 9/9, sohbet_test 31/31, gorusme_test 8/8, cihaz_yorumla_test 23/23; toplam 71/71 PASS, hepsi çıkış 0. Derleme (build.sh çıkış 0, zipalign OK, v2 imza) aynı turda yapıldı.
+- Kapsam sınırı: sahte ağ/tanıma/odak olayları ve yalnız yorumlama. Gerçek API, insan sesi, telefon/WhatsApp görüşmesi ve söz kesme kabulü DEĞİLDİR; söz kesme BAŞARISIZ/açık kalır.
+- Push hâlâ bekliyor (kimlik bilgisi yok).
