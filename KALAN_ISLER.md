@@ -604,3 +604,8 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [x] eeb2c44 commitli/temiz ağaçtan kod değişmeden build,zipalign,v2 imza,doğrudan kurulum ve üç kopyada SHA256 eşleşmesi doğrulandı;DEBUG imza,v3 yok.71/71 yeni APK kontrolü PASS;gerçek ses kabulü değildir.
 - [ ] build.sh kur çıkış0 olmasına rağmen ilk kurulumun gerçekleşmemesi ayrıca araştırılmalı;bu tur doğrudan pm install -r -S Success ve kurulu hash ile çözüldü,kaynak değiştirilmedi.
 - [ ] Yorumlama sonrası mikrofon running gözlendi;force-stop temizliğiyle kapandı. Açan yol/tercih etkisi ayrıştırılmadı. İnsan söz kesme ve hoparlör protokolü açık. Kota%82 nedeniyle yeni işe geçilmedi.
+
+
+## 05.11.2026 — cihaz yardımcısı
+- [x] Kullanıcı isteğiyle ACTION_ASSIST eklendi,yeni debug APK derlendi/hizalama-imza/kurulu SHA256 doğrulandı;Android ASSISTANT rolü Sezai’ye verildi.
+- [ ] Fiziksel asistan tuş/hareketi ve insan sesi kabulü;erişilebilirlik ayrı yetkidir. Sürekli yeni dinleme eklenmedi,söz kesme açık. Kota yeni kullanıcı talimatıyla%90. Ayrıntı DURUM/TEST_DURUMU son kaydında.

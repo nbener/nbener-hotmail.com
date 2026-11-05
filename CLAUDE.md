@@ -123,3 +123,7 @@ Henüz kod yazma. Önce şunu yap:
 - Her anlamlı aşamadan sonra (kayıtlar güncellenip yerel commit atıldıktan sonra) `scripts/github_aktar.sh` ile gönderilir. Betik push öncesi anahtar/yedek/APK denetimi yapar; denetim temiz değilse push edilmez ve kullanıcıya bildirilir.
 - Token/parola sohbete, dosyaya, kayda veya komut çıktısına yazılmaz. Push başarısızsa hata olduğu gibi bildirilir; yeni yöntem uydurulmaz. Sonuç DURUM.md'ye tarihle yazılır.
 - Bulut oturumu da bu dala commit atabilir; Termux'ta çalışmaya başlamadan önce `git pull --rebase origin claude/sezai-voice-assistant-7wtvse` yapılır.
+
+
+## Kota sınırı — güncel kullanıcı talimatı (05 Kasım 2026)
+- Kullanıcı "90 olsun" dedi: önceki %80 sınırı yerine %90 geçerlidir. Herhangi bir kota penceresi %90’a ulaşınca yeni iş başlatma. Eski %80 kayıtları tarihsel bilgidir.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Kullanıcı saat sınırını kaldırdı; kota en fazla %80.
+# Kullanıcı saat sınırını kaldırdı; kota en fazla %90.
 # Yalnızca mevcut oturumun kullanım sayacını okur; mesaj veya anahtar yazdırmaz.
 import datetime
 import json
@@ -31,6 +31,6 @@ yuzdeler = [son[p]['used_percent'] for p in ('primary', 'secondary') if son.get(
 if not yuzdeler:
     raise SystemExit('DUR: Kullanım yüzdesi bulunamadı.')
 print('Kota kullanımı:', ', '.join('%'+str(y) for y in yuzdeler))
-if max(yuzdeler) >= 80:
-    raise SystemExit('DUR: %80 kota sınırına ulaşıldı.')
-print('Devam edilebilir; saat sınırı yok, kota sınırı %80.')
+if max(yuzdeler) >= 90:
+    raise SystemExit('DUR: %90 kota sınırına ulaşıldı.')
+print('Devam edilebilir; saat sınırı yok, kota sınırı %90.')

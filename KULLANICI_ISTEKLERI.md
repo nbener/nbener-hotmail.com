@@ -177,3 +177,8 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 
 ## 2026-11-05T03:11:52+03:00 — dört tur insan teyitli söz kesme protokolü
 - Kullanıcı ~ ile devam istedi. Hoparlör/sabit kaynak/ses/oda/mesafede sessiz ve TTS-üstü dar/serbest karşılaştırması,her hedef5 ayrı teyitli oturum;tasarım kaydı SOZ_KESME_TASARIMI içinde. Cihaz hâlâ kablolu kulaklık gösterdiği için yeni ses testi başlatılmadı;çıkarma/hazır teyidi bekleniyor. Kod değişikliği yok.
+
+
+## 05.11.2026 — cihaz yardımcısı
+- [x] Kullanıcı isteğiyle ACTION_ASSIST eklendi,yeni debug APK derlendi/hizalama-imza/kurulu SHA256 doğrulandı;Android ASSISTANT rolü Sezai’ye verildi.
+- [ ] Fiziksel asistan tuş/hareketi ve insan sesi kabulü;erişilebilirlik ayrı yetkidir. Sürekli yeni dinleme eklenmedi,söz kesme açık. Kota yeni kullanıcı talimatıyla%90. Ayrıntı DURUM/TEST_DURUMU son kaydında.

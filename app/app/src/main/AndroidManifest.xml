@@ -50,6 +50,11 @@
         <activity android:name=".EkranOkumaAyarActivity" android:exported="true" android:label="Ekran yardımcısı"/>
         <activity android:name=".EkranIncelemeActivity" android:exported="false" android:label="Ekranı incele"/>
         <activity android:name=".MainActivity" android:exported="true">
+            <!-- Sistem cihaz yardımcısı çağrısında mevcut Sezai ekranını açar. -->
+            <intent-filter>
+                <action android:name="android.intent.action.ASSIST"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
