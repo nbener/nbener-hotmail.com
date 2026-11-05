@@ -592,3 +592,9 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [ ] Kırpılan4139→0,tepe32768→3191,enerji farkı0.232→8.240455dB;korelasyon0.1349→-0.094741/gecikme128ms;dar dur güven0.4137→0.401320,Sezai0.997825;serbest iki hedef=false. Koşullar eşitlenmedi;iyileşmenin nedeni doğrulanmadı,üretim gecikmesi seçilmedi. Serbest sayısal güven toplanmıyor.
 - [ ] İnsan çağrısı teyidi/sessiz kontrol/aynı fiziksel yol ve TTS-üstü kabul;özellik hâlâ BAŞARISIZ/açık. Yapay/teyitsiz ses insan kabulü değildir. Ayrıntı TEST_DURUMU ve SOZ_KESME_TASARIMI son kaydında.
 - İlk1793836854560180042 PCM0 nedeniyle ölçüme geçmedi:sessiz=true. Tercih test için geçici kapatıldı,finally ile tüm ses tercihleri XML eşitliğiyle geri yüklendi(sessiz=true). Sistem ses ayarı/kod değişmedi,yeni APK yok. Yeni servis/wake lock yok,pil ölçülmedi.
+
+
+## 2026-11-05T03:11:52+03:00 — dört tur insan ölçümü hazırlığı
+- rish uid2000,ekran Awake/kilitsiz;ses modu sahibi PID0. Audio policy kablolu kulaklık/mikrofonu bağlı gösteriyor (AUDIO_DEVICE_OUT_WIRED_HEADSET/IN_WIRED_HEADSET,mCurDeviceTypeSet0x4). Hoparlör ön koşulu sağlanmadığından mikrofon/TTS testi başlatılmadı. Kullanıcıya çıkarıp hazır olduğunu bildirmesi soruldu;yanıt bekleniyor.
+- Protokol SOZ_KESME_TASARIMI son kaydında: sessiz/insansız1,sessiz/insan10,sesli/insansız1,sesli/insan10 ayrı kısa oturum. Her hedef5 insan teyitli deneme;aynı ses dar/serbest tanıyıcıya gider,serbest sayısal güven toplanmaz. Yanlış pozitif kontrolleri yalnız oturum bayrağıdır. Üretim VOICE_COMMUNICATION hattıyla özdeş test değildir.
+- Yeni test sonucu yok,kod/APK değişmedi,tercih/sistem ses ayarı değiştirilmedi,yeni servis/wake lock yok,pil ölçülmedi. İnsan söz kesme kabulü hâlâ BAŞARISIZ/açık. Önceki0.998 teyitsiz/yapay başarı sayılmaz. Önceki GitHub aktarım sonucu yerel07be185 bu kayıtlarla birlikte taşınacak.

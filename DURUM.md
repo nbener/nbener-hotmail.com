@@ -978,3 +978,9 @@ Son güncelleme: 2026-10-29
 - İstenen dosya adı taramaları boş;eklenen satırlarda anahtar örüntüsü yok. scripts/github_aktar.sh geçmiş dosya/içerik denetimlerini geçti,çıkış0.
 - Başarılı: 6f3f62d..0761717 HEAD -> claude/sezai-voice-assistant-7wtvse;TAMAM:0761717. Yalnız izin verilen https://github.com/nbener/nbener-hotmail.com deposuna ve dala normal push;force kullanılmadı,başka uzak/dal eklenmedi. Token/parola çıktıya veya kayda yazılmadı.
 - Bu aktarım sonucu kullanıcı talimatıyla ayrı yerel commit olarak tutulur;0761717 uzak dala gönderildi,bu sonuç commit’i sonraki anlamlı aktarımda taşınabilir.
+
+
+## 2026-11-05T03:11:52+03:00 — dört tur insan ölçümü hazırlığı
+- rish uid2000,ekran Awake/kilitsiz;ses modu sahibi PID0. Audio policy kablolu kulaklık/mikrofonu bağlı gösteriyor (AUDIO_DEVICE_OUT_WIRED_HEADSET/IN_WIRED_HEADSET,mCurDeviceTypeSet0x4). Hoparlör ön koşulu sağlanmadığından mikrofon/TTS testi başlatılmadı. Kullanıcıya çıkarıp hazır olduğunu bildirmesi soruldu;yanıt bekleniyor.
+- Protokol SOZ_KESME_TASARIMI son kaydında: sessiz/insansız1,sessiz/insan10,sesli/insansız1,sesli/insan10 ayrı kısa oturum. Her hedef5 insan teyitli deneme;aynı ses dar/serbest tanıyıcıya gider,serbest sayısal güven toplanmaz. Yanlış pozitif kontrolleri yalnız oturum bayrağıdır. Üretim VOICE_COMMUNICATION hattıyla özdeş test değildir.
+- Yeni test sonucu yok,kod/APK değişmedi,tercih/sistem ses ayarı değiştirilmedi,yeni servis/wake lock yok,pil ölçülmedi. İnsan söz kesme kabulü hâlâ BAŞARISIZ/açık. Önceki0.998 teyitsiz/yapay başarı sayılmaz. Önceki GitHub aktarım sonucu yerel07be185 bu kayıtlarla birlikte taşınacak.

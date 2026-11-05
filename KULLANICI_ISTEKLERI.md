@@ -173,3 +173,7 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 
 ## 05.11.2026 — beş ek terminal aracı
 - [x] Kullanıcı “hepsini ekle” dedi: Fish/Yazi/Micro/Lazygit/Starship kuruldu; isteğe bağlı Fish içinde Claude yönlendirmesi ve sade Starship hazır. Varsayılan kabuk korunur.
+
+
+## 2026-11-05T03:11:52+03:00 — dört tur insan teyitli söz kesme protokolü
+- Kullanıcı ~ ile devam istedi. Hoparlör/sabit kaynak/ses/oda/mesafede sessiz ve TTS-üstü dar/serbest karşılaştırması,her hedef5 ayrı teyitli oturum;tasarım kaydı SOZ_KESME_TASARIMI içinde. Cihaz hâlâ kablolu kulaklık gösterdiği için yeni ses testi başlatılmadı;çıkarma/hazır teyidi bekleniyor. Kod değişikliği yok.
