@@ -57,3 +57,32 @@ Sayılarla raporla (5 denemede kaç). Kullanıcı her denemeyi söylediğini tey
 - Aynı SHA256: /sdcard/Download/Sezai-debug.apk ve cihazdaki kurulu base.apk (lastUpdateTime 2026-11-05 03:30:55). Yeniden kurulum gerekmedi. Kurulum için RISH_APPLICATION_ID=com.termux verilmeli, aksi halde rish hata verir.
 - am start MainActivity: Status ok, COLD; öne GrantPermissionsActivity (izin penceresi) çıktı, kullanıcı yanıtı bekliyor.
 - Bu tur test paketi (71 test) çalıştırılmadı; yalnız derleme/imza/hash/başlatma doğrulandı. Söz kesme BAŞARISIZ/açık; yapay ses insan kabulü sayılmadı.
+
+
+## 2026-11-05 — Telefon-Claude: "Sesi hiç çıkmıyor" salt-okuma tanısı
+Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİRİLMEDİ. Shizuku/rish bu turda çalıştı (uid shell). Kişisel veri ve anahtar yazılmadı.
+
+### Adım sonuçları
+1. **ses_ayari sessiz tercihi** — `sessiz=false`, `arka_plan=true`, `uyanma=true`, `tts_seviye=250`, `ses_adi=tr-tr-x-tmc-network` (run-as ile ses_ayari.xml okundu). Sessiz tercih NEDEN DEĞİL.
+2. **Medya sesi / çıkış cihazı** — STREAM_MUSIC Muted=false, seviye 15/15 (headset ve speaker için 15). Zil modu NORMAL, DND (zen) kapalı. ANCAK ses politikasında bağlı cihaz `type:0x4 (headset) name:h2w` görünüyor; AudioFlinger çıkış iş parçacıkları `AUDIO_DEVICE_OUT_WIRED_HEADSET (0x4)` üzerinde, hoparlör (0x2) kullanılmıyor. Ses kablolu kulaklık yoluna gidiyor.
+3. **TTS motoru** — Sezai günlüğü (04:02): `TTS hazir=true`, varsayılan motor com.samsung.SMT, Türkçe sesler listeli (Google ama/cfs/efu/mfm/tmc local+network). Google TTS (com.google.android.tts) yüklü ve çalışıyor. Hazır değil sorunu YOK.
+4. **Ses odağı / mod sahibi** — Ses modu NORMAL (aramada değil). Odak yığını şu an boş. Olay günlüğünde Sezai (USAGE_ASSISTANT, GAIN_TRANSIENT) ve Google TTS (USAGE_MEDIA) odağı istiyor, sonra bırakıyor; çatışma/kilit görünmüyor. Sezai ve TTS oyuncuları `state:started` oldu (03:49–04:02), yani çalma başlatılıyor.
+5. **Son logcat** — Sezai etiketinde hata/istisna yok: ARKAPLAN servis basladi, UYANMA mikrofon basladi, TTS hazir=true. Başka: EkranOkuyucuServisi "service is not ready" (erişilebilirlik hizmeti kapalı, ses ile ilgisi doğrulanmadı).
+
+### Doğrulanan
+- Sessiz tercih kapalı; medya sesi kapalı değil ve maksimumda; DND kapalı; mod NORMAL.
+- TTS hazır; TTS ve Sezai ses çalmayı başlatıyor (oyuncular started, odak alınıp bırakılıyor).
+- Android ses çıkışı şu an kablolu kulaklık (h2w, 0x4) olarak yönlendirilmiş; hoparlör etkin çıkış değil.
+
+### Çıkarım (kanıtlı değil)
+- En olası neden: telefon "kulaklık takılı" sanıyor (h2w); ses hoparlöre değil o çıkışa gidiyor. Fiziksel kulaklık/adaptör takılı olabilir ya da jak/USB-C tarafında sahte "bağlı" durumu kalmış olabilir. Kullanıcı hoparlörden duymadığı için "ses çıkmıyor" diyor olabilir.
+- Varsayılan motor Samsung SMT iken seçili ses Google ağ sesi (tmc-network): ağ yoksa veya Google TTS yavaşsa bazı cümlelerde sessizlik olabilir; bu bu turda gözlenmedi.
+
+### Bilinmeyen
+- Telefonda gerçekten kulaklık/adaptör takılı mı (fiziksel durum bu turda doğrulanamadı).
+- Kullanıcının "ses çıkmıyor" dediği anın günlüğü (arabellekte o zaman kaydı yok; yalnız 03:49–04:12 aralığı incelendi).
+- Kulaklık çıkarılınca hoparlörden ses gelip gelmediği (değişiklik yapmadığım için denenmedi).
+- ayrı bir Sezai-iç hata var mı (örn. ağ sesi zaman aşımı) — bu turda hata günlüğü yok.
+
+### Önerilen sonraki adım (yapılmadı, kullanıcı onayıyla)
+Önce kulaklık/adaptörü fiziksel olarak çıkarıp jakı kontrol et; sonra Sezai'ye konuş dedirtip `dumpsys media.audio_flinger` çıkış cihazının 0x2'ye dönüp dönmediğine bak. Dönmezse h2w sahte bağlı durumu araştırılır. Kod değişikliği bu bulguya göre ayrıca planlanır.
