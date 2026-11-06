@@ -189,3 +189,9 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - [x] Sessiz moda geçmeden önce sözlü onay iste (Evet/Hayır). Soru sorma cihazda doğrulandı; evet/hayır yanıtı uçtan uca denenmedi.
 - [x] Sezai'ye ve bildirime "Çıkış": her yerden (bellek, bildirim, ekran) tamamen kapansın. Cihazda doğrulandı; süreç numarası Samsung ön yüklemesiyle yeniden görünebilir (Sezai bir şey yapmıyor).
 - [x] Sezai açıldığı an bildirim çubuğu otomatik açılsın, çıkınca kapansın; bildirimde iki sıra, açık renkli, kullanılabilir düğme menüsü. Android 12 izin hatası, çift panel, panel kaybolması ve servis çökmesi düzeltildi. Renk/okunabilirlik insan kabulü açık.
+
+
+## 06.11.2026 — SD karta taşıma isteği
+- Kullanıcı projeyi SD karta taşıyıp orada geliştirmek istedi. Kartta yaklaşık 44 GB boş alan doğrulandı. Geçici dosya testi: doğrudan çalıştırma ve sembolik bağlantı Permission denied; chmod 700 korunmadı (770). Geçici test klasörü kaldırıldı. Mevcut derleme düzeniyle doğrudan SD kartta geliştirmeye geçilmedi.
+- Tam proje (Git, yedekler ve mevcut commit edilmemiş KomutYorumlayici.kt değişikliği dahil) /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz içine alındı. 517414689 bayt; tar --compare kaynakla birebir doğrulandı (çıkış 0). Bu kayıt arşiv tamamlandıktan sonra yazıldı.
+- Kaynak silinmedi, etkin proje Termux ~/sezai içinde kaldı. Kod değişikliği/derleme/kurulum yapılmadı; pil davranışı değişmedi. Açık iş: alan kazanmak için eski yedeklerin yalnız SD kartta tutulması ayrıca kararlaştırılabilir; bu tur yerel yedek silinmedi.
