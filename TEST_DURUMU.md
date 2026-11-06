@@ -679,3 +679,9 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Kullanıcı projeyi SD karta taşıyıp orada geliştirmek istedi. Kartta yaklaşık 44 GB boş alan doğrulandı. Geçici dosya testi: doğrudan çalıştırma ve sembolik bağlantı Permission denied; chmod 700 korunmadı (770). Geçici test klasörü kaldırıldı. Mevcut derleme düzeniyle doğrudan SD kartta geliştirmeye geçilmedi.
 - Tam proje (Git, yedekler ve mevcut commit edilmemiş KomutYorumlayici.kt değişikliği dahil) /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz içine alındı. 517414689 bayt; tar --compare kaynakla birebir doğrulandı (çıkış 0). Bu kayıt arşiv tamamlandıktan sonra yazıldı.
 - Kaynak silinmedi, etkin proje Termux ~/sezai içinde kaldı. Kod değişikliği/derleme/kurulum yapılmadı; pil davranışı değişmedi. Açık iş: alan kazanmak için eski yedeklerin yalnız SD kartta tutulması ayrıca kararlaştırılabilir; bu tur yerel yedek silinmedi.
+
+
+## 06.11.2026 — Devralan ajanlara SD kart bildirimi
+- Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
+- Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
+- Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.

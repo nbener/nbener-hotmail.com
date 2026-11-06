@@ -171,3 +171,9 @@ Kapsam: yalnızca analiz. Kod, ayar, ses seviyesi, çıkış cihazı DEĞİŞTİ
 - Doğrulandı (günlük): 08:37:59'da arka plan sesli komutla `sessiz=true` yaptı (kayıtlı olay). Bu oturumda 10:30'da kendi test komutum da (eski APK) true yaptı.
 - Çıkarım (doğrulanmadı): "kendiliğinden true" gözlemlerinin kalanı sesli komut (ortam konuşması/yanlış tanıma) veya kullanıcının düğme dokunuşudur. Eşleşme alt dizge araması: `m.contains("sessiz ol")` "sessiz olsun/olur mu" gibi ifadelerde de tetikler; "pasif ol" aynı biçimde. Onay istemi artık yanlış açmayı engeller; eşleşmenin kendisi sıkılaştırılmadı (kod değişikliği istenmedi).
 - Öneri (yapılmadı, onay bekler): "sessiz ol" / "pasif ol" eşleşmesini tam sözcük sınırına bağlamak ve yorumlanan cümleyi günlüğe kısaltılmış yazmak.
+
+
+## 06.11.2026 — Devralan ajanlara SD kart bildirimi
+- Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
+- Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
+- Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.
