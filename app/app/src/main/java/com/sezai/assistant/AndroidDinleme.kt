@@ -97,7 +97,10 @@ class AndroidDinleme internal constructor(
         SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Ses duymadım"
         SpeechRecognizer.ERROR_NETWORK, SpeechRecognizer.ERROR_NETWORK_TIMEOUT -> "İnternet gerekiyor"
         SpeechRecognizer.ERROR_INSUFFICIENT_PERMISSIONS -> "Mikrofon izni yok"
-        else -> "Hata ($kod)"
+        SpeechRecognizer.ERROR_RECOGNIZER_BUSY -> "Dinleme meşgul, bir saniye bekleyin"
+        SpeechRecognizer.ERROR_CLIENT -> "Dinleme başlatılamadı"
+        SpeechRecognizer.ERROR_SERVER -> "Ses tanıma sunucusu yanıt vermedi"
+        else -> "Ses hatası ($kod)"
     }
 
     override fun durdur() { tanici?.durdur() }

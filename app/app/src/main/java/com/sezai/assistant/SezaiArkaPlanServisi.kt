@@ -222,7 +222,7 @@ class SezaiArkaPlanServisi : Service() {
             } else if (komut is Komut.Sessiz && komut.ac) {
                 if (takip >= enFazlaTakip) { konus("Sessiz moda geçmedim.", benim) { uyanmayaDon(benim, 1500) }; return }
                 sessizOnayBekliyor = true
-                Log.i("Sezai", "ARKAPLAN sessiz mod onay istendi")
+                Log.i("Sezai", "ARKAPLAN sessiz mod onay istendi metin='${metin.take(40)}'")
                 konus(SessizOnayi.SORU, benim) { dinleTur(benim, takip + 1) }
             } else {
                 val cevap = KomutCalistirici(this).calistir(komut)
