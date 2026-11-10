@@ -685,3 +685,18 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 - Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
 - Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
 - Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.
+
+
+## 10.11.2026 — güncel test tablosu
+
+| Alan | Son doğrulanan sonuç | Kapsam / sınır |
+| --- | --- | --- |
+| Dinleme olayları | 10.11.2026: 9/9 PASS | Sahte tanıma; gerçek mikrofon yok. |
+| Görüşme önceliği | 10.11.2026: 8/8 PASS | Sahte telefon/VoIP olayları; gerçek çağrı yok. |
+| Sohbet motoru | 10.11.2026: 31/31 PASS | Sahte ağ/Keystore; canlı API yok. |
+| Komut yorumlama | 10.11.2026: 23/23 PASS | Yalnızca yorum; alarm/arama çalıştırılmaz. |
+| APK | SHA256 d3edc12b…, v2 imza, kurulum Success | DEBUG imza. Release anahtarı henüz yok. |
+
+Önceki 1/23 yorumlama başarısızlığı: test betiği `sh` ile `am start` kullanıyordu; Android 12 arka plan kısıtı Activity'yi öne getirmiyor. `rish` kullanımına geçilince 23/23 PASS oldu. APK'da sorun yoktu.
+
+Hâlâ açık kabuller: söz kesme (dur/Sezai) insan sesi BAŞARISIZ; gerçek sesli sohbet/canlı API; gerçek telefon görüşmesi.

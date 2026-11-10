@@ -631,3 +631,15 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
 - Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
 - Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.
+
+
+## 10.11.2026 — GitHub push düzeltmesi ve test onarımı
+
+- [x] GitHub push: `gh auth` token aktifti; `git push` ve `github_aktar.sh` çalışıyor. HEAD 18f605f uzak dala gönderildi.
+- [x] Commitlenmemiş değişiklikler commit edildi (d16fc68): llama-3.3-70b-versatile, singleTop, onNewIntent.
+- [x] Derleme/kurulum: SHA256 d3edc12b…, rish ile pm install Success.
+- [x] `cihaz_yorumla_test.py` Android 12 `sh`→`rish` düzeltmesi; 23/23 PASS. Toplam 71/71 PASS.
+- [ ] Söz kesme (dur/Sezai): insan sesiyle BAŞARISIZ/açık — üretimde çalışmıyor.
+- [ ] Sessiz mod kendiliğinden true olma nedeni bilinmiyor.
+- [ ] STT hata kodu=7 nedeni açık.
+- [ ] Gerçek sesli sohbet / canlı API / gerçek telefon görüşmesi kabul testi yapılmadı.

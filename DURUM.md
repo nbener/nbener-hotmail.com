@@ -1042,3 +1042,41 @@ Son güncelleme: 2026-10-29
 - Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
 - Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
 - Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.
+
+
+## 10.11.2026 — GitHub push düzeltmesi, derleme/kurulum/test
+
+### GitHub push
+- Önceki "could not read Username" hatası: `gh auth status` giriş yapılmış ve `repo` kapsamlı token aktif; doğrudan `git push origin HEAD:claude/sezai-voice-assistant-7wtvse` çalıştı.
+- Bekleyen 5 commit (af716f0 dahil) uzak dala gönderildi. `github_aktar.sh` betiği de TAMAM döndürdü.
+
+### Commitlenmemiş değişiklikler (d16fc68)
+- SohbetMotoru: web aramasında `openai/gpt-oss-120b` yerine `llama-3.3-70b-versatile` (browser_search gerçekten destekliyor).
+- AndroidManifest: `MainActivity` singleTop (asistan çağrısında mevcut Activity öne gelir, yeni örnek açılmaz).
+- MainActivity: `onNewIntent` eklendi — singleTop modda gelen `yorumla` extra'sı loglanır.
+- SohbetTestAlicisi: test model adı sabit `llama-3.3-70b-versatile` olarak güncellendi.
+
+### Derleme / kurulum
+- `bash build.sh` çıkış 0; apksigner v2=true PASS. APK SHA256: `d3edc12bc80c553824b2ce7028725d8065c672edc70d741aab836127bb192b4c`.
+- `RISH_APPLICATION_ID=com.termux rish -c "pm install -r -S …"` → Success.
+- `/sdcard/Download/Sezai-debug.apk` güncellendi.
+
+### Test sonuçları — 10.11.2026
+- `dinleme_test.py`: 9/9 PASS
+- `gorusme_test.py`: 8/8 PASS
+- `sohbet_test.py`: 31/31 PASS
+- `cihaz_yorumla_test.py`: **23/23 PASS** (önceki 1/23 idi)
+- Toplam: **71/71 PASS**
+
+### Düzeltilen test hatası (18f605f)
+- `cihaz_yorumla_test.py` Android 12 arka plan kısıtı nedeniyle `/system/bin/sh` ile `am start` Activity'yi öne getiremiyor; `rish` kullanacak şekilde güncellendi. Önceki 1/23 bu nedenledir; APK'da sorun yoktu.
+
+### GitHub son durum
+- HEAD: `18f605f` → `claude/sezai-voice-assistant-7wtvse` dalına gönderildi.
+- Commitlenmemiş değişiklik yok.
+
+### Sıradaki açık işler
+- Söz kesme (dur/Sezai): insan sesiyle BAŞARISIZ/açık.
+- Sessiz mod kendiliğinden true olma nedeni bilinmiyor.
+- STT hata kodu=7 nedeni açık.
+- Gerçek sesli sohbet / canlı API kabul testi yapılmadı.
