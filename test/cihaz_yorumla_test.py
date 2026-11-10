@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # Termux'tan çalıştırılır. Yalnızca yorumlar; alarm veya arama başlatmaz.
+import os
 import pathlib
 import re
 import shlex
@@ -15,8 +16,12 @@ cumleler += [
     ('bir buçuk dakika zamanlayıcı kur', 'ZamanlayiciKur(saniye=90)'),
 ]
 
+RISH = '/data/data/com.termux/files/home/rish/rish'
+
 def am(komut):
-    return subprocess.run(['/system/bin/sh', '-c', komut], capture_output=True, text=True, timeout=15)
+    # Android 12+ arka plan kısıtı: sh ile am start Activity'yi öne getiremiyor; rish gerekli.
+    env = dict(os.environ, RISH_APPLICATION_ID='com.termux')
+    return subprocess.run([RISH, '-c', komut], capture_output=True, text=True, timeout=15, env=env)
 
 # Zaman damgası: logcat bu andan itibaren filtrelenecek
 zaman_damgasi = time.strftime('%m-%d %H:%M:%S.000')
