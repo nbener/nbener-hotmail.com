@@ -18,7 +18,7 @@ aapt dump badging "$APK" | grep -E "^package"
 sha256sum "$APK"
 if [ "${1:-}" = "kur" ]; then
   cp "$APK" /sdcard/Download/Sezai-debug.apk
-  cd "$HOME/rish"
+  cd /data/data/com.termux/files/home/rish
   export RISH_APPLICATION_ID=com.termux
   sh ./rish -c 'set -e; hedef=$(mktemp /data/local/tmp/sezai-XXXXXX.apk); trap '\''rm -f "$hedef"'\'' EXIT; cp /sdcard/Download/Sezai-debug.apk "$hedef"; pm install -r "$hedef"; am start -W -n com.sezai.assistant/.MainActivity'
 fi
