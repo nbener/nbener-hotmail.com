@@ -75,7 +75,15 @@ object KomutYorumlayici {
         if ((m.contains("sesini") || m.contains("sesi ") || m.endsWith("sesi")) && (m.contains("artır") || m.contains("yükselt") || m.contains("aç"))) return Komut.SesAyar(25)
         if ((m.contains("sesini") || m.contains("sesi ") || m.endsWith("sesi")) && (m.contains("azalt") || m.contains("kıs") || m.contains("alçalt"))) return Komut.SesAyar(-25)
         // Sessiz mod: açma sesle olur; kapatma dinleme kapalı olduğundan düğme/bildirimle (ama söylenirse de anlaşılır)
-        if (m.contains("sessiz mod") || m.contains("sessize al") || m.contains("sessiz ol") || m.contains("pasif mod") || m.contains("pasif ol")) {
+        // "sessiz ol"/"pasif ol" yalnız tam sözcükle: "sessiz oldu", "sessiz olur mu", "sessiz olmak" gibi
+        // ortam konuşmaları sessiz modu tetiklemesin (05.11 yanlış tetikleme incelemesi, ISBIRLIGI.md).
+        // Kullanıcı isteğiyle (10.11) "sessiz olsun" komut sayılır; "pasif olsun" için istek yok.
+        fun olEmri(kok: String, olsunDa: Boolean = false): Boolean = t.indices.any { i ->
+            t[i] == kok && (t.getOrNull(i + 1) == "ol" || (olsunDa && t.getOrNull(i + 1) == "olsun") ||
+                (t.getOrNull(i + 1) == "olur" && t.getOrNull(i + 2) == "musun") ||
+                (t.getOrNull(i + 1) == "olabilir" && t.getOrNull(i + 2) == "misin"))
+        }
+        if (m.contains("sessiz mod") || m.contains("sessize al") || olEmri("sessiz", olsunDa = true) || m.contains("pasif mod") || olEmri("pasif")) {
             return Komut.Sessiz(!(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır")))
         }
         // Hafıza: "şunu hatırla: ..." kaydeder; "ne hatırlıyorsun / ne öğrendin" okur
