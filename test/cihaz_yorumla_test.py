@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # Termux'tan çalıştırılır. Yalnızca yorumlar; alarm veya arama başlatmaz.
 import pathlib
-import os
 import re
 import shlex
 import subprocess
@@ -15,29 +14,23 @@ cumleler += [
     ('bir buçuğxyz saat zamanlayıcı kur', 'Bilinmiyor'),
     ('bir buçuk dakika zamanlayıcı kur', 'ZamanlayiciKur(saniye=90)'),
 ]
-isaret = 'SEZAI_TEST_' + str(time.time_ns())
-komutlar = ['log -t SezaiTest ' + shlex.quote(isaret)]
+
+def am(komut):
+    return subprocess.run(['/system/bin/sh', '-c', komut], capture_output=True, text=True, timeout=15)
+
+# Zaman damgası: logcat bu andan itibaren filtrelenecek
+zaman_damgasi = time.strftime('%m-%d %H:%M:%S.000')
+
 for cumle, _ in cumleler:
-    komutlar += ['am force-stop com.sezai.assistant',
-                 'am start -n com.sezai.assistant/.MainActivity --es yorumla '
-                 + shlex.quote(cumle) + ' >/dev/null', 'sleep 3']
-# rish uzun çıktılarda karakter kaybedebiliyor; sonuç dosyasını doğrudan oku.
-cikti = pathlib.Path('/sdcard/Download/' + isaret + '.txt')
-komutlar += ["logcat -d -v raw -s Sezai:I SezaiTest:I '*:S' | grep -E '^YORUM |^SEZAI_TEST_' > " + shlex.quote(str(cikti))]
-rish = kok.parent.parent / 'rish' / 'rish'
-sonuc = subprocess.run(['sh', str(rish), '-c', '; '.join(komutlar)],
-                       text=True, capture_output=True, timeout=300,
-                       env=dict(os.environ, RISH_APPLICATION_ID='com.termux'))
-if sonuc.returncode:
-    raise SystemExit('Cihaz bağlantısı başarısız: ' + sonuc.stderr)
-try:
-    gunluk = cikti.read_text()
-finally:
-    if cikti.exists():
-        cikti.unlink()
-if isaret not in gunluk:
-    raise SystemExit('Bu testin günlük işareti bulunamadı; sonuç doğrulanamadı.')
-gunluk = gunluk.rsplit(isaret, 1)[1]
+    am('am start -n com.sezai.assistant/.MainActivity --es yorumla ' + shlex.quote(cumle))
+    time.sleep(3)
+
+# Logcat'ten bu turdan YORUM satırlarını topla
+logcat_sonuc = subprocess.run(
+    ['/system/bin/logcat', '-d', '-T', zaman_damgasi, '-v', 'raw', '-s', 'Sezai:I', '*:S'],
+    capture_output=True, text=True, timeout=30)
+gunluk = logcat_sonuc.stdout
+
 hata = 0
 for cumle, beklenen in cumleler:
     kayitlar = re.findall(re.escape("YORUM '" + cumle + "' -> ") + r'([^\n]*)', gunluk)

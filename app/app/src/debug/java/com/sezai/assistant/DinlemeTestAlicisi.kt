@@ -81,9 +81,17 @@ class DinlemeTestAlicisi : BroadcastReceiver() {
                     check(!SohbetKomutlari.bitirMi("Sohbeti bitirmek istemiyorum"))
                 }
             } finally {
-                context.openFileOutput("dinleme_test_sonuc.txt", Context.MODE_PRIVATE).bufferedWriter().use {
-                    it.write("TEST_ID $testId\n" + rapor.joinToString("\n"))
-                }
+                val _icerik = "TEST_ID $testId\n" + rapor.joinToString("\n")
+                context.openFileOutput("dinleme_test_sonuc.txt", Context.MODE_PRIVATE).bufferedWriter().use { it.write(_icerik) }
+                try {
+                    val _v = android.content.ContentValues().apply {
+                        put(android.provider.MediaStore.Downloads.DISPLAY_NAME, "SEZAI_DI_TEST_$testId.txt")
+                        put(android.provider.MediaStore.Downloads.MIME_TYPE, "text/plain")
+                        put(android.provider.MediaStore.Downloads.RELATIVE_PATH, android.os.Environment.DIRECTORY_DOWNLOADS)
+                    }
+                    val _u = context.contentResolver.insert(android.provider.MediaStore.Downloads.getContentUri("external"), _v)!!
+                    context.contentResolver.openOutputStream(_u)?.bufferedWriter()?.use { it.write(_icerik) }
+                } catch (_: Exception) {}
                 bekleyen.finish()
             }
         }
