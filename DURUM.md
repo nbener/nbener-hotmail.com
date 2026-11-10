@@ -1080,3 +1080,26 @@ Son güncelleme: 2026-10-29
 - Sessiz mod kendiliğinden true olma nedeni bilinmiyor.
 - STT hata kodu=7 nedeni açık.
 - Gerçek sesli sohbet / canlı API kabul testi yapılmadı.
+
+
+## 10.11.2026 — söz kesme kök neden analizi
+
+### Bulgu: Vosk model dosyası yok
+- `run-as com.sezai.assistant ls files/vosk-model-small-tr-0.3/` → "No such file or directory"
+- APK içinde `libvosk.so`, `libjnidispatch.so`, `libsezai_aec.so` mevcut (Speex AEC dahil).
+- `SozKesme.kt`: model dosyası yoksa `calis()` hiç çağrılmıyor, log da yok. Bu yüzden "SOZKESME basladi" gözükmüyor.
+- Model daha önce indirilmişti (SHA256: `8c8d07cec1bce31add14967c16891c84152cdf76d391e33c08278119b9ea96e5`, ~58.7MB açık boyut), ama şu an cihazda veya /sdcard'da bulunamıyor.
+
+### Sonraki adım (telefon yeniden başladıktan sonra)
+1. `vosk-model-small-tr-0.3.zip` yeniden indir (~35MB):
+   `wget -q "https://alphacephei.com/vosk/models/vosk-model-small-tr-0.3.zip" -O /sdcard/Download/vosk-model-small-tr-0.3.zip`
+2. ZIP bütünlüğünü kontrol et (SHA256 ile).
+3. Modeli uygulama files/ dizinine kur:
+   `unzip -d /tmp/vosk-model /sdcard/Download/vosk-model-small-tr-0.3.zip`
+   `run-as com.sezai.assistant cp -r /tmp/vosk-model/vosk-model-small-tr-0.3 files/`
+4. Uygulamayı aç, "SOZKESME basladi" logunu doğrula.
+5. TTS sırasında gerçek sesle "dur" ve "Sezai" söyle, tetiklenip tetiklenmediğini test et.
+
+### SozKesme.kt'de küçük ek düzeltme gerekiyor
+- Model yokken kullanıcıya "söz kesme modeli kurulu değil" uyarısı/log gösterilmeli (sessiz kalmak sorun tespitini engelliyor).
+- Bu değişiklik modeli indirip test ettikten sonra yapılacak.
