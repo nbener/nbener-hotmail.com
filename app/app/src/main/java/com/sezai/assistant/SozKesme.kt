@@ -30,13 +30,15 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
     @Volatile private var kayit: AudioRecord? = null
 
     private fun modelKur(): Boolean {
-        val zip = File("/sdcard/Download/vosk-model-small-tr-0.3.zip")
-        if (!zip.isFile) { Log.w("Sezai", "SOZKESME model zip yok: ${zip.absolutePath}"); return false }
-        Log.i("Sezai", "SOZKESME model zip'ten kuruluyor: ${zip.absolutePath}")
+        val zipAdi = "vosk-model-small-tr-0.3.zip"
+        val zip = listOfNotNull(context.getExternalFilesDir(null), File("/sdcard/Download"))
+            .map { File(it, zipAdi) }.firstOrNull { it.isFile }
+        if (zip == null) { Log.w("Sezai", "SOZKESME model zip yok: $zipAdi — Android/data/com.sezai.assistant/files/ veya /sdcard/Download/ altina koy"); return false }
+        Log.i("Sezai", "SOZKESME model zip'ten kuruluyor: ${zip!!.absolutePath}")
         try {
             modelYolu.deleteRecursively()
             modelYolu.mkdirs()
-            ZipInputStream(zip.inputStream().buffered()).use { zis ->
+            ZipInputStream(zip!!.inputStream().buffered()).use { zis ->
                 var entry = zis.nextEntry
                 while (entry != null) {
                     val rel = entry.name.substringAfter("vosk-model-small-tr-0.3/")
