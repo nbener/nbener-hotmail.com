@@ -433,6 +433,8 @@ class MainActivity : Activity() {
         konum.al { yazi, soz ->
             durumYazisi.text = yazi
             Log.i("Sezai", "KONUM sonuc alindi")
+            if (sohbetAcik && nesil != null && nesil == sohbetNesli)
+                sohbet?.ekleGecmis("neredeyim", soz)
             if (nesil == null) seslendir(soz)
             else if (sohbetAcik && nesil == sohbetNesli) seslendir(soz, bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) })
         }
@@ -651,6 +653,7 @@ class MainActivity : Activity() {
                     (KomutYorumlayici.yorumla(istekMetni) as? Komut.Kamera)?.let { kameraBak(it.on, nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     sohbetYazisiniGoster("Siz: $istekMetni\n\nSezai düşünüyor...")
+                    val webAc = WebIstegi.istendiMi(istekMetni) || WebIstegi.gercekZamanliMi(istekMetni)
                     sohbet?.gonder(istekMetni,
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
@@ -669,7 +672,7 @@ class MainActivity : Activity() {
                         },
                         hata = { mesaj ->
                             if (sohbetAcik && nesil == sohbetNesli) { sohbetDuraklat(); karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI); sohbetYazisiniGoster(mesaj) }
-                        })
+                        }, webAramasi = webAc)
                 }
             } },
             hata = { mesaj -> runOnUiThread {

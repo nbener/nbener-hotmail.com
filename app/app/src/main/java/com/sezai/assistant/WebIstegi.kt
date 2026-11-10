@@ -10,4 +10,11 @@ internal object WebIstegi {
             yazi.contains("arama yapma") || yazi.contains("araştırma yapma")) return false
         return Regex("\\b(webden|webde|internetten|internette)\\b[^.!?]{0,100}\\b(bak|bakar|bakabilir|ara|arar|araştır|araştırır|araştırabilir|bul|kontrol et|arama yap)\\b").containsMatchIn(yazi)
     }
+
+    // Gerçek zamanlı/yerel bilgi gerektiren sorgular: nöbetçi eczane, hastane, benzin, trafik vb.
+    fun gercekZamanliMi(metin: String): Boolean {
+        val yazi = metin.lowercase(Locale("tr", "TR"))
+        return Regex("\\b(nöbetçi|nobetci|eczane|hastane|benzin|istasyon|trafik|hava durumu|hava nasıl|kaç derece|sıcaklık)\\b").containsMatchIn(yazi) ||
+            Regex("\\ben yakın\\b").containsMatchIn(yazi)
+    }
 }

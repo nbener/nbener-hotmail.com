@@ -33,6 +33,10 @@ class SohbetMotoru(
 
     fun sifirla() { iptal(); synchronized(gecmis) { gecmis.clear() } }
 
+    fun ekleGecmis(kullanici: String, asistan: String) {
+        synchronized(gecmis) { gecmis.add(Pair("user", kullanici)); gecmis.add(Pair("assistant", asistan)) }
+    }
+
     fun gonder(metin: String, sonuc: (String) -> Unit, hata: (String) -> Unit,
         webAramasi: Boolean = WebIstegi.istendiMi(metin)) {
         iptal()

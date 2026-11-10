@@ -14,6 +14,7 @@ import org.vosk.LibVosk
 import org.vosk.Model
 import org.vosk.Recognizer
 import java.io.File
+import java.util.zip.ZipInputStream
 
 // Sezai bir yanıtı okurken "dur" veya "sezai" sözünü bekler (prototip). Android'in kendi yankı giderme
 // özellikli VOICE_COMMUNICATION kaynağı ve dilbilgisiz (serbest) Vosk çözümü kullanılır: dar dilbilgisi
@@ -28,8 +29,44 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
     @Volatile private var kapandi = false
     @Volatile private var kayit: AudioRecord? = null
 
+    private fun modelKur(): Boolean {
+        val zip = File("/sdcard/Download/vosk-model-small-tr-0.3.zip")
+        if (!zip.isFile) { Log.w("Sezai", "SOZKESME model zip yok: ${zip.absolutePath}"); return false }
+        Log.i("Sezai", "SOZKESME model zip'ten kuruluyor: ${zip.absolutePath}")
+        try {
+            modelYolu.deleteRecursively()
+            modelYolu.mkdirs()
+            ZipInputStream(zip.inputStream().buffered()).use { zis ->
+                var entry = zis.nextEntry
+                while (entry != null) {
+                    val rel = entry.name.substringAfter("vosk-model-small-tr-0.3/")
+                    if (rel.isNotEmpty()) {
+                        val hedef = File(modelYolu, rel)
+                        if (entry.isDirectory) hedef.mkdirs()
+                        else { hedef.parentFile?.mkdirs(); hedef.outputStream().use { zis.copyTo(it) } }
+                    }
+                    zis.closeEntry()
+                    entry = zis.nextEntry
+                }
+            }
+            val tamam = File(modelYolu, "final.mdl").isFile
+            if (tamam) Log.i("Sezai", "SOZKESME model kuruldu: ${modelYolu.absolutePath}")
+            else Log.w("Sezai", "SOZKESME model zip acildi ama final.mdl bulunamadi")
+            return tamam
+        } catch (e: Exception) {
+            Log.w("Sezai", "SOZKESME model kurulum hatasi: ${e.javaClass.simpleName}: ${e.message}")
+            return false
+        }
+    }
+
     private fun modelHazirla(): Model? {
-        if (model == null && File(modelYolu, "final.mdl").isFile) {
+        if (model == null) {
+            if (!File(modelYolu, "final.mdl").isFile) {
+                if (!modelKur()) {
+                    Log.w("Sezai", "SOZKESME model yok: ${modelYolu.absolutePath} — /sdcard/Download/vosk-model-small-tr-0.3 veya files/ altina kurulmali")
+                    return null
+                }
+            }
             try { LibVosk.vosk_set_log_level(-1); model = Model(modelYolu.absolutePath) }
             catch (e: Exception) { Log.w("Sezai", "SOZKESME model yuklenemedi: ${e.javaClass.simpleName}") }
             catch (e: LinkageError) { Log.w("Sezai", "SOZKESME kutuphane yuklenemedi: ${e.javaClass.simpleName}") }
