@@ -220,7 +220,8 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { b }.also { motorlar.add(it) }
                     check(iste(motor, "Kayseri nüfusu", true) == "Deneme yanıtı. https://example.org/kayseri")
                     val istek = JSONObject(b.giden.toString("UTF-8"))
-                    check(istek.getString("model") == SohbetSaglayici.GROQ.model)
+                    // Web araması llama-3.3-70b-versatile + browser_search ile yapılır.
+                    check(istek.getString("model") == "llama-3.3-70b-versatile")
                     check(istek.getString("tool_choice") == "required")
                     check(istek.getJSONArray("tools").getJSONObject(0).getString("type") == "browser_search")
                     check(!istek.has("citation_options"))
@@ -256,7 +257,9 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     iste(motor, "Kısaltır mısın?")
                     val ilk = JSONObject(baglantilar.first().giden.toString("UTF-8"))
                     val son = JSONObject(baglantilar.last().giden.toString("UTF-8"))
-                    check(ilk.has("tools") && !son.has("tools"))
+                    // Web aramasında llama-3.3-70b-versatile + tools, normal mesajda GROQ.model + tools yok.
+                    check(ilk.getString("model") == "llama-3.3-70b-versatile" && ilk.has("tools"))
+                    check(son.getString("model") == SohbetSaglayici.GROQ.model && !son.has("tools"))
                     check(son.getJSONArray("messages").length() == 4)
                     check(son.getJSONArray("messages").getJSONObject(1).getString("content") == "Kayseri nüfusunu webden araştır")
                 }

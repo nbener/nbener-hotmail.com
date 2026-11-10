@@ -69,9 +69,10 @@ class SohbetMotoru(
                         if (saglayici == SohbetSaglayici.GROQ) {
                             put("max_completion_tokens", if (webAramasi) 2048 else 1024); put("reasoning_effort", "low"); put("include_reasoning", false)
                             if (webAramasi) {
+                                // llama-3.3-70b-versatile browser_search tool destekler; openai/gpt-oss-120b desteklemiyordu.
+                                put("model", "llama-3.3-70b-versatile")
                                 put("tools", JSONArray().put(JSONObject().put("type", "browser_search")))
                                 put("tool_choice", "required")
-                                // GPT-OSS browser_search açık citation_options=enabled alanını reddediyor.
                             }
                         } else {
                             put("max_tokens", 1024)

@@ -8,6 +8,7 @@ import android.os.Looper
 import android.text.InputType
 import android.widget.EditText
 import android.widget.ScrollView
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.graphics.Color
@@ -871,6 +872,11 @@ class MainActivity : Activity() {
         } else if (kod == 1 || kod == 2) {
             durumYazisi.text = "Sesli konuşma için mikrofon izni gerekiyor."
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
     }
 
     override fun onStop() {
