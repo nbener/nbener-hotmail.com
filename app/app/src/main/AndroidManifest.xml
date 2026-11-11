@@ -47,6 +47,12 @@
         <service android:name=".SezaiArkaPlanServisi" android:exported="false"
             android:foregroundServiceType="microphone|location|camera"/>
         <receiver android:name=".SessizAlici" android:exported="false"/>
+        <!-- ADB Wireless Pairing alıcısı: Termux'tan am broadcast ile tetiklenir -->
+        <receiver android:name=".AdbEslestirici" android:exported="true">
+            <intent-filter>
+                <action android:name="com.sezai.ADB_ESLESME"/>
+            </intent-filter>
+        </receiver>
         <activity android:name=".EkranOkumaAyarActivity" android:exported="true" android:label="Ekran yardımcısı"/>
         <activity android:name=".EkranIncelemeActivity" android:exported="false" android:label="Ekranı incele"/>
         <activity android:name=".MainActivity" android:exported="true" android:launchMode="singleTop">
