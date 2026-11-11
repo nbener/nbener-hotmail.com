@@ -17,19 +17,27 @@ apksigner verify --verbose "$APK"
 aapt2 dump badging "$APK" | grep -E "^package"
 sha256sum "$APK"
 if [ "${1:-}" = "kur" ]; then
-  cp "$APK" /sdcard/Download/Sezai-debug.apk
-  echo "APK kopyalandı: /sdcard/Download/Sezai-debug.apk"
-  # Kurulum ekranını aç; başarısız olursa kullanıcıya yönlendirme yap
-  if am start -a android.intent.action.VIEW \
-       -d "file:///sdcard/Download/Sezai-debug.apk" \
-       -t "application/vnd.android.package-archive" \
-       --grant-read-uri-permission 2>/dev/null; then
-    echo "Kurulum ekranı açıldı."
+  SDKART=/sdcard/Download/Sezai-debug.apk
+  cp "$APK" "$SDKART"
+  echo "APK kopyalandı: $SDKART"
+  RISH="$HOME/rish/rish"
+  # Shizuku çalışıyorsa rish ile sessiz kurulum; yoksa GUI yükleyici
+  if RISH_APPLICATION_ID=com.termux "$RISH" -c 'echo ok' >/dev/null 2>&1; then
+    BOY=$(wc -c < "$APK")
+    echo "Rish ile kuruluyor (Shizuku aktif)..."
+    if RISH_APPLICATION_ID=com.termux "$RISH" -c "pm install -r -S $BOY" < "$APK"; then
+      echo "Kuruldu."
+      am start -n com.sezai.assistant/.MainActivity >/dev/null 2>&1 || true
+    else
+      echo "Rish kurulum başarısız. GUI yükleyici açılıyor."
+      termux-open "$SDKART" 2>/dev/null || \
+        am start -a android.intent.action.VIEW -d "file://$SDKART" \
+          -t "application/vnd.android.package-archive" --grant-read-uri-permission 2>/dev/null || true
+    fi
   else
-    echo "Kurulum ekranı açılamadı."
-    echo "İndir klasörünü açıp Sezai-debug.apk dosyasına dokunun."
-    am start -a android.intent.action.VIEW \
-      -d "content://com.android.providers.downloads.documents/document/last_modified" \
-      2>/dev/null || true
+    echo "Shizuku çalışmıyor. GUI yükleyici açılıyor."
+    termux-open "$SDKART" 2>/dev/null || \
+      am start -a android.intent.action.VIEW -d "file://$SDKART" \
+        -t "application/vnd.android.package-archive" --grant-read-uri-permission 2>/dev/null || true
   fi
 fi

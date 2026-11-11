@@ -8,12 +8,12 @@ Hedef kitle: yaşlılar, çocuklar, gençler, aklında çok şey tutamayanlar.
 Proje özeldir, satılacaktır. Asla public yapma, GitHub'a açık depo olarak koyma, kodu dışarı paylaşma.
 
 ## 2. Çalışma ortamı (KESİN KURAL)
-- Her şey sadece Termux içinde, bu telefonda yapılır. Derleme araçları Termux içindeki Ubuntu proot ortamında kuruludur (bu ortam Termux'un içinde çalışır, başka platform değildir). GitHub Actions, bulut derleme, bilgisayar veya başka platform önerme.
+- Her şey sadece Termux içinde, bu telefonda yapılır. GitHub Actions, bulut derleme, bilgisayar veya başka platform önerme.
 - Kod bu telefonda derlenecek, kurulacak, çalıştırılacak ve test edilecek.
-- Derleme araçlarını (java, kotlin, gradle, aapt2, d8, apksigner, adb) Ubuntu proot ortamında kontrol et. Hangisinin çalışıp çalışmadığını tahmin etme, komutla doğrula.
-- Derleme komutu (Termux'tan): `cd ~/sezai && bash build.sh` (proot gerekmez; Java 17 ve Gradle Termux'ta kurulu).
+- Derleme araçları (java 17, gradle 8.10.2, aapt2, zipalign, apksigner) Termux'ta native kurulu; proot gerekmez.
+- Derleme komutu: `cd ~/sezai && bash build.sh` — kurulum için `bash build.sh kur` (Shizuku çalışıyorsa rish ile pm install, yoksa termux-open ile GUI).
 - Derleme yöntemi seçerken ARM/Termux uyumluluğunu önce test et. Çalışmayan yöntemde ısrar etme, hatayı olduğu gibi bildir ve seçenek sun.
-- APK'yı derleyince imzala, termux-open ile kurulum ekranını aç. Test için mümkünse kablosuz adb (localhost) ile logcat oku. Bu mümkün değilse nedenini söyle.
+- Kurulum: Shizuku/rish çalışıyorsa `bash build.sh kur` güvenilir; değilse termux-open GUI açar (kurma ekranında onay gerekir). Test için mümkünse logcat oku.
 
 ## 3. Çalışma kuralları
 1. Önce mevcut projeyi ve kodu analiz et. Mimariyi, teknolojileri, mevcut davranışı anlamadan değişiklik yapma.
