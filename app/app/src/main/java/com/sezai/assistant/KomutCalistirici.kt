@@ -2,6 +2,7 @@ package com.sezai.assistant
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.AlarmClock
 import android.util.Log
 import java.time.LocalDateTime
@@ -19,9 +20,12 @@ class KomutCalistirici(private val context: Context) {
         }
         is Komut.AlarmKur -> alarmKur(komut.saat, komut.dakika)
         is Komut.AlarmIptal -> alarmIptal()
-        is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim, konumunuzu söyleyebilir, " +
-            "kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilir ve sizinle sohbet edebilirim. " +
-            "Sessiz moda geçebilirim. Görünümü, arka plan dinlemeyi ve konuşma sesini değiştirebilirim. Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim: not al deyip notu söyleyin, son notu oku deyin. Açıkça isterseniz internette araştırma da yapabilirim."
+        is Komut.Yardim -> "Saati ve tarihi söyleyebilirim, alarm ve zamanlayıcı kurabilirim. " +
+            "Birini aramanızı sağlarım: 'Annemi ara' veya 'beş yüz elli numarasını ara' deyin. " +
+            "YouTube'da arama yapabilirim: 'YouTube'da şarkı adı ara' deyin. " +
+            "Konumunuzu söyleyebilir, kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilirim. " +
+            "Sessiz moda geçebilirim. Görünümü, arka plan dinlemeyi ve konuşma sesini değiştirebilirim. " +
+            "Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim. Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
         is Komut.NotOku -> NotDefteri(context).son(komut.adet).let { l ->
             if (l.isEmpty()) "Kayıtlı notunuz yok."
@@ -57,6 +61,9 @@ class KomutCalistirici(private val context: Context) {
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)
+        is Komut.AramaYap -> "Arıyorum." // gerçek işi komutVer yapar: kişi arama ve arama başlatma
+        is Komut.YouTubeAra -> youtubeAc(komut.sorgu)
+        is Komut.MuzikCal -> muzikAc(komut.sorgu)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -84,6 +91,24 @@ class KomutCalistirici(private val context: Context) {
         })
         Log.i("Sezai", "ALARM iptal ok=$ok")
         return if (ok) "Sezai alarmlarını iptal ettim." else "Alarmı iptal edemedim."
+    }
+
+    private fun youtubeAc(sorgu: String): String {
+        val temiz = sorgu.trim()
+        if (temiz.isBlank()) return "Ne aramak istediğinizi söyleyin."
+        val ok = baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(temiz)}")))
+        Log.i("Sezai", "YOUTUBE ara='$temiz' ok=$ok")
+        return if (ok) "YouTube'da '$temiz' arıyorum." else "YouTube açılamadı."
+    }
+
+    private fun muzikAc(sorgu: String): String {
+        val temiz = sorgu.trim()
+        if (temiz.isBlank()) return "Ne çalmak istediğinizi söyleyin."
+        // Önce YouTube Music dene, olmazsa YouTube
+        val ok = baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://music.youtube.com/search?q=${Uri.encode(temiz)}")))
+            || baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(temiz)}")))
+        Log.i("Sezai", "MUZIK ara='$temiz' ok=$ok")
+        return if (ok) "Tamam, '$temiz' açıyorum." else "Müzik açılamadı."
     }
 
     private fun zamanlayiciKur(saniye: Int): String {

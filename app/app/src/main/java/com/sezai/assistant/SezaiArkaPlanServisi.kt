@@ -11,9 +11,11 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
 import android.media.AudioManager
+import android.net.Uri
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.provider.ContactsContract
 import android.util.Log
 
 // Kullanıcı düğmeyle açınca "Sezai" sözcüğünü ekran kilitliyken de bekleyen mikrofon ön plan servisi.
@@ -159,6 +161,40 @@ class SezaiArkaPlanServisi : Service() {
             } })
     }
 
+    private fun aramaYap(hedef: String, benim: Int, sonra: () -> Unit) {
+        if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            konus("Arama için telefon izni gerekiyor.", benim) { uyanmayaDon(benim, 1500) }; return
+        }
+        val temizNo = hedef.replace(Regex("[\\s\\-()]"), "")
+        fun ara(numara: String, isim: String) {
+            Log.i("Sezai", "ARKAPLAN ARAMA hedef='$isim' numara='$numara'")
+            val cevap = "$isim arıyorum."
+            SohbetDokumu.ortak.ekle(hedef, cevap)
+            konus(cevap, benim) {
+                try { startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$numara")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) } catch (e: Exception) { Log.w("Sezai", "ARAMA hata: $e") }
+                sonra()
+            }
+        }
+        if (temizNo.matches(Regex("[+0-9]{6,15}"))) { ara(temizNo, hedef); return }
+        val cursor = try {
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ?",
+                arrayOf("%$hedef%"), null
+            )
+        } catch (e: Exception) { null }
+        val (isim, numara) = cursor?.use { c ->
+            if (c.moveToFirst()) c.getString(0) to c.getString(1) else null to null
+        } ?: (null to null)
+        if (numara != null) ara(numara, isim ?: hedef)
+        else {
+            val cevap = "'$hedef' kişisini rehberimde bulamadım."
+            SohbetDokumu.ortak.ekle(hedef, cevap)
+            konus(cevap, benim) { uyanmayaDon(benim, 1500) }
+        }
+    }
+
     // "Kamerayı aç, resim çek / ne görüyorsun": tek kare çek, sağlayıcıya yorumlat, sesle anlat
     private fun kameraBak(on: Boolean, benim: Int, sonra: () -> Unit) {
         val saglayici = SohbetSaglayici.secili(this)
@@ -214,7 +250,9 @@ class SezaiArkaPlanServisi : Service() {
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut !is Komut.Bilinmiyor) {
             val devam = { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
-            if (komut is Komut.Kamera) {
+            if (komut is Komut.AramaYap) {
+                aramaYap(komut.hedef, benim) { devam() }
+            } else if (komut is Komut.Kamera) {
                 kameraBak(komut.on, benim) { devam() }
             } else if (komut is Komut.KonumGoster) {
                 val konum = KonumYardimcisi(this)

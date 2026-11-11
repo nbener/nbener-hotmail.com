@@ -20,6 +20,9 @@ sealed class Komut {
     object KonumGoster : Komut()
     data class Kamera(val on: Boolean) : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
+    data class AramaYap(val hedef: String) : Komut() // isim veya numara
+    data class YouTubeAra(val sorgu: String) : Komut()
+    data class MuzikCal(val sorgu: String) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -118,6 +121,46 @@ object KomutYorumlayici {
             m.contains("resim çek") || m.contains("fotoğraf çek") || m.contains("fotoğrafını çek") ||
             m.contains("ne görüyorsun") || m.contains("etrafımda ne var") || m.contains("karşımda ne var")) {
             return Komut.Kamera(on = m.contains("ön kamera") || m.contains("selfie"))
+        }
+        // YouTube: "YouTube'da ... ara/çal/oynat", "... şarkısını çal"
+        if (m.contains("youtube") || (m.contains("video") && (m.contains("ara") || m.contains("bul") || m.contains("izle")))) {
+            val sorgu = metin.lowercase(trLocale).let { txt ->
+                val prefix = listOf("youtube'da", "youtube da", "youtubeda", "youtube'de", "youtube de").firstOrNull { txt.contains(it) }
+                val after = if (prefix != null) txt.substringAfter(prefix).trim() else txt
+                listOf(" ara", " bul", " izle", " çal", " oyna", " açıp", " aç").fold(after) { s, suf ->
+                    if (s.endsWith(suf)) s.dropLast(suf.length).trim() else s
+                }
+            }.trim()
+            if (sorgu.isNotBlank()) return Komut.YouTubeAra(sorgu)
+        }
+        // Müzik: "... çal/oynat/aç" (YouTube değil, müzik çalar)
+        val muzikFilteri = listOf("kamera", "alarm", "zamanlayıcı", "youtube", "harita", "navigasyon")
+        if (muzikFilteri.none { m.contains(it) }) {
+            val calKelimesi = t.any { it.startsWith("çal") || it.startsWith("oyna") }
+            if (calKelimesi || (m.contains("müzik") && (m.contains("aç") || m.contains("başlat")))) {
+                val sorgu = metin.lowercase(trLocale).let { txt ->
+                    listOf("çal ", "oynat ", "müzik aç").firstOrNull { txt.contains(it) }?.let { pref ->
+                        txt.substringAfter(pref).trim().trimEnd('.')
+                    } ?: if (calKelimesi) {
+                        val idx2 = t.indexOfFirst { it.startsWith("çal") || it.startsWith("oyna") }
+                        t.take(idx2).joinToString(" ").trim()
+                    } else ""
+                }
+                if (sorgu.isNotBlank()) return Komut.MuzikCal(sorgu)
+            }
+        }
+        // Telefon araması: "annemi ara", "0532 123 45 67'yi ara", "Ahmet'i ara"
+        val araIslemi = t.any { it.startsWith("ara") && it.length <= 6 } || m.contains("telefon aç") || m.contains("telefon et")
+        if (araIslemi) {
+            val stopKelimeler = setOf("alarm", "arka", "plan", "sesle", "internette", "webde", "yardım", "müzik", "youtube")
+            if (stopKelimeler.none { m.contains(it) }) {
+                // "... ara" veya "... yı/yi ara" kalıbı: hedef aranan kişi/numara
+                val idx = t.indexOfFirst { it.startsWith("ara") && it.length <= 6 }
+                val hedef = if (idx > 0) {
+                    t.take(idx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e')
+                } else ""
+                if (hedef.isNotBlank()) return Komut.AramaYap(hedef)
+            }
         }
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor

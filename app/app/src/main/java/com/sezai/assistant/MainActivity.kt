@@ -12,7 +12,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.SharedPreferences
 import android.graphics.Color
+import android.net.Uri
 import android.os.Bundle
+import android.provider.ContactsContract
 import android.util.Log
 import android.view.Gravity
 import android.widget.Button
@@ -462,6 +464,53 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun aramaYap(hedef: String) {
+        if (checkSelfPermission(Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            val cevap = "Arama için izin gerekiyor."
+            seslendir(cevap); return
+        }
+        // Hedef sadece rakam/+ içeriyorsa doğrudan numarayı ara
+        val temiz = hedef.replace(Regex("[\\s\\-()]"), "")
+        if (temiz.matches(Regex("[+0-9]{6,15}"))) {
+            Log.i("Sezai", "ARAMA numara='$temiz'")
+            val cevap = "Arıyorum."
+            sohbetDokumu.ekle(hedef, cevap); sohbetYazisiniGoster(); seslendir(cevap)
+            startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$temiz")))
+            return
+        }
+        // İsme göre kişiyi ContentResolver'da ara
+        val cursor = try {
+            contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ?",
+                arrayOf("%$hedef%"), null
+            )
+        } catch (e: Exception) { null }
+        val numara = cursor?.use { c ->
+            if (c.moveToFirst()) c.getString(1) else null
+        }
+        val isim = cursor?.let {
+            val c2 = contentResolver.query(
+                ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "${ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME} LIKE ?",
+                arrayOf("%$hedef%"), null
+            )
+            c2?.use { c -> if (c.moveToFirst()) c.getString(0) else null }
+        }
+        if (numara != null) {
+            Log.i("Sezai", "ARAMA kisi='${isim ?: hedef}' numara='$numara'")
+            val cevap = "${isim ?: hedef}'i arıyorum."
+            sohbetDokumu.ekle(hedef, cevap); sohbetYazisiniGoster(); seslendir(cevap)
+            startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:$numara")))
+        } else {
+            val cevap = "'$hedef' kişisini rehberimde bulamadım."
+            Log.i("Sezai", "ARAMA kisi='$hedef' bulunamadi")
+            sohbetDokumu.ekle(hedef, cevap); sohbetYazisiniGoster(); seslendir(cevap)
+        }
+    }
+
     private fun ekraniIncele() {
         sohbetDuraklat()
         val metin = EkranOkuyucuServisi.disEkranMetni()
@@ -491,6 +540,7 @@ class MainActivity : Activity() {
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
+        if (komut is Komut.AramaYap) { aramaYap(komut.hedef); return }
         if (komut is Komut.Sessiz && komut.ac) {
             sessizOnayBekliyor = true
             Log.i("Sezai", "KOMUT sessiz mod onay istendi")

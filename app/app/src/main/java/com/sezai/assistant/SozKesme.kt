@@ -115,6 +115,7 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
         var tepe = 0
         var tanimaVar = false
         var susturuldu = false
+        var cikisSebebi = "bilinmiyor"
         try {
             tanici = Recognizer(m, 16000f)
             val enAz = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
@@ -125,7 +126,10 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             if (AcousticEchoCanceler.isAvailable()) aec = AcousticEchoCanceler.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             if (NoiseSuppressor.isAvailable()) gurultu = NoiseSuppressor.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             val ses = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
-            if (kapandi || benim != nesil.get() || ses.mode != android.media.AudioManager.MODE_NORMAL) return
+            if (kapandi || benim != nesil.get() || ses.mode != android.media.AudioManager.MODE_NORMAL) {
+                cikisSebebi = if (kapandi) "kapandi" else if (benim != nesil.get()) "nesil_degisti_onceden" else "mod_normal_degil(${ses.mode})"
+                return
+            }
             kayit = mikrofon
             mikrofon.startRecording()
             check(mikrofon.recordingState == AudioRecord.RECORDSTATE_RECORDING) { "KAYIT" }
@@ -135,8 +139,8 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             var tur = 0
             while (!kapandi && benim == nesil.get()) {
                 val n = mikrofon.read(veri, 0, veri.size)
-                if (n <= 0) break
-                if (kapandi || benim != nesil.get()) break
+                if (n <= 0) { cikisSebebi = "okuma_bitti(n=$n)"; break }
+                if (kapandi || benim != nesil.get()) { cikisSebebi = if (kapandi) "kapandi_dongude" else "nesil_degisti_dongude"; break }
                 ornek += n
                 for (i in 0 until n) {
                     val v = veri[i].toInt()
@@ -144,14 +148,16 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                     tepe = maxOf(tepe, kotlin.math.abs(v))
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 29 && mikrofon.activeRecordingConfiguration?.isClientSilenced == true) susturuldu = true
-                if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) break
+                if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) { cikisSebebi = "mod_normal_degil_dongude(${ses.mode})"; break }
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
                 if (metin.isNotBlank()) tanimaVar = true
                 val kelimeler = metin.split(' ')
-                if ("dur" in kelimeler || "sezai" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; break }
+                if ("dur" in kelimeler || "sezai" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi"; break }
             }
+            if (cikisSebebi == "bilinmiyor") cikisSebebi = if (kapandi) "kapandi_son" else if (benim != nesil.get()) "nesil_degisti_son" else "dongu_bitti"
         } catch (e: Exception) {
+            cikisSebebi = "hata:${e.javaClass.simpleName}"
             Log.w("Sezai", "SOZKESME hata: ${e.javaClass.simpleName}")
         } catch (e: LinkageError) {
             Log.w("Sezai", "SOZKESME kutuphane hata: ${e.javaClass.simpleName}")
@@ -160,7 +166,7 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             try { mikrofon?.stop() } catch (_: RuntimeException) {}
             aec?.release(); gurultu?.release(); mikrofon?.release(); tanici?.close()
             val rms = if (ornek > 0) kotlin.math.sqrt(enerji / ornek).toInt() else 0
-            Log.i("Sezai", "SOZKESME olcum ornek=$ornek rms=$rms tepe=$tepe tanima=$tanimaVar susturuldu=$susturuldu")
+            Log.i("Sezai", "SOZKESME olcum ornek=$ornek rms=$rms tepe=$tepe tanima=$tanimaVar susturuldu=$susturuldu sebep=$cikisSebebi")
             Log.i("Sezai", "SOZKESME kaynaklar birakildi")
             if (duyuldu) anaIs.post {
                 if (!kapandi && benim == nesil.get()) {
