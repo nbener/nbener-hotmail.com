@@ -24,6 +24,7 @@ sealed class Komut {
     data class YouTubeAra(val sorgu: String) : Komut()
     data class MuzikCal(val sorgu: String) : Komut()
     data class FenerAyar(val ac: Boolean) : Komut()
+    data class MesajOku(val adet: Int = 3) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -166,8 +167,15 @@ object KomutYorumlayici {
         // Fener: "feneri aç/kapat", "el feneri aç"
         val fenerVar = m.contains("fener") || m.contains("el feneri") || m.contains("torch") || m.contains("ışık aç") || m.contains("ışığı aç")
         if (fenerVar) {
-            val kapat = m.contains("kapat") || m.contains("kaldır") || m.contains("söndür") || m.contains("kapat")
+            val kapat = m.contains("kapat") || m.contains("kaldır") || m.contains("söndür")
             return Komut.FenerAyar(!kapat)
+        }
+        // SMS okuma: "son mesajlarımı oku", "mesajlarımı oku"
+        val mesajKelimesi = t.any { it.startsWith("mesaj") || it.startsWith("sms") }
+        if (mesajKelimesi && (m.contains("oku") || m.contains("söyle") || m.contains("dinlet") || m.contains("var mı") || m.contains("kaç") || m.contains("ne"))) {
+            val sonIdx = t.indexOf("son")
+            val sayi = if (sonIdx >= 0 && sonIdx + 1 < t.size) sayiOku(t, sonIdx + 1)?.first else null
+            return Komut.MesajOku(sayi?.coerceIn(1, 10) ?: 3)
         }
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor

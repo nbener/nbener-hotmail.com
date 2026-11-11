@@ -65,6 +65,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.YouTubeAra -> youtubeAc(komut.sorgu)
         is Komut.MuzikCal -> muzikAc(komut.sorgu)
         is Komut.FenerAyar -> fenerAyarla(komut.ac)
+        is Komut.MesajOku -> mesajlariOku(komut.adet)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -92,6 +93,30 @@ class KomutCalistirici(private val context: Context) {
         })
         Log.i("Sezai", "ALARM iptal ok=$ok")
         return if (ok) "Sezai alarmlarını iptal ettim." else "Alarmı iptal edemedim."
+    }
+
+    private fun mesajlariOku(adet: Int): String {
+        return try {
+            val izin = context.checkSelfPermission(android.Manifest.permission.READ_SMS)
+            if (izin != android.content.pm.PackageManager.PERMISSION_GRANTED) return "SMS okumak için izin gerekiyor."
+            val cursor = context.contentResolver.query(
+                android.net.Uri.parse("content://sms/inbox"),
+                arrayOf("address", "body", "date"),
+                null, null, "date DESC LIMIT $adet"
+            ) ?: return "Mesaj okunamadı."
+            val sonuclar = mutableListOf<String>()
+            cursor.use { c ->
+                while (c.moveToNext() && sonuclar.size < adet) {
+                    val gonderen = c.getString(0) ?: "bilinmiyor"
+                    val icerik = c.getString(1)?.take(150) ?: ""
+                    sonuclar.add("$gonderen: $icerik")
+                }
+            }
+            Log.i("Sezai", "MESAJ oku adet=${sonuclar.size}")
+            if (sonuclar.isEmpty()) "Yeni mesajınız yok."
+            else if (sonuclar.size == 1) "Son mesaj, ${sonuclar[0]}"
+            else "Son ${sonuclar.size} mesaj. " + sonuclar.mapIndexed { i, s -> "${i + 1}. $s" }.joinToString(". ")
+        } catch (e: Exception) { Log.w("Sezai", "MESAJ hata: $e"); "Mesajları okuyamadım." }
     }
 
     private fun fenerAyarla(ac: Boolean): String {
