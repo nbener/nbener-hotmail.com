@@ -64,6 +64,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.AramaYap -> "Arıyorum." // gerçek işi komutVer yapar: kişi arama ve arama başlatma
         is Komut.YouTubeAra -> youtubeAc(komut.sorgu)
         is Komut.MuzikCal -> muzikAc(komut.sorgu)
+        is Komut.FenerAyar -> fenerAyarla(komut.ac)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -91,6 +92,17 @@ class KomutCalistirici(private val context: Context) {
         })
         Log.i("Sezai", "ALARM iptal ok=$ok")
         return if (ok) "Sezai alarmlarını iptal ettim." else "Alarmı iptal edemedim."
+    }
+
+    private fun fenerAyarla(ac: Boolean): String {
+        return try {
+            val cm = context.getSystemService(Context.CAMERA_SERVICE) as android.hardware.camera2.CameraManager
+            val id = cm.cameraIdList.firstOrNull { cm.getCameraCharacteristics(it)
+                .get(android.hardware.camera2.CameraCharacteristics.FLASH_INFO_AVAILABLE) == true } ?: return "Bu cihazda fener desteklenmiyor."
+            cm.setTorchMode(id, ac)
+            Log.i("Sezai", "FENER ac=$ac id=$id")
+            if (ac) "Feneri açtım." else "Feneri kapattım."
+        } catch (e: Exception) { Log.w("Sezai", "FENER hata: $e"); "Feneri değiştiremedim." }
     }
 
     private fun youtubeAc(sorgu: String): String {

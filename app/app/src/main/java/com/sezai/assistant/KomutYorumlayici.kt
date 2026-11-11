@@ -23,6 +23,7 @@ sealed class Komut {
     data class AramaYap(val hedef: String) : Komut() // isim veya numara
     data class YouTubeAra(val sorgu: String) : Komut()
     data class MuzikCal(val sorgu: String) : Komut()
+    data class FenerAyar(val ac: Boolean) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -161,6 +162,12 @@ object KomutYorumlayici {
                 } else ""
                 if (hedef.isNotBlank()) return Komut.AramaYap(hedef)
             }
+        }
+        // Fener: "feneri aç/kapat", "el feneri aç"
+        val fenerVar = m.contains("fener") || m.contains("el feneri") || m.contains("torch") || m.contains("ışık aç") || m.contains("ışığı aç")
+        if (fenerVar) {
+            val kapat = m.contains("kapat") || m.contains("kaldır") || m.contains("söndür") || m.contains("kapat")
+            return Komut.FenerAyar(!kapat)
         }
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor
