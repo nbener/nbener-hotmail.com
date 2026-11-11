@@ -643,3 +643,26 @@ Yedek yedek/soz-kesme-servis-oncesi-20261031.tar.gz. Kullanıcı gece-gündüz s
 - [ ] Sessiz mod kendiliğinden true olma nedeni bilinmiyor.
 - [ ] STT hata kodu=7 nedeni açık.
 - [ ] Gerçek sesli sohbet / canlı API / gerçek telefon görüşmesi kabul testi yapılmadı.
+
+
+## 12.11.2026 — Uyku oturumu: yeni özellikler tamamlandı
+
+- [x] Web araması Groq fix: model override ve reasoning_effort kaldırıldı → gpt-oss-120b düzgün çalışır
+- [x] AramaYap komutu: ContactsContract isim arama + ACTION_CALL (MainActivity + SezaiArkaPlanServisi)
+- [x] YouTubeAra komutu: "YouTube'da X ara" → youtube.com
+- [x] MuzikCal komutu: YouTube Music önce, YouTube fallback
+- [x] FenerAyar komutu: CameraManager.setTorchMode
+- [x] MesajOku komutu: content://sms/inbox ContentResolver
+- [x] NavigasyonBaslat komutu: google.navigation:q= + Maps fallback
+- [x] PARTIAL_WAKE_LOCK: SezaiArkaPlanServisi CPU uyanık tut (ekran kapalıyken mikrofon)
+- [x] BaslangicAlici: yeniden başlatmada arka plan servisi otomatik başlatma
+- [x] onNewIntent: oto/komut extra'ları artık uygulama açıkken de işleniyor
+- [x] Derleme başarılı: b311c787..., GitHub'a push edildi (654ece3)
+
+### Hâlâ açık
+- [ ] Shizuku çalışmıyor → APK kurulu DEĞİL (kullanıcı uyandığında kurmalı)
+- [ ] SOZKESME cihaz testi: cikisSebebi logu eklendi, test bekliyor
+- [ ] MesajOku kilitliyken politika: servis kilitliyken SMS okuma kısıtlaması gözden geçirilecek
+- [ ] Söz kesme (dur/Sezai): insan sesiyle hâlâ başarısız
+- [ ] Sessiz mod kendiliğinden true olma nedeni bilinmiyor
+- [ ] STT hata kodu=7 nedeni açık

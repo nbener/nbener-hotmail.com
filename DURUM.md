@@ -1148,3 +1148,51 @@ Son güncelleme: 2026-10-29
 - Shizuku'yu başlatırsa: `bash build.sh kur` ile sessiz kurulum.
 - Uygulama açılınca Vosk ZIP otomatik kurulacak; logcat'te "SOZKESME basladi" görünmeli.
 - Söz kesme "dur"/"Sezai" insan testi: BAŞARISIZ/açık.
+
+
+## 12.11.2026 — uyku oturumu: yeni özellikler, navigasyon, web araması düzeltmesi
+
+### Bu oturumda yapılanlar
+
+**Web araması Groq fix (SohbetMotoru.kt)**
+- Hata: model override `llama-3.3-70b-versatile` → `model_not_found` (browser_search yalnızca gpt-oss modellerinde)
+- Çözüm: model override kaldırıldı (temel model `openai/gpt-oss-120b` korundu), `reasoning_effort`/`include_reasoning` parametreleri kaldırıldı (gpt-oss desteklemiyor), `max_completion_tokens` eklendi
+
+**Yeni komutlar (KomutYorumlayici.kt + KomutCalistirici.kt)**
+- `AramaYap(hedef)`: "annemi ara", "0532... numarasını ara" → ContactsContract + ACTION_CALL
+- `YouTubeAra(sorgu)`: "YouTube'da X ara" → youtube.com/results
+- `MuzikCal(sorgu)`: "X çal/oynat" → YouTube Music önce, YouTube fallback
+- `FenerAyar(ac)`: "feneri aç/kapat" → CameraManager.setTorchMode()
+- `MesajOku(adet)`: "son mesajlarımı oku" → content://sms/inbox
+- `NavigasyonBaslat(hedef)`: "Kadıköy'e git" → google.navigation:q= + Maps fallback
+
+**MainActivity.kt**
+- `onNewIntent()` güncellendi: `oto` ve `komut` extra'ları artık uygulama açıkken de işleniyor
+- `aramaYap()` fonksiyonu eklendi (ContactsContract isim araması + ACTION_CALL)
+
+**SezaiArkaPlanServisi.kt**
+- PARTIAL_WAKE_LOCK eklendi (ekran kapalıyken CPU uyanık → mikrofon çalışır)
+- `aramaYap()` arka plan servisine eklendi
+
+**BaslangicAlici.kt** (YENİ)
+- Telefon yeniden başlayınca veya APK güncellenince arka plan servisi otomatik başlar
+- Yalnız kullanıcı daha önce "arka planda dinle" açmışsa devreye girer
+
+**AndroidManifest.xml**
+- WAKE_LOCK, RECEIVE_BOOT_COMPLETED izinleri eklendi
+- BaslangicAlici receiver eklendi
+
+**KomutYorumlayici.kt hata düzeltmeleri**
+- Curly quote `'` → `\u2019` (Kotlin char literal hatası)
+- YouTube araması, telefon aramasından ÖNCE kontrol ediliyor (sıra çakışması çözüldü)
+
+### Derleme
+- `bash build.sh` → apksigner v2=true; SHA256: b311c787aeb848077d2ab66a7d7dec0b4f05ebf400e0db94a91ea8f9466f70a8
+- `/sdcard/Download/Sezai-debug.apk` güncellendi
+- Commit: 654ece3 (sessiz-eslesme-tam-kelime dalında)
+- GitHub: ddf600f..654ece3 → claude/sezai-voice-assistant-7wtvse
+
+### Bekleyen
+- Shizuku çalışmıyor → APK telefonda kurulu DEĞİL, kullanıcı açıkça kurmalı
+- SOZKESME çıkış sebebi: `cikisSebebi` logu eklendi (bir önceki oturumda), cihazda test bekliyor
+- MesajOku: servis kilitliyken kişisel veri okuma politikası — ayrıca gözden geçirilecek

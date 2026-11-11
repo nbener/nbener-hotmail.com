@@ -700,3 +700,20 @@ Gerçek telefon/WhatsApp kabul testi, kullanıcıyla uygun zamanda yapılmalı. 
 Önceki 1/23 yorumlama başarısızlığı: test betiği `sh` ile `am start` kullanıyordu; Android 12 arka plan kısıtı Activity'yi öne getirmiyor. `rish` kullanımına geçilince 23/23 PASS oldu. APK'da sorun yoktu.
 
 Hâlâ açık kabuller: söz kesme (dur/Sezai) insan sesi BAŞARISIZ; gerçek sesli sohbet/canlı API; gerçek telefon görüşmesi.
+
+
+## 12.11.2026 — uyku oturumu derleme doğrulaması
+
+| Alan | Sonuç | Not |
+| --- | --- | --- |
+| Derleme | PASS | SHA256 b311c787…, v2 imza doğrulandı |
+| Yeni komutlar | Kaynak derlenebilir, cihazda KURULMADı | Shizuku çalışmıyor; kullanıcı uyandığında kurulum gerekli |
+| Web araması fix | Kaynak değişti; canlı Groq testi yok | gpt-oss-120b model override kaldırıldı |
+| NavigasyonBaslat | Derlendi; google.navigation intent testi yok | Kullanıcı cihazda test edecek |
+| AramaYap | Derlendi; gerçek arama yok | ContactsContract + ACTION_CALL |
+| FenerAyar | Derlendi; kamera erişimi cihazda test edilmedi | CameraManager.setTorchMode |
+| MesajOku | Derlendi; READ_SMS izni ve cursor testi yok | Kilitliyken kısıtlama gözden geçirilecek |
+| BaslangicAlici | Derlendi; boot testi yok | Telefon yeniden başlatıldığında doğrulanacak |
+| PARTIAL_WAKE_LOCK | Derlendi; pil etkisi ölçülmedi | 8 saat maks., onDestroy'da bırakılıyor |
+
+Cihazda kurulum yapılmadığından bu oturumun hiçbir özelliği cihazda doğrulanmış sayılmaz. APK /sdcard/Download/Sezai-debug.apk adresinde hazır.
