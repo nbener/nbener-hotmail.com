@@ -281,7 +281,8 @@ class MainActivity : Activity() {
         arkaPlanYazisi()
         arkaPlanDugmesi.setOnClickListener {
             val ac = !arkaPlanAyariAcik()
-            sesAyari.edit().putBoolean("arka_plan", ac).apply()
+            sesAyari.edit().putBoolean("arka_plan", ac)
+                .putBoolean("arka_plan_kullanici_kapatti", !ac).apply()
             if (ac) arkaPlanBaslat() else SezaiArkaPlanServisi.durdur(this)
             arkaPlanYazisi(); uyanmaGuncelle()
             durumYazisi.text = if (ac) "Kilitliyken de Sezai deyince yanıt veririm. Bildirimde mikrofon açık görünür."
@@ -388,7 +389,7 @@ class MainActivity : Activity() {
 
     // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
     private fun uyanmaAyariAcik() = sesAyari.getBoolean("uyanma", true)
-    private fun arkaPlanAyariAcik() = sesAyari.getBoolean("arka_plan", false)
+    private fun arkaPlanAyariAcik() = sesAyari.getBoolean("arka_plan", true)
     private fun arkaPlanBaslat() {
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(arrayOf(Manifest.permission.RECORD_AUDIO), 1); return
@@ -786,6 +787,9 @@ class MainActivity : Activity() {
         sesAyari.registerOnSharedPreferenceChangeListener(sesDinleyici)
         getSharedPreferences("gorunum", MODE_PRIVATE).registerOnSharedPreferenceChangeListener(gorunumDinleyici)
         sessizYazisiGuncelle()
+        // Model kuruluysa arka planı etkinleştir; kullanıcı daha önce kapatmışsa koru
+        if (uyanma.modelVarMi() && !sesAyari.getBoolean("arka_plan_kullanici_kapatti", false))
+            sesAyari.edit().putBoolean("arka_plan", true).apply()
         // Ön planda tek mikrofon sahibi Activity; arka plan servisiyle çift dinlemeyi önler.
         if (SezaiArkaPlanServisi.calisiyor) {
             SezaiArkaPlanServisi.durdur(this) // arka_plan tercihini değiştirmez

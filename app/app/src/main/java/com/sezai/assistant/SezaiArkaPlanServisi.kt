@@ -56,7 +56,8 @@ class SezaiArkaPlanServisi : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == DURDUR) {
             // Kullanıcı kapattı: bir sonraki uygulama açılışında kendiliğinden yeniden başlamasın.
-            getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", false).apply()
+            getSharedPreferences("ses_ayari", MODE_PRIVATE).edit()
+                .putBoolean("arka_plan", false).putBoolean("arka_plan_kullanici_kapatti", true).apply()
             stopSelf(); return START_NOT_STICKY
         }
         if (BildirimKumanda.sessizMi(this)) {
@@ -65,7 +66,7 @@ class SezaiArkaPlanServisi : Service() {
             stopForeground(STOP_FOREGROUND_REMOVE); stopSelf(); return START_NOT_STICKY
         }
         if (intent?.action == ACIK_ISTEK) getSharedPreferences("ses_ayari", MODE_PRIVATE).edit().putBoolean("arka_plan", true).apply()
-        if (calisiyor) return START_NOT_STICKY
+        if (calisiyor) return START_STICKY
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             Log.w("Sezai", "ARKAPLAN mikrofon izni yok"); stopSelf(); return START_NOT_STICKY
         }
@@ -95,7 +96,7 @@ class SezaiArkaPlanServisi : Service() {
         uyanma = SezaiUyanma(this) { sezaiDendi() }
         uyanma?.baslat()
         Log.i("Sezai", "ARKAPLAN servis basladi")
-        return START_NOT_STICKY
+        return START_STICKY
     }
 
     private fun sezaiDendi() {
