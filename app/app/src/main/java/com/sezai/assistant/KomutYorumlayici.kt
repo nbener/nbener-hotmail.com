@@ -161,7 +161,11 @@ object KomutYorumlayici {
                 val idx = t.indexOfFirst { it.startsWith("ara") && it.length <= 6 }
                 val hedef = if (idx > 0) {
                     t.take(idx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e')
-                } else ""
+                } else {
+                    // "telefon aç/et" ile tetiklendi; "telefon" öncesindeki sözcükler hedef
+                    val telIdx = t.indexOf("telefon")
+                    if (telIdx > 0) t.take(telIdx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e') else ""
+                }
                 if (hedef.isNotBlank()) return Komut.AramaYap(hedef)
             }
         }

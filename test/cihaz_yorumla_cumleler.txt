@@ -18,3 +18,9 @@ bana bir fıkra anlat|Bilinmiyor
 konumumu göster|KonumGoster
 neredeyim|KonumGoster
 Kayseri nin konumu nedir|Bilinmiyor
+annemi ara|AramaYap(hedef=anne)
+YouTube'da Tarkan ara|YouTubeAra(sorgu=Tarkan)
+Tarkan Şımarık çal|MuzikCal(sorgu=Tarkan Şımarık)
+feneri aç|FenerAyar(ac=true)
+mesajlarımı oku|MesajOku(adet=3)
+Kadıköy'e git|NavigasyonBaslat(hedef=kadıköy)

@@ -201,3 +201,16 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - Kullanıcı taşıma sonucunun MD dosyalarında açıkça bildirilmesini istedi. SD karta TAM YEDEK ALINDI; etkin geliştirme klasörü TAŞINMADI. Çalışmaya Termux ~/sezai içinde devam edilir. SD karttaki tar.gz bir çalışma deposu değildir.
 - Arşiv: /storage/1AA3-3380/Android/data/com.termux/files/Sezai-yedek/sezai-20261106-150338.tar.gz (517414689 bayt). Kaynakla tar --compare doğrulaması başarılı. Kartta çalıştırma ve sembolik bağlantı testleri Permission denied verdi. Kaynaklar ve yerel yedekler silinmedi.
 - Önceki kayıt commit e8f287c, yetkili özel deponun claude/sezai-voice-assistant-7wtvse dalına başarıyla gönderildi. Uygulama kodu bu işlemde değiştirilmedi; mevcut commit edilmemiş KomutYorumlayici.kt değişikliğine dokunulmadı.
+
+
+## 12.11.2026 — uyku oturumu yeni özellikler (tamamlandı)
+- [x] Web araması Groq HTTP 404 / model_not_found hatası düzeltildi. gpt-oss-120b model override korundu, llama-3.3-70b-versatile kaldırıldı.
+- [x] "annemi ara" / "0532 123 ara" → AramaYap komutu: ContactsContract + ACTION_CALL
+- [x] "YouTube'da X ara" → YouTubeAra komutu
+- [x] "X çal / oynat" → MuzikCal komutu (YouTube Music önce)
+- [x] "feneri aç/kapat" → FenerAyar komutu
+- [x] "son mesajlarımı oku" → MesajOku komutu
+- [x] "Kadıköy'e git / yol tarifi ver" → NavigasyonBaslat komutu (google.navigation + Maps fallback)
+- [x] Ekran kapalıyken mikrofon: PARTIAL_WAKE_LOCK eklendi
+- [x] Telefon yeniden başlayınca arka plan servisi otomatik başlar: BaslangicAlici eklendi
+- [x] onNewIntent: oto/komut extra'ları artık uygulama açıkken de işleniyor
