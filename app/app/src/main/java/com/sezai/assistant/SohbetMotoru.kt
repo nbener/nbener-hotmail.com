@@ -50,7 +50,9 @@ class SohbetMotoru(
                 val anahtar = try { kasa.oku() } catch (_: Exception) {
                     throw SohbetHatasi("Bağlantı anahtarı okunamadı. Sohbet bağlantısından yeniden kaydedin.")
                 }
-                if (anahtar.isNullOrBlank()) throw SohbetHatasi("Önce Sohbet bağlantısı bölümünden API anahtarını girin.")
+                // Algion ücretsiz; anahtar girilmemişse "free" ile çalışır.
+                val anahtarSon = if (anahtar.isNullOrBlank() && saglayici == SohbetSaglayici.ALGION) "free" else anahtar
+                if (anahtarSon.isNullOrBlank()) throw SohbetHatasi("Önce Sohbet bağlantısı bölümünden API anahtarını girin.")
                 val girdi = JSONArray()
                 synchronized(gecmis) {
                     gecmis.takeLast(8).forEach { (rol, yazi) -> girdi.put(JSONObject().put("role", rol).put("content", yazi)) }
@@ -91,7 +93,7 @@ class SohbetMotoru(
                 b.readTimeout = 45000
                 b.instanceFollowRedirects = false
                 b.doOutput = true
-                b.setRequestProperty("Authorization", "Bearer $anahtar")
+                b.setRequestProperty("Authorization", "Bearer $anahtarSon")
                 b.setRequestProperty("Content-Type", "application/json; charset=utf-8")
                 b.outputStream.use { it.write(istek.toString().toByteArray(Charsets.UTF_8)) }
                 when (val kod = b.responseCode) {
@@ -109,7 +111,7 @@ class SohbetMotoru(
                             }
                             sinirli.toString()
                         } ?: "" } catch (_: Exception) { "" }
-                        testHataTanisi?.invoke(ham.replace(anahtar, "[GİZLİ]").take(2000))
+                        testHataTanisi?.invoke(ham.replace(anahtarSon ?: "", "[GİZLİ]").take(2000))
                         val parametreler = listOf("citation_options", "tool_choice", "browser_search", "include_reasoning", "reasoning_effort", "model")
                             .filter { ham.contains(it) }.joinToString(", ")
                         val hataKodu = try { JSONObject(ham).optJSONObject("error")?.optString("code") } catch (_: Exception) { null }

@@ -30,8 +30,8 @@ enum class SohbetSaglayici(
         fun secili(context: Context): SohbetSaglayici {
             val ad = context.getSharedPreferences("sohbet_hizmeti", Context.MODE_PRIVATE).getString("saglayici", null)
             entries.firstOrNull { it.name == ad }?.let { return it }
-            // Eski OpenAI anahtarı varsa aynen koru; yeni kurulum ücretsiz kotalı Groq ile başlar.
-            return if (context.getSharedPreferences("sohbet_ayarlari", Context.MODE_PRIVATE).contains("veri")) OPENAI else GROQ
+            // Eski OpenAI anahtarı varsa aynen koru; yeni kurulum anahtar gerektirmeyen Algion ile başlar.
+            return if (context.getSharedPreferences("sohbet_ayarlari", Context.MODE_PRIVATE).contains("veri")) OPENAI else ALGION
         }
     }
 }

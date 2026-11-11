@@ -6,27 +6,27 @@ import android.content.Intent
 import android.util.Log
 
 /**
- * ADB Wireless Pairing BroadcastReceiver.
+ * ADB Wireless Pairing ve uzaktan ayar BroadcastReceiver.
  *
- * Termux veya başka bir yerel uygulama şu şekilde tetikler:
- *   am broadcast -a com.sezai.ADB_ESLESME \
- *     --es host "192.168.1.x" \
- *     --ei port 12345 \
- *     --es pin "123456"
+ * ADB pairing:
+ *   am broadcast -a com.sezai.ADB_ESLESME --es host "192.168.1.x" --ei port 12345 --es pin "123456"
  *
- * Sonuç logcat'te "Sezai" etiketiyle görünür:
- *   ADB_PAIR BASARILI: 192.168.1.x:12345
- *   ADB_PAIR BASARISIZ: ...
- *   ADB_PAIR HATA: ...
+ * Sağlayıcı seç (GROQ/GEMINI/OPENROUTER/OPENAI/ALGION):
+ *   am broadcast -a com.sezai.AYAR_SET --es saglayici ALGION
+ *
+ * API anahtarı kaydet:
+ *   am broadcast -a com.sezai.AYAR_SET --es saglayici ALGION --es anahtar "free"
  */
 class AdbEslestirici : BroadcastReceiver() {
 
     companion object {
         private const val ETIKET = "Sezai"
         const val EYLEM = "com.sezai.ADB_ESLESME"
+        const val AYAR_EYLEM = "com.sezai.AYAR_SET"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        if (intent.action == AYAR_EYLEM) { ayarla(context, intent); return }
         if (intent.action != EYLEM) return
 
         // Intent extras'tan bağlantı bilgilerini al
@@ -52,9 +52,23 @@ class AdbEslestirici : BroadcastReceiver() {
 
         // Eşleştirmeyi arka planda başlat (AdbEslestirme kendi thread'ini açar)
         AdbEslestirme.eslestir(host, port, pin) { basarili, mesaj ->
-            // Sonuç zaten AdbEslestirme içinde logcat'e yazılıyor.
-            // Buraya ek işlem (bildirim, intent yayını vb.) eklenebilir.
             Log.i(ETIKET, "ADB_PAIR sonuç: basarili=$basarili mesaj=$mesaj")
+        }
+    }
+
+    private fun ayarla(context: Context, intent: Intent) {
+        val saglayiciAdi = intent.getStringExtra("saglayici") ?: return
+        val saglayici = try { SohbetSaglayici.valueOf(saglayiciAdi) } catch (_: Exception) {
+            Log.w(ETIKET, "AYAR_SET bilinmeyen sağlayıcı: $saglayiciAdi"); return
+        }
+        saglayici.sec(context)
+        Log.i(ETIKET, "AYAR_SET saglayici=$saglayiciAdi")
+        val anahtar = intent.getStringExtra("anahtar") ?: return
+        try {
+            AnahtarKasasi(context, saglayici.kasaAdi).kaydet(anahtar)
+            Log.i(ETIKET, "AYAR_SET anahtar kaydedildi saglayici=$saglayiciAdi uzunluk=${anahtar.length}")
+        } catch (e: Exception) {
+            Log.w(ETIKET, "AYAR_SET anahtar kaydedilemedi: $e")
         }
     }
 }

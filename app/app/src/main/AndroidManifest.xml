@@ -49,10 +49,11 @@
         <service android:name=".SezaiArkaPlanServisi" android:exported="false"
             android:foregroundServiceType="microphone|location|camera"/>
         <receiver android:name=".SessizAlici" android:exported="false"/>
-        <!-- ADB Wireless Pairing alıcısı: Termux'tan am broadcast ile tetiklenir -->
+        <!-- ADB Wireless Pairing ve uzaktan ayar alıcısı: Termux'tan am broadcast ile tetiklenir -->
         <receiver android:name=".AdbEslestirici" android:exported="true">
             <intent-filter>
                 <action android:name="com.sezai.ADB_ESLESME"/>
+                <action android:name="com.sezai.AYAR_SET"/>
             </intent-filter>
         </receiver>
         <receiver android:name=".BaslangicAlici" android:exported="true">
