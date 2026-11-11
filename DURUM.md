@@ -1128,3 +1128,23 @@ Son güncelleme: 2026-10-29
 - Shizuku'yu başlat → `bash build.sh kur` ile kurulum yap.
 - Vosk ZIP /sdcard/Download'da mevcut (SHA256 doğru); uygulama açılınca otomatik kuruyor.
 - Söz kesme: model kurulunca "SOZKESME basladi" logunu doğrula; "dur"/"Sezai" testiyle cihazda kabul et.
+
+
+## 12.11.2026 — oturum başlangıcı, ADB pairing commit, derleme
+
+### Oturum okumalar
+- CLAUDE.md, DURUM.md, KALAN_ISLER.md, TEST_DURUMU.md, KULLANICI_ISTEKLERI.md, ACIK_KAYNAK_ARASTIRMASI.md okundu.
+
+### ADB pairing commit
+- Commit edilmemiş AdbEslestirici.kt, AdbEslestirme.kt, scripts/adb_pair.py ve AndroidManifest.xml değişiklikleri commit edildi (c32639a). Bu kodlar önceki oturumda Termux adb BoringSSL uyumsuzluğunu aşmak için eklenmişti.
+
+### Derleme / sessiz testler
+- `bash build.sh` çıkış 0; apksigner v2=true; SHA256: 60498ede0e3c793a0ca042215aedf571eb8200b4f61c82cef35028e025a7f948
+- Dinleme 9/9, görüşme 8/8, sohbet 31/31 PASS (48/48).
+- Shizuku çalışmıyor; `bash build.sh kur` GUI yükleyici açtı — telefonda onay gerekiyor.
+
+### Bekleyen
+- Kullanıcı telefonda APK kurulum onayını tıklasın (GUI yükleyici açık).
+- Shizuku'yu başlatırsa: `bash build.sh kur` ile sessiz kurulum.
+- Uygulama açılınca Vosk ZIP otomatik kurulacak; logcat'te "SOZKESME basladi" görünmeli.
+- Söz kesme "dur"/"Sezai" insan testi: BAŞARISIZ/açık.
