@@ -25,6 +25,7 @@ sealed class Komut {
     data class MuzikCal(val sorgu: String) : Komut()
     data class FenerAyar(val ac: Boolean) : Komut()
     data class MesajOku(val adet: Int = 3) : Komut()
+    data class NavigasyonBaslat(val hedef: String) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -163,6 +164,20 @@ object KomutYorumlayici {
                 } else ""
                 if (hedef.isNotBlank()) return Komut.AramaYap(hedef)
             }
+        }
+        // Navigasyon: "Kadıköy'e git", "navigasyonu başlat ... için"
+        val navigasyonVar = m.contains("navigasyon") || m.contains("haritalar") ||
+            (t.any { it.startsWith("git") } && !m.contains("youtube") && !m.contains("aç")) ||
+            Regex("\\b(yol tarifi|yol bul|rota)\\b").containsMatchIn(m)
+        if (navigasyonVar) {
+            val hedefTemizle: (String) -> String = { txt ->
+                listOf("navigasyonu başlat", "navigasyona gir", "haritalar", "yol tarifi ver", "yol bul",
+                    "git", "için navigasyon", "için yol tarifi", "rota", "yol").fold(txt) { s, k ->
+                    s.replace(k, " ")
+                }.trim().trimEnd(',', '.', '\'', '\u2019')
+            }
+            val hedef = hedefTemizle(metin.lowercase(Locale("tr", "TR"))).trim()
+            if (hedef.isNotBlank() && hedef.length > 2) return Komut.NavigasyonBaslat(hedef)
         }
         // Fener: "feneri aç/kapat", "el feneri aç"
         val fenerVar = m.contains("fener") || m.contains("el feneri") || m.contains("torch") || m.contains("ışık aç") || m.contains("ışığı aç")

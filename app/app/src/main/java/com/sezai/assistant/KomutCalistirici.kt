@@ -24,6 +24,7 @@ class KomutCalistirici(private val context: Context) {
             "Birini aramanızı sağlarım: 'Annemi ara' veya 'beş yüz elli numarasını ara' deyin. " +
             "YouTube'da arama yapabilirim: 'YouTube'da şarkı adı ara' deyin. " +
             "Konumunuzu söyleyebilir, kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilirim. " +
+            "Navigasyon için 'Kadıköy'e git' ya da 'yol tarifi ver' deyin. " +
             "Sessiz moda geçebilirim. Görünümü, arka plan dinlemeyi ve konuşma sesini değiştirebilirim. " +
             "Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim. Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
@@ -66,6 +67,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.MuzikCal -> muzikAc(komut.sorgu)
         is Komut.FenerAyar -> fenerAyarla(komut.ac)
         is Komut.MesajOku -> mesajlariOku(komut.adet)
+        is Komut.NavigasyonBaslat -> navigasyonBaslat(komut.hedef)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -146,6 +148,15 @@ class KomutCalistirici(private val context: Context) {
             || baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(temiz)}")))
         Log.i("Sezai", "MUZIK ara='$temiz' ok=$ok")
         return if (ok) "Tamam, '$temiz' açıyorum." else "Müzik açılamadı."
+    }
+
+    private fun navigasyonBaslat(hedef: String): String {
+        val temiz = hedef.trim()
+        if (temiz.isBlank()) return "Nereye gitmek istediğinizi söyleyin."
+        val ok = baslat(Intent(Intent.ACTION_VIEW, Uri.parse("google.navigation:q=${Uri.encode(temiz)}&mode=d")))
+            || baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://maps.google.com/maps?daddr=${Uri.encode(temiz)}")))
+        Log.i("Sezai", "NAVIGASYON hedef='$temiz' ok=$ok")
+        return if (ok) "Tamam, $temiz için navigasyonu başlatıyorum." else "Navigasyon başlatılamadı."
     }
 
     private fun zamanlayiciKur(saniye: Int): String {
