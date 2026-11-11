@@ -1103,3 +1103,28 @@ Son güncelleme: 2026-10-29
 ### SozKesme.kt'de küçük ek düzeltme gerekiyor
 - Model yokken kullanıcıya "söz kesme modeli kurulu değil" uyarısı/log gösterilmeli (sessiz kalmak sorun tespitini engelliyor).
 - Bu değişiklik modeli indirip test ettikten sonra yapılacak.
+
+
+## 11.11.2026 — hata düzeltmeleri ve Termux derleme geçişi
+
+### Düzeltilen hatalar
+- `kurulum_akisi_test.py`: build.sh değişmişti, test `sh ./rish -c '` kalıbı arayıp IndexError veriyordu. Test yeniden yazıldı; build.sh'in rish+pm/termux-open akışını mock'larla doğrular. 3/3 PASS.
+- `CLAUDE.md` bölüm 2: proot zorunlu diyordu ama derleme zaten Termux native (proot gerekmez). Çelişki giderildi.
+- `build.sh kur`: sadece `am start` GUI açıyordu. Shizuku çalışıyorsa `rish pm install -r -S` ile sessiz kurulum; başarısızsa termux-open fallback eklendi.
+- `MainActivity/SezaiArkaPlanServisi` commit edilmemiş değişiklikler (arka_plan_kullanici_kapatti bayrağı, START_STICKY) commit edildi.
+
+### Test sonuçları
+- dinleme_test.py: 9/9 PASS
+- gorusme_test.py: 8/8 PASS
+- sohbet_test.py: 31/31 PASS
+- kurulum_akisi_test.py: 3/3 PASS
+- cihaz_yorumla_test.py: Shizuku gerektirir — Shizuku kapalıyken çalıştırılamaz (0/23).
+
+### APK
+- HEAD: 4bde6a8; build.sh çıkış 0; apksigner v2=true; SHA256: 988be49596f64d665f2ccfb42d5477363839cbc94243bb2b360846d96248ca4a
+- APK kurulumu: Shizuku çalışmıyor; `bash build.sh kur` çalıştırılınca GUI yükleyici açıldı (telefonda onay gerekiyor).
+
+### Sıradaki açık işler
+- Shizuku'yu başlat → `bash build.sh kur` ile kurulum yap.
+- Vosk ZIP /sdcard/Download'da mevcut (SHA256 doğru); uygulama açılınca otomatik kuruyor.
+- Söz kesme: model kurulunca "SOZKESME basladi" logunu doğrula; "dur"/"Sezai" testiyle cihazda kabul et.
