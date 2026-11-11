@@ -52,6 +52,7 @@ class SezaiArkaPlanServisi : Service() {
     private var sessizOnayBekliyor = false // sessiz moda geçmeden önce sözlü onay
     private var nesil = 0 // eski geri çağrıların yeni turu bozmasını önler
     private val enFazlaTakip = 4
+    private var wakeLock: android.os.PowerManager.WakeLock? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -85,6 +86,9 @@ class SezaiArkaPlanServisi : Service() {
             Log.w("Sezai", "ARKAPLAN on plan baslatilamadi: ${e.javaClass.simpleName}"); stopSelf(); return START_NOT_STICKY
         }
         calisiyor = true
+        // Partial wake lock: ekran kapalıyken CPU uyanık kalır, mikrofon thread'i durmuyor
+        val pm = getSystemService(POWER_SERVICE) as android.os.PowerManager
+        wakeLock = pm.newWakeLock(android.os.PowerManager.PARTIAL_WAKE_LOCK, "sezai:arkaplan").also { it.acquire(8 * 60 * 60 * 1000L) } // en çok 8 saat
         BildirimKumanda.acikBildirimiGuncelle(this) // servis kendi panelini gösterir; eski "açık" paneli kaldırılır (çift panel olmasın)
         konusma = AndroidKonusma(this, "com.google.android.tts") { hazir ->
             anaIs.post {
@@ -316,6 +320,8 @@ class SezaiArkaPlanServisi : Service() {
         uyanma?.durdur(); uyanma = null
         konusma?.kapat(); konusma = null
         calisiyor = false
+        try { if (wakeLock?.isHeld == true) wakeLock?.release() } catch (_: Exception) {}
+        wakeLock = null
         // Panel, tam Çıkış yapılana kadar kalır (ana ekran kapalı olsa bile); servis durunca açık panel yeniden konur
         if (!BildirimKumanda.cikiyor) BildirimKumanda.acikBildirimiGuncelle(this)
         Log.i("Sezai", "ARKAPLAN servis durdu")

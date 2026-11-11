@@ -27,6 +27,8 @@
     <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <queries>
         <intent>
             <action android:name="android.intent.action.MAIN"/>
@@ -51,6 +53,12 @@
         <receiver android:name=".AdbEslestirici" android:exported="true">
             <intent-filter>
                 <action android:name="com.sezai.ADB_ESLESME"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".BaslangicAlici" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED"/>
             </intent-filter>
         </receiver>
         <activity android:name=".EkranOkumaAyarActivity" android:exported="true" android:label="Ekran yardımcısı"/>
