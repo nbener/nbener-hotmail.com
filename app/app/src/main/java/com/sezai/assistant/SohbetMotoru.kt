@@ -71,10 +71,9 @@ class SohbetMotoru(
                     for (i in 0 until girdi.length()) mesajlar.put(girdi.getJSONObject(i))
                     JSONObject().put("model", saglayici.model).put("messages", mesajlar).put("stream", false).apply {
                         if (saglayici == SohbetSaglayici.GROQ) {
-                            put("max_completion_tokens", if (webAramasi) 2048 else 1024); put("reasoning_effort", "low"); put("include_reasoning", false)
+                            put("max_completion_tokens", if (webAramasi) 2048 else 1024)
                             if (webAramasi) {
-                                // llama-3.3-70b-versatile browser_search tool destekler; openai/gpt-oss-120b desteklemiyordu.
-                                put("model", "llama-3.3-70b-versatile")
+                                // openai/gpt-oss-120b ve gpt-oss-20b browser_search destekler (Groq built-in).
                                 put("tools", JSONArray().put(JSONObject().put("type", "browser_search")))
                                 put("tool_choice", "required")
                             }

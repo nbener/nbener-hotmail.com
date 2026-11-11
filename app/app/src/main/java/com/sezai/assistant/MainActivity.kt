@@ -884,6 +884,8 @@ class MainActivity : Activity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
+        intent.getStringExtra("oto")?.let { seslendir(it) }
+        intent.getStringExtra("komut")?.let { komutVer(it) }
     }
 
     override fun onStop() {
