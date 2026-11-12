@@ -68,6 +68,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.FenerAyar -> fenerAyarla(komut.ac)
         is Komut.MesajOku -> mesajlariOku(komut.adet)
         is Komut.NavigasyonBaslat -> navigasyonBaslat(komut.hedef)
+        is Komut.SistemAyar -> sistemAyarAc(komut.tur)
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -148,6 +149,26 @@ class KomutCalistirici(private val context: Context) {
             || baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(temiz)}")))
         Log.i("Sezai", "MUZIK ara='$temiz' ok=$ok")
         return if (ok) "Tamam, '$temiz' açıyorum." else "Müzik açılamadı."
+    }
+
+    private fun sistemAyarAc(tur: Komut.AyarTuru): String {
+        val eylem = when (tur) {
+            Komut.AyarTuru.WIFI -> android.provider.Settings.Panel.ACTION_WIFI
+            Komut.AyarTuru.BLUETOOTH -> android.provider.Settings.ACTION_BLUETOOTH_SETTINGS
+            Komut.AyarTuru.VERI -> android.provider.Settings.Panel.ACTION_INTERNET_CONNECTIVITY
+            Komut.AyarTuru.PARLAKLIK -> android.provider.Settings.ACTION_DISPLAY_SETTINGS
+            Komut.AyarTuru.SES_AYARLARI -> android.provider.Settings.ACTION_SOUND_SETTINGS
+        }
+        val cevap = when (tur) {
+            Komut.AyarTuru.WIFI -> "Wi-Fi ayarlarını açıyorum."
+            Komut.AyarTuru.BLUETOOTH -> "Bluetooth ayarlarını açıyorum."
+            Komut.AyarTuru.VERI -> "Mobil veri ayarlarını açıyorum."
+            Komut.AyarTuru.PARLAKLIK -> "Ekran parlaklık ayarlarını açıyorum."
+            Komut.AyarTuru.SES_AYARLARI -> "Ses ayarlarını açıyorum."
+        }
+        val ok = baslat(android.content.Intent(eylem))
+        Log.i("Sezai", "SISTEM_AYAR tur=$tur ok=$ok")
+        return if (ok) cevap else "Ayarlar açılamadı."
     }
 
     private fun navigasyonBaslat(hedef: String): String {

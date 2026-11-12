@@ -26,6 +26,8 @@ sealed class Komut {
     data class FenerAyar(val ac: Boolean) : Komut()
     data class MesajOku(val adet: Int = 3) : Komut()
     data class NavigasyonBaslat(val hedef: String) : Komut()
+    enum class AyarTuru { WIFI, BLUETOOTH, VERI, PARLAKLIK, SES_AYARLARI }
+    data class SistemAyar(val tur: AyarTuru) : Komut()
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -185,6 +187,15 @@ object KomutYorumlayici {
             val hedef = hedefTemizle(metin.lowercase(Locale("tr", "TR"))).trim()
             if (hedef.isNotBlank() && hedef.length > 2) return Komut.NavigasyonBaslat(hedef)
         }
+        // Sistem ayarları: Wi-Fi, Bluetooth, mobil veri, parlaklık, ses
+        val wifiVar = m.contains("wifi") || m.contains("wi-fi") || m.contains("kablosuz") || m.contains("wifii")
+        if (wifiVar) return Komut.SistemAyar(Komut.AyarTuru.WIFI)
+        val btVar = (m.contains("bluetooth") || m.contains("bluetoot") || m.contains("bt ") || m.endsWith("bt")) && !m.contains("youtube")
+        if (btVar) return Komut.SistemAyar(Komut.AyarTuru.BLUETOOTH)
+        val veriVar = (m.contains("mobil veri") || m.contains("internet") && (m.contains("aç") || m.contains("kapat") || m.contains("kapat") || m.contains("ayar"))) && !m.contains("youtube")
+        if (veriVar) return Komut.SistemAyar(Komut.AyarTuru.VERI)
+        val parlaklikVar = m.contains("parlaklık") || m.contains("ekran parla") || m.contains("ekranı parla")
+        if (parlaklikVar) return Komut.SistemAyar(Komut.AyarTuru.PARLAKLIK)
         // Fener: "feneri aç/kapat", "el feneri aç"
         val fenerVar = m.contains("fener") || m.contains("el feneri") || m.contains("torch") || m.contains("ışık aç") || m.contains("ışığı aç")
         if (fenerVar) {
