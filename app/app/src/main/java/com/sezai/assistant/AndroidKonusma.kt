@@ -87,6 +87,8 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     private val sozKesme by lazy { SozKesme(context) { sozAlindi?.invoke() } }
     private val gorselNesil = AtomicInteger()
     private val gorselAnaIs = Handler(Looper.getMainLooper())
+    // TTS bittikten kısa süre sonra durdur: kullanıcı tam son anda "dur" diyebilir
+    private var sozKesmeDurGecikmeli: Runnable? = null
     private var tts: TextToSpeech? = null
     private var hazirlandi = false
     private val trTr = Locale("tr", "TR")
@@ -120,8 +122,15 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         fun bildir(tur: KonusmaGorselOlayi.Tur, yazi: String = "") {
             gorselAnaIs.post {
                 if (gorselNesil.get() == sira) {
-                    if (tur == KonusmaGorselOlayi.Tur.BASLADI && sozAlindi != null) sozKesme.baslat()
-                    else if (tur != KonusmaGorselOlayi.Tur.BASLADI) sozKesme.durdur()
+                    if (tur == KonusmaGorselOlayi.Tur.BASLADI && sozAlindi != null) {
+                        sozKesmeDurGecikmeli?.let { gorselAnaIs.removeCallbacks(it) }; sozKesmeDurGecikmeli = null
+                        sozKesme.baslat()
+                    } else if (tur != KonusmaGorselOlayi.Tur.BASLADI) {
+                        // TTS bitti/durdu/hata: 800ms gecikmeli durdur (kullanıcı tam bitişte "dur" diyebilir)
+                        val r = Runnable { sozKesme.durdur(); sozKesmeDurGecikmeli = null }
+                        sozKesmeDurGecikmeli = r
+                        gorselAnaIs.postDelayed(r, 800)
+                    }
                     gorselOlayi?.invoke(KonusmaGorselOlayi(tur, yazi))
                 }
             }
@@ -165,6 +174,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     }
 
     override fun durdur() {
+        sozKesmeDurGecikmeli?.let { gorselAnaIs.removeCallbacks(it) }; sozKesmeDurGecikmeli = null
         sozKesme.durdur()
         val sira = gorselNesil.incrementAndGet()
         if (gorselOlayi != null) gorselAnaIs.post {
