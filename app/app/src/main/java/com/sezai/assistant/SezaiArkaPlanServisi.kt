@@ -297,6 +297,7 @@ class SezaiArkaPlanServisi : Service() {
             sohbet = SohbetMotoru(AnahtarKasasi(this, saglayici.kasaAdi), saglayici, { NotDefteri(applicationContext, "hafiza.txt").son(10) })
             sohbetSaglayicisi = saglayici
         }
+        val webAc = WebIstegi.istendiMi(metin) || WebIstegi.gercekZamanliMi(metin)
         sohbet?.gonder(metin,
             sonuc = { yanit -> anaIs.post {
                 if (benim != nesil || kapaniyor) return@post
@@ -305,7 +306,8 @@ class SezaiArkaPlanServisi : Service() {
             } },
             hata = { mesaj -> anaIs.post {
                 if (benim == nesil && !kapaniyor) konus(mesaj.take(200), benim) { uyanmayaDon(benim, 1500) }
-            } })
+            } },
+            webAramasi = webAc)
     }
 
     // Kendi sesini "Sezai" diye duymasın diye konuşma bittikten kısa süre sonra dinlemeye döner
