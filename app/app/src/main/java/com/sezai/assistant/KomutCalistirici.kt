@@ -69,6 +69,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.MesajOku -> mesajlariOku(komut.adet)
         is Komut.NavigasyonBaslat -> navigasyonBaslat(komut.hedef)
         is Komut.SistemAyar -> sistemAyarAc(komut.tur)
+        is Komut.AcilArama -> acilAra()
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 
@@ -149,6 +150,14 @@ class KomutCalistirici(private val context: Context) {
             || baslat(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.youtube.com/results?search_query=${Uri.encode(temiz)}")))
         Log.i("Sezai", "MUZIK ara='$temiz' ok=$ok")
         return if (ok) "Tamam, '$temiz' açıyorum." else "Müzik açılamadı."
+    }
+
+    private fun acilAra(): String {
+        val ok = try {
+            context.startActivity(Intent(Intent.ACTION_CALL, Uri.parse("tel:112")).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)); true
+        } catch (e: Exception) { Log.w("Sezai", "ACİL arama hata: $e"); false }
+        Log.i("Sezai", "ACİL 112 ok=$ok")
+        return if (ok) "112 arıyorum." else "Acil arama başlatılamadı."
     }
 
     private fun sistemAyarAc(tur: Komut.AyarTuru): String {

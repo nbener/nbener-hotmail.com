@@ -28,6 +28,7 @@ sealed class Komut {
     data class NavigasyonBaslat(val hedef: String) : Komut()
     enum class AyarTuru { WIFI, BLUETOOTH, VERI, PARLAKLIK, SES_AYARLARI }
     data class SistemAyar(val tur: AyarTuru) : Komut()
+    object AcilArama : Komut() // 112
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -186,6 +187,10 @@ object KomutYorumlayici {
             }
             val hedef = hedefTemizle(metin.lowercase(Locale("tr", "TR"))).trim()
             if (hedef.isNotBlank() && hedef.length > 2) return Komut.NavigasyonBaslat(hedef)
+        }
+        // Acil arama: "112 ara", "acil yardım", "ambulans çağır"
+        if (m.contains("112") || m.contains("acil yardım") || m.contains("ambulans") || m.contains("itfaiye") || m.contains("155") || m.contains("156") || m.contains("158")) {
+            if (m.contains("ara") || m.contains("çağır") || m.contains("bağlan") || m.contains("arama")) return Komut.AcilArama
         }
         // Sistem ayarları: Wi-Fi, Bluetooth, mobil veri, parlaklık, ses
         val wifiVar = m.contains("wifi") || m.contains("wi-fi") || m.contains("kablosuz") || m.contains("wifii")
