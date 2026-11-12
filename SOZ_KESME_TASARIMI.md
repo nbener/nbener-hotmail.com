@@ -300,3 +300,14 @@ Kaynak: SozKesme.kt, AndroidKonusma.kt, MainActivity.kt, SezaiArkaPlanServisi.kt
 - Her oturumda test_id,kaynak/cihazlar/hız/ses düzeyi,kırpılma/tepe,korelasyon/gecikme,toplam enerji farkı,dar hedef bayrağı ve kesin sonuç güveni,serbest hedef bayrağı,insan teyidi,kaynak bırakma,CPU kaydedilir. Serbest sayısal kelime güveni kodda toplanmıyor;0 olarak uydurulmaz. Ham ses/metin saklanmaz;ilk çağrı ses konumu gerçek insan başlangıcından gecikme diye yazılmaz.
 - Tur2 iyi/tur4 kötü ise TTS ile eşzamanlı koşulda bozulma kanıtı olur;yalnız yankı kesinleşmez. Tur2 serbest kötüyse yankısız koşulda da sorun vardır;tek başına model kusuru kesinleşmez. Tur3 dar yanlış pozitif üretirse dar dilbilgisi üretim çözümü olarak kabul edilmez.0.998 güven/yapay TTS/teyitsiz çağrı insan kabulü değildir;eşik sonuç görüldükten sonra başarıya uyarlanmaz.
 - Pil: plan toplam22 ayrı kısa oturum;her tur sınırlı kayıt,iki tanıyıcı ve sesli turlarda AEC maliyeti var. Sürekli döngü/servis/wake lock eklenmez,pil ölçülmeden düşük tüketim iddia edilmez. Beklerken mikrofon açılmaz. Kulaklık çıkarılması/insan hazır teyidi sonrası önce yalnız Tur1 çalıştırılacak;diğer turlar haber ve kullanıcı teyidiyle ilerler.
+
+
+## 12.11.2026 — 4 tur insan protokolü tamamlandı
+- Yeni APK kuruldu (SHA256 51b67daf, 800ms grace period dahil). Kulaklık yok; hoparlör+dahili mikrofon.
+- Tur 1 (sessiz, insan yok): serbest_dur=false, serbest_sezai=false. Yanlış pozitif yok. ✓
+- Tur 2 (sessiz, insan var): dur 5/5, Sezai 5/5 (guven 0.93–1.0). Model sessizde mükemmel. ✓
+- Tur 3 (TTS açık, insan yok): serbest_dur=false, serbest_sezai=false. Üretim yanlış tetikleme yok. ✓ (dar tanıyıcıdan 1 aday geldi, sezai_kesin=false; üretim bunu kullanmıyor.)
+- Tur 4 (TTS açık, insan var): dur 0/5, Sezai 0/5. Üretim TTS sırasında hiç tanımadı. ✗
+- Kök neden: Tur 4'te mikrofon_tepe sabit 22936 (Tur 3 ile aynı). Kullanıcı konuşmasına rağmen tepe değişmedi — TTS sesi mikrofona tam yansıyor; VOICE_COMMUNICATION+AEC bu sinyal yolunu temizleyemiyor. Toplam_enerji_farki_db ~0.25 (Tur 1'de 28 dB idi) — AEC referans yolu eşleşmiyor.
+- Olumlu: yanlış pozitif yok (güvenli). Model sessizde çok güçlü (10/10). Sorun yalnız TTS eşzamanlılığında.
+- Sonraki seçenek: SOZ_KESME_ARASTIRMASI.md Seçenek B (cümle aralarında dinleme). AEC gerektirmez, pil dostu. TTS cümleleri 1-2 cümleye böl, her arada 300-500ms dinle. Kullanıcı o pencerede "dur" diyebilir. Seçim kullanıcıya aittir.

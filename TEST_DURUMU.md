@@ -717,3 +717,14 @@ Hâlâ açık kabuller: söz kesme (dur/Sezai) insan sesi BAŞARISIZ; gerçek se
 | PARTIAL_WAKE_LOCK | Derlendi; pil etkisi ölçülmedi | 8 saat maks., onDestroy'da bırakılıyor |
 
 Cihazda kurulum yapılmadığından bu oturumun hiçbir özelliği cihazda doğrulanmış sayılmaz. APK /sdcard/Download/Sezai-debug.apk adresinde hazır.
+
+## 12.11.2026 — 4 tur Vosk insan protokolü
+
+| Tur | Koşul | serbest (üretim) sonucu |
+| --- | --- | --- |
+| 1 | Sessiz, insan yok | 0 yanlış pozitif ✓ |
+| 2 | Sessiz, insan var | dur 5/5, Sezai 5/5 ✓ |
+| 3 | TTS açık, insan yok | 0 yanlış pozitif ✓ |
+| 4 | TTS açık, insan var | dur 0/5, Sezai 0/5 ✗ |
+
+Kök neden doğrulandı: Tur 4 tepe=22936 (Tur 3 ile aynı), AEC referans yolu TTS sinyal yolunu yakalamıyor (toplam_enerji_farki_db ~0.25 dB). Sessizde model mükemmel; sorun yalnız TTS eşzamanlılığında. Sonraki: Seçenek B (cümle arası dinleme) onay bekliyor.
