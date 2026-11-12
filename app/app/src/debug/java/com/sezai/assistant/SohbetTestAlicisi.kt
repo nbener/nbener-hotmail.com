@@ -73,7 +73,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     val okunan = mutableListOf<String>(); val bitti = mutableListOf<() -> Unit>(); val hata = mutableListOf<() -> Unit>()
                     var tamam = 0; var hatalar = 0
                     val o = SiraliSeslendirme { s, b, h -> okunan.add(s); bitti.add(b); hata.add(h) }
-                    o.baslat(listOf("bir", "iki"), { tamam++ }, { hatalar++ })
+                    o.baslat(listOf("bir", "iki"), bitince = { tamam++ }, hata = { hatalar++ })
                     bitti[0](); bitti[0](); hata[0]()
                     check(okunan == listOf("bir", "iki") && hatalar == 0)
                     bitti[1](); bitti[1](); check(tamam == 1)
@@ -81,9 +81,9 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                 kontrol("İptal edilen geçmiş okuması yeni parça veya bitiş üretmiyor") {
                     val bitti = mutableListOf<() -> Unit>(); var okunan = 0; var tamam = 0
                     val o = SiraliSeslendirme { _, b, _ -> okunan++; bitti.add(b) }
-                    o.baslat(listOf("eski", "devam"), { tamam++ }, {})
+                    o.baslat(listOf("eski", "devam"), bitince = { tamam++ }, hata = {})
                     o.durdur(); bitti[0](); check(okunan == 1 && tamam == 0)
-                    o.baslat(listOf("yeni"), { tamam++ }, {})
+                    o.baslat(listOf("yeni"), bitince = { tamam++ }, hata = {})
                     bitti[0](); check(okunan == 2 && tamam == 0)
                     bitti[1](); check(tamam == 1)
                 }

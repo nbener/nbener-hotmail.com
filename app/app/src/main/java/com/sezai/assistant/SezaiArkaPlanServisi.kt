@@ -47,6 +47,7 @@ class SezaiArkaPlanServisi : Service() {
     private var kapaniyor = false
     private var dinleme: AndroidDinleme? = null
     private var konusanNesil = -1
+    private val sirali = SiraliSeslendirme { m, b, h -> konusma?.konus(m, b, h) }
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
     private var sessizOnayBekliyor = false // sessiz moda geçmeden önce sözlü onay
@@ -123,13 +124,24 @@ class SezaiArkaPlanServisi : Service() {
         val yuzde = getSharedPreferences("ses_ayari", MODE_PRIVATE).getInt("tts_seviye", 100).coerceIn(10, 250)
         k.yuzdeAyarla(yuzde)
         konusanNesil = benim
-        k.konus(metin,
-            bitince = { anaIs.post {
-                if (benim == nesil && !kapaniyor) { konusanNesil = -1; sonra() }
-            } },
-            hata = { anaIs.post {
-                if (benim == nesil && !kapaniyor) { konusanNesil = -1; uyanmayaDon(benim, 3000) }
-            } })
+        val parcalar = SiraliSeslendirme.parcalaCumle(metin)
+        if (parcalar.size <= 1) {
+            k.konus(metin,
+                bitince = { anaIs.post {
+                    if (benim == nesil && !kapaniyor) { konusanNesil = -1; sonra() }
+                } },
+                hata = { anaIs.post {
+                    if (benim == nesil && !kapaniyor) { konusanNesil = -1; uyanmayaDon(benim, 3000) }
+                } })
+        } else {
+            sirali.baslat(parcalar, araMs = 400,
+                bitince = { anaIs.post {
+                    if (benim == nesil && !kapaniyor) { konusanNesil = -1; sonra() }
+                } },
+                hata = { anaIs.post {
+                    if (benim == nesil && !kapaniyor) { konusanNesil = -1; uyanmayaDon(benim, 3000) }
+                } })
+        }
     }
 
     // Kullanıcı yanıt okunurken "dur"/"Sezai" dedi: okumayı kes ve yeni isteği dinle
@@ -138,7 +150,7 @@ class SezaiArkaPlanServisi : Service() {
         if (kapaniyor || eski != nesil) return
         Log.i("Sezai", "ARKAPLAN soz kesildi")
         konusanNesil = -1
-        konusma?.durdur()
+        sirali.durdur(); konusma?.durdur()
         val yeni = ++nesil
         anaIs.postDelayed({ dinleTur(yeni, 0) }, 200)
     }
@@ -147,7 +159,7 @@ class SezaiArkaPlanServisi : Service() {
         if (benim != nesil || kapaniyor) return
         nesil++
         sessizOnayBekliyor = false
-        dinleme?.kapat(); sohbet?.iptal()
+        sirali.durdur(); dinleme?.kapat(); sohbet?.iptal()
         yenidenDinle(gecikmeMs)
     }
 

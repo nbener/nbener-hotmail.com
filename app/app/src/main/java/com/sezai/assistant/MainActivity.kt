@@ -65,6 +65,7 @@ class MainActivity : Activity() {
     private var konusuyor = false
     private var gecmisOkunuyor = false
     private val gecmisOkuyucu by lazy { SiraliSeslendirme { metin, bitince, hata -> seslendir(metin, bitince, hata) } }
+    private val sohbetSirali = SiraliSeslendirme { m, b, h -> konusma.konus(m, b, h) }
     private val konum by lazy { KonumYardimcisi(this) }
     private val sesAyari by lazy {
         getSharedPreferences("ses_ayari", MODE_PRIVATE).also { o ->
@@ -373,20 +374,25 @@ class MainActivity : Activity() {
             return
         }
         val nesil = sohbetNesli
-        konusma.konus(metin,
-            bitince = { runOnUiThread {
-                if (nesil == sohbetNesli) {
-                    if (sohbetAcik) sesOnceligi.birakOdak() else sesOnceligi.durdur()
-                    bitince?.invoke()
-                }
-            } },
-            hata = { runOnUiThread {
-                if (nesil == sohbetNesli) {
-                    sesOnceligi.durdur()
-                    hata?.invoke()
-                    karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
-                }
-            } })
+        val bitinceWrapped: () -> Unit = { runOnUiThread {
+            if (nesil == sohbetNesli) {
+                if (sohbetAcik) sesOnceligi.birakOdak() else sesOnceligi.durdur()
+                bitince?.invoke()
+            }
+        } }
+        val hataWrapped: () -> Unit = { runOnUiThread {
+            if (nesil == sohbetNesli) {
+                sesOnceligi.durdur()
+                hata?.invoke()
+                karakterDurumu(SezaiKarakterView.Durum.BEKLEME, SezaiKarakterView.Duygu.SEFKATLI)
+            }
+        } }
+        val parcalar = SiraliSeslendirme.parcalaCumle(metin)
+        if (parcalar.size <= 1) {
+            konusma.konus(metin, bitince = bitinceWrapped, hata = hataWrapped)
+        } else {
+            sohbetSirali.baslat(parcalar, araMs = 400, bitince = bitinceWrapped, hata = hataWrapped)
+        }
     }
 
     // "Sezai deyince uyan": yalnız ekran açık, uygulama boşta (sohbet/konuşma/dinleme yok) iken mikrofonu dinler
@@ -690,7 +696,7 @@ class MainActivity : Activity() {
                     }
                     val sozAlma = SohbetKomutlari.sozAlmaMetni(metin)
                     if (sozAlma != null) {
-                        konusma.durdur(); sohbet?.iptal()
+                        sohbetSirali.durdur(); konusma.durdur(); sohbet?.iptal()
                         if (sozAlma.isBlank()) {
                             sohbetYazisiniGoster("Seni dinliyorum. Konuşmanın konusu korunuyor.")
                             anaIs.postDelayed({ sohbetDinle(nesil) }, 200)
@@ -746,7 +752,7 @@ class MainActivity : Activity() {
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
         sesOnceligi.durdur()
-        sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
+        sohbetSirali.durdur(); sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
         karakterDurumu(SezaiKarakterView.Durum.BEKLEME)
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }
