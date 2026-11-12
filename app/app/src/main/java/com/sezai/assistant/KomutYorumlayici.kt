@@ -201,6 +201,8 @@ object KomutYorumlayici {
         if (veriVar) return Komut.SistemAyar(Komut.AyarTuru.VERI)
         val parlaklikVar = m.contains("parlaklık") || m.contains("ekran parla") || m.contains("ekranı parla")
         if (parlaklikVar) return Komut.SistemAyar(Komut.AyarTuru.PARLAKLIK)
+        val sesAyarVar = (m.contains("ses ayar") || m.contains("zil") && m.contains("ayar")) && !m.contains("tts") && !m.contains("konuşma")
+        if (sesAyarVar) return Komut.SistemAyar(Komut.AyarTuru.SES_AYARLARI)
         // Fener: "feneri aç/kapat", "el feneri aç"
         val fenerVar = m.contains("fener") || m.contains("el feneri") || m.contains("torch") || m.contains("ışık aç") || m.contains("ışığı aç")
         if (fenerVar) {

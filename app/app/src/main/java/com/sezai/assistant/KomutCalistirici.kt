@@ -25,6 +25,7 @@ class KomutCalistirici(private val context: Context) {
             "YouTube'da arama yapabilirim: 'YouTube'da şarkı adı ara' deyin. " +
             "Konumunuzu söyleyebilir, kamerayla çevrenizi anlatabilir, ekranınızda ne olduğunu okuyabilirim. " +
             "Navigasyon için 'Kadıköy'e git' ya da 'yol tarifi ver' deyin. " +
+            "Wi-Fi, Bluetooth, parlaklık ayarlarını açabilirim. Acil için '112'yi ara' deyin. " +
             "Sessiz moda geçebilirim. Görünümü, arka plan dinlemeyi ve konuşma sesini değiştirebilirim. " +
             "Hatırla deyip bir şey öğretebilirsiniz. Not alıp sonra okuyabilirim. Açıkça isterseniz internette araştırma da yapabilirim."
         is Komut.NotKaydet -> if (NotDefteri(context).ekle(komut.metin)) "Notu kaydettim." else "Notu kaydedemedim."
