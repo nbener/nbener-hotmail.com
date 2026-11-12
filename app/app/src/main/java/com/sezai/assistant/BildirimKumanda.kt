@@ -17,6 +17,9 @@ object BildirimKumanda {
     fun sessizMi(c: Context) = c.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).getBoolean("sessiz", false)
 
     fun sessizAyarla(c: Context, sessiz: Boolean) {
+        val cagiran = Thread.currentThread().stackTrace.drop(2).take(4)
+            .joinToString(" < ") { "${it.className.substringAfterLast('.')}::${it.methodName}" }
+        android.util.Log.i("Sezai", "SESSIZ ayar=$sessiz cagiran=$cagiran")
         c.getSharedPreferences("ses_ayari", Context.MODE_PRIVATE).edit().putBoolean("sessiz", sessiz).apply()
         // Sessiz modda mikrofon tutan servis çalışmaz; çıkınca arka plan ayarı açıksa uygulama açılışında yeniden başlar
         if (sessiz) SezaiArkaPlanServisi.durdur(c)

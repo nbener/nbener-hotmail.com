@@ -90,7 +90,9 @@ object KomutYorumlayici {
                 (t.getOrNull(i + 1) == "olabilir" && t.getOrNull(i + 2) == "misin"))
         }
         if (m.contains("sessiz mod") || m.contains("sessize al") || olEmri("sessiz", olsunDa = true) || m.contains("pasif mod") || olEmri("pasif")) {
-            return Komut.Sessiz(!(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır")))
+            val ac = !(m.contains("kapat") || m.contains("çık") || m.contains("bitir") || m.contains("kaldır"))
+            android.util.Log.i("Sezai", "YORUM sessiz=$ac tetikleyen='${metin.take(60)}'")
+            return Komut.Sessiz(ac)
         }
         // Hafıza: "şunu hatırla: ..." kaydeder; "ne hatırlıyorsun / ne öğrendin" okur
         Regex("(?:^|\\s)(?:şunu hatırla|bunu hatırla|hatırla|öğren|şunu öğren)\\b[\\s:,.-]*").find(metin.lowercase(trLocale))?.let { k ->
