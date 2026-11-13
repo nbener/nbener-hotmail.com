@@ -153,7 +153,7 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
                 if (metin.isNotBlank()) { tanimaVar = true; Log.i("Sezai", "SOZKESME tanidi: \"$metin\"") }
                 val kelimeler = metin.split(' ')
-                if ("dur" in kelimeler || "sezai" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi"; break }
+                if ("dur" in kelimeler || "sezai" in kelimeler || "hey" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi"; break }
             }
             if (cikisSebebi == "bilinmiyor") cikisSebebi = if (kapandi) "kapandi_son" else if (benim != nesil.get()) "nesil_degisti_son" else "dongu_bitti"
         } catch (e: Exception) {

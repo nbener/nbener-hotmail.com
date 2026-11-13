@@ -69,7 +69,7 @@ internal class SezaiUyanma(private val context: Context, private val uyandi: () 
                 if (++tur % 20 == 0 && ses.mode != AudioManager.MODE_NORMAL) break // görüşme başladı
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
-                if (metin.split(' ').contains("sezai")) { duyuldu = true; break }
+                val s = metin.split(' '); if (s.contains("sezai") || s.contains("hey")) { duyuldu = true; break }
             }
         } catch (e: Exception) {
             Log.w("Sezai", "UYANMA hata: ${e.javaClass.simpleName}")
