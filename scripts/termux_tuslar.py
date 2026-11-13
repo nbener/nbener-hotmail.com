@@ -41,16 +41,22 @@ KOMPAKT = [
      tus('KEYBOARD', display='Klavye', popup='DRAWER')]
 ]
 
-TEK = [[
-    tus('ESC', popup=tus(macro='CTRL c', display='Durdur')),
-    tus('TAB', popup=tus(macro='CTRL r', display='Ara')),
-    tus('CTRL', popup=tus(macro='CTRL l', display='Temizle')),
-    tus('LEFT', popup='UP'), tus('RIGHT', popup='DOWN'),
-    tus('PASTE', display='Yapistir', popup='ENTER'),
-    tus(macro='sesliyaz ENTER', display='Ses',
-        popup=tus(macro='panel ENTER', display='Panel')),
-    tus('KEYBOARD', display='Klavye', popup='DRAWER')
-]]
+TEK = [
+    [
+        tus('ESC'), tus('TAB'), tus('CTRL'), tus('LEFT'), tus('RIGHT'),
+        tus('PASTE', display='Yapistir'),
+        tus(macro='sesliyaz ENTER', display='Ses'),
+        tus('KEYBOARD', display='Klavye')
+    ],
+    [
+        tus(macro='CTRL c', display='Durdur'),
+        tus(macro='CTRL r', display='Ara'),
+        tus(macro='CTRL l', display='Temizle'),
+        tus('UP'), tus('DOWN'), tus('ENTER'),
+        tus(macro='panel ENTER', display='Panel'),
+        tus('DRAWER', display='Cekme')
+    ]
+]
 
 
 def ayar_degistir(metin, ad, deger):
@@ -131,7 +137,7 @@ def uygula(profil):
     if sonuc.returncode:
         raise RuntimeError('Ayar kaydedildi fakat yeniden yükleme başarısız. termux-reload-settings komutunu tekrar dene.')
     print({'cerceve': 'Tuş etiketlerine [ ] eklendi; gerçek düğme kenarlığı değildir.',
-           'tek': 'Tek satır: tuşları yukarı kaydırarak ek işlevleri açabilirsin.',
+           'tek': 'İki satır: üst ana tuşlar, alt ikincil tuşlar (Durdur/Ara/Temizle/yön/Enter/Panel).',
            'kompakt': 'Kompakt düzen: 2 satır. Yukarı kaydırılan tuşlar ek işlev açar.',
            'tam': 'Tam düzen: eski beş satırın bütün tuşları korundu.',
            'eski': 'Özgün termux.properties yedeği geri yüklendi.'}[profil])
