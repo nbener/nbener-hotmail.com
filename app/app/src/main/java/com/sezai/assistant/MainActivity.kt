@@ -151,6 +151,8 @@ class MainActivity : Activity() {
                 if (uygulandi) sesSirasi = sira
                 Log.i("Sezai", "SES varsayilan=$kayitli sira=${sira + 1} uygulandi=$uygulandi")
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
+                // Sherpa (Piper) TTS — arka planda model yükle, hazır olunca devreye girer
+                (konusma as? AndroidKonusma)?.sherpa = SherpaMotor(this).also { it.hazirla() }
                 if (tamam && intent.getStringExtra("oto") == null) seslendir("Buyurun efendim.")
                 intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır

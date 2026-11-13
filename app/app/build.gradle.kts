@@ -6,6 +6,8 @@ dependencies {
     // Yalnız sınırlı yerel ses denemesi; üretim motoru değişmez.
     implementation("com.alphacephei:vosk-android:0.3.75@aar")
     implementation("net.java.dev.jna:jna:5.18.1@aar")
+    // Piper TTS (doğal insan sesi) — yalnız arm64-v8a
+    implementation("com.github.k2-fsa.sherpa-onnx:sherpa-onnx:v1.13.5")
 }
 android {
     namespace = "com.sezai.assistant"

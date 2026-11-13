@@ -21,6 +21,8 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
     // Bu yüzden sentez dosyaya alınır, PCM örnekleri yumuşak sınırlayıcıyla (tanh) büyütülür ve AudioTrack ile çalınır.
     @Volatile private var guc = 1f
     @Volatile private var guclCalan: android.media.AudioTrack? = null
+    // Sherpa (Piper) TTS — null ise Android TTS kullanılır
+    var sherpa: SherpaMotor? = null
     fun yuzdeAyarla(yuzde: Int) {
         val y = yuzde.coerceIn(10, 250)
         sesDuzeyi = if (y >= 100) null else y / 100f
@@ -137,6 +139,25 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
                 }
             }
         }
+        // Sherpa (Piper) yolu — hazırsa Android TTS yerine kullan
+        val sherpaMotor = sherpa
+        if (sherpaMotor != null && sherpaMotor.hazir) {
+            bildir(KonusmaGorselOlayi.Tur.BASLADI, metin)
+            Thread {
+                val audio = sherpaMotor.sentezle(sesMetni)
+                if (audio == null) {
+                    gorselAnaIs.post { if (gorselNesil.get() == sira) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() } }
+                    return@Thread
+                }
+                val (ornekler, hz) = audio
+                val pcm = ShortArray(ornekler.size) { (ornekler[it].coerceIn(-1f, 1f) * 32767).toInt().toShort() }
+                sherpaOyna(pcm, hz, sira,
+                    bitti = { gorselAnaIs.post { if (gorselNesil.get() == sira) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() } } },
+                    hataFn = { gorselAnaIs.post { if (gorselNesil.get() == sira) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() } } }
+                )
+            }.start()
+            return
+        }
         val t = tts
         if (t == null || !hazirlandi) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke(); return }
         val dosya = if (guc > 1f) java.io.File(context.cacheDir, "sezai-tts-$sira.wav") else null
@@ -173,6 +194,38 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         val sonuc = if (dosya != null) t.synthesizeToFile(sesMetni, parametre, dosya, konusmaKimligi)
                     else t.speak(sesMetni, TextToSpeech.QUEUE_FLUSH, parametre, konusmaKimligi)
         if (sonuc == TextToSpeech.ERROR) { dosya?.delete(); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
+    }
+
+    private fun sherpaOyna(pcm: ShortArray, hz: Int, sira: Int, bitti: () -> Unit, hataFn: () -> Unit) {
+        try {
+            val track = android.media.AudioTrack.Builder()
+                .setAudioAttributes(android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ASSISTANT)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
+                .setAudioFormat(android.media.AudioFormat.Builder()
+                    .setSampleRate(hz).setEncoding(android.media.AudioFormat.ENCODING_PCM_16BIT)
+                    .setChannelMask(android.media.AudioFormat.CHANNEL_OUT_MONO).build())
+                .setTransferMode(android.media.AudioTrack.MODE_STATIC)
+                .setBufferSizeInBytes(pcm.size * 2).build()
+            guclCalDurdur(); guclCalan = track
+            if (gorselNesil.get() != sira) { track.release(); return }
+            track.write(pcm, 0, pcm.size)
+            track.setNotificationMarkerPosition(pcm.size)
+            track.setPlaybackPositionUpdateListener(object : android.media.AudioTrack.OnPlaybackPositionUpdateListener {
+                override fun onMarkerReached(t: android.media.AudioTrack) {
+                    if (guclCalan == t) guclCalan = null
+                    try { t.stop() } catch (_: Exception) {}
+                    try { t.release() } catch (_: Exception) {}
+                    bitti()
+                }
+                override fun onPeriodicNotification(t: android.media.AudioTrack) {}
+            })
+            track.play()
+            Log.i("Sezai", "SHERPA oynuyor ornekler=${pcm.size} hz=$hz")
+        } catch (e: Exception) {
+            Log.w("Sezai", "SHERPA oynama hatasi: ${e.message}")
+            hataFn()
+        }
     }
 
     override fun durdur() {
