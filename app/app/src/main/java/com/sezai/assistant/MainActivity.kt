@@ -141,12 +141,17 @@ class MainActivity : Activity() {
                 sesler = konusma.sesListesi()
                 sesAyari.getInt("tts_seviye", 100).coerceIn(10, 250).let { y -> (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
                 // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
-                val kayitli = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
-                val sira = sesler.indexOf(kayitli)
-                val uygulandi = sira >= 0 && konusma.sesSec(kayitli)
+                val kayitliHam = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
+                // Network ses her zaman yerel karşılığına düş (güvenilir offline çalışma)
+                val kayitli = if (kayitliHam.endsWith("-network"))
+                    kayitliHam.replace("-network", "-local").also { Log.i("Sezai", "SES network->local: $it") }
+                    else kayitliHam
+                val sira = sesler.indexOf(kayitli).let { if (it < 0) sesler.indexOf(VARSAYILAN_SES) else it }
+                val uygulandi = sira >= 0 && konusma.sesSec(sesler[sira])
                 if (uygulandi) sesSirasi = sira
                 Log.i("Sezai", "SES varsayilan=$kayitli sira=${sira + 1} uygulandi=$uygulandi")
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
+                if (tamam && intent.getStringExtra("oto") == null) seslendir("Buyurun efendim.")
                 intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
                 intent.getStringExtra("komut")?.let { komutVer(it) }
@@ -942,6 +947,9 @@ class MainActivity : Activity() {
         intent.getStringExtra("yorumla")?.let { Log.i("Sezai", "YORUM '$it' -> ${KomutYorumlayici.yorumla(it)}") }
         intent.getStringExtra("oto")?.let { seslendir(it) }
         intent.getStringExtra("komut")?.let { komutVer(it) }
+        if (intent.getBooleanExtra("sohbet_basla", false)) {
+            anaIs.postDelayed({ sohbetBaslat() }, 300)
+        }
     }
 
     override fun onStop() {

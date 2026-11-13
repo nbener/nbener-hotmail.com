@@ -151,7 +151,7 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                 if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) { cikisSebebi = "mod_normal_degil_dongude(${ses.mode})"; break }
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
-                if (metin.isNotBlank()) tanimaVar = true
+                if (metin.isNotBlank()) { tanimaVar = true; Log.i("Sezai", "SOZKESME tanidi: \"$metin\"") }
                 val kelimeler = metin.split(' ')
                 if ("dur" in kelimeler || "sezai" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi"; break }
             }

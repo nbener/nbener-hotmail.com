@@ -100,7 +100,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
             tts?.setAudioAttributes(android.media.AudioAttributes.Builder()
                 .setUsage(android.media.AudioAttributes.USAGE_ASSISTANT)
                 .setContentType(android.media.AudioAttributes.CONTENT_TYPE_SPEECH).build())
-            Log.i("Sezai", "TTS hazir=$hazirlandi motor=${tts?.defaultEngine} sesler=${sesListesi()}")
+            Log.i("Sezai", "TTS hazir=$hazirlandi motor=${motor ?: tts?.defaultEngine} sesler=${sesListesi()}")
             tts?.voices?.filter { trMi(it.locale.language) }?.forEach {
                 Log.i("Sezai", "TRSES ${it.name} ozellik=${it.features} kalite=${it.quality} cevrimici=${it.isNetworkConnectionRequired}")
             }
@@ -112,7 +112,9 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
 
     override fun konus(metin: String, bitince: (() -> Unit)?, hata: (() -> Unit)?) {
         // Sessiz mod: hiç ses çıkmaz
-        if (BildirimKumanda.sessizMi(context)) { bitince?.invoke(); return }
+        val sessiz = BildirimKumanda.sessizMi(context)
+        Log.i("Sezai", "TTS konus sessiz=$sessiz metin='${metin.take(40)}'")
+        if (sessiz) { bitince?.invoke(); return }
         sozKesme.durdur()
         val sesMetni = SesMetni.temizle(metin)
         if (sesMetni.isBlank()) { durdur(); bitince?.invoke(); return }

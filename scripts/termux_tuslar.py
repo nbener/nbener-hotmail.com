@@ -44,7 +44,7 @@ KOMPAKT = [
 TEK = [[
     tus('ESC', popup=tus(macro='CTRL c', display='Durdur')),
     tus('TAB', popup=tus(macro='CTRL r', display='Ara')),
-    tus('CTRL', popup='ALT'),
+    tus('CTRL', popup=tus(macro='CTRL l', display='Temizle')),
     tus('LEFT', popup='UP'), tus('RIGHT', popup='DOWN'),
     tus('PASTE', display='Yapistir', popup='ENTER'),
     tus(macro='sesliyaz ENTER', display='Ses',

@@ -110,9 +110,9 @@ class SezaiArkaPlanServisi : Service() {
         if (kapaniyor) return
         Log.i("Sezai", "ARKAPLAN sezai duyuldu")
         val ses = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        if (!konusmaHazir || ses.mode != AudioManager.MODE_NORMAL) { yenidenDinle(3000); return }
-        val benim = ++nesil
-        konus("Buyurun, sizi dinliyorum.", benim) { dinleTur(benim, 0) }
+        if (ses.mode != AudioManager.MODE_NORMAL) { yenidenDinle(3000); return }
+        val yeni = ++nesil
+        konus("Buyurun efendim.", yeni) { dinleTur(yeni, 0) }
     }
 
     // Konuşmayı bitirince devam eder; hata veya iptalde uyanma beklemesine döner
@@ -165,8 +165,12 @@ class SezaiArkaPlanServisi : Service() {
 
     private fun dinleTur(benim: Int, takip: Int) {
         if (benim != nesil || kapaniyor) return
+        // SozKesme'nin 800ms grace periyodu STT mikrofonu ile çakışır; önce durdur ve kısa bekle
+        konusma?.durdur()
+        anaIs.postDelayed({
+        if (benim != nesil || kapaniyor) return@postDelayed
         val d = dinleme ?: AndroidDinleme(this).also { dinleme = it }
-        if (!d.kullanilabilirMi()) { uyanmayaDon(benim, 3000); return }
+        if (!d.kullanilabilirMi()) { uyanmayaDon(benim, 3000); return@postDelayed }
         d.dinle(
             sonuc = { metin -> anaIs.post { if (benim == nesil && !kapaniyor) yanitla(metin, benim, takip) } },
             // Ses duyulmadı/anlaşılmadı: ilk istekte kısa bilgi, takipte sessizce uyanma beklemesine dön
@@ -175,6 +179,7 @@ class SezaiArkaPlanServisi : Service() {
                 if (takip == 0) konus("Sizi duyamadım. İsterseniz tekrar Sezai deyin.", benim) { uyanmayaDon(benim, 1500) }
                 else uyanmayaDon(benim, 1500)
             } })
+        }, 300L)
     }
 
     private fun aramaYap(hedef: String, benim: Int, sonra: () -> Unit) {
