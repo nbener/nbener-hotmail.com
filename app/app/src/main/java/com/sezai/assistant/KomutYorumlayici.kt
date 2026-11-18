@@ -29,6 +29,7 @@ sealed class Komut {
     enum class AyarTuru { WIFI, BLUETOOTH, VERI, PARLAKLIK, SES_AYARLARI }
     data class SistemAyar(val tur: AyarTuru) : Komut()
     object AcilArama : Komut() // 112
+    data class SesSecim(val erkek: Boolean) : Komut() // erkek=true → erkek ses, false → kadın ses
     data class Bilinmiyor(val metin: String) : Komut()
 }
 
@@ -216,6 +217,10 @@ object KomutYorumlayici {
             val sayi = if (sonIdx >= 0 && sonIdx + 1 < t.size) sayiOku(t, sonIdx + 1)?.first else null
             return Komut.MesajOku(sayi?.coerceIn(1, 10) ?: 3)
         }
+        // Ses seçimi: "erkek ses", "kadın ses", "bayan ses", "dişi ses"
+        if (m.contains("erkek ses") || (m.contains("erkek") && m.contains("konuş"))) return Komut.SesSecim(true)
+        if (m.contains("kadın ses") || m.contains("bayan ses") || m.contains("dişi ses") || (m.contains("kadın") && m.contains("konuş"))) return Komut.SesSecim(false)
+
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor
 

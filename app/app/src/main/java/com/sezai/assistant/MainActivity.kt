@@ -558,6 +558,12 @@ class MainActivity : Activity() {
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
         if (komut is Komut.AramaYap) { aramaYap(komut.hedef); return }
+        if (komut is Komut.SesSecim) {
+            val secinildi = sesSec(komut.erkek)
+            val cevapSes = if (secinildi != null) "${if (komut.erkek) "Erkek" else "Kadın"} sese geçtim: $secinildi" else "Bu ses şu an mevcut değil."
+            sohbetDokumu.ekle(metin, cevapSes); sohbetYazisiniGoster(); seslendir(cevapSes)
+            return
+        }
         if (komut is Komut.Sessiz && komut.ac) {
             sessizOnayBekliyor = true
             Log.i("Sezai", "KOMUT sessiz mod onay istendi")
@@ -569,6 +575,26 @@ class MainActivity : Activity() {
         sohbetDokumu.ekle(metin, cevap)
         sohbetYazisiniGoster()
         seslendir(cevap)
+    }
+
+    // Erkek veya kadın sesi seçer; bulduğu ses adını döner, bulamazsa null
+    private fun sesSec(erkek: Boolean): String? {
+        if (sesler.isEmpty()) return null
+        fun erkekMi(ad: String): Boolean {
+            val k = ad.lowercase()
+            return k.contains("male") || k.contains("man") || k.contains("-m") || k.contains("smtm") || k.contains("erkek")
+        }
+        fun kadinMi(ad: String): Boolean {
+            val k = ad.lowercase()
+            return k.contains("female") || k.contains("woman") || k.contains("-f") || k.contains("smtf") || k.contains("kadın") || k.contains("kadin")
+        }
+        val hedef = if (erkek) sesler.firstOrNull { erkekMi(it) } ?: sesler.firstOrNull { !kadinMi(it) }
+                    else sesler.firstOrNull { kadinMi(it) } ?: sesler.firstOrNull { !erkekMi(it) }
+        hedef ?: return null
+        konusma.sesSec(hedef)
+        sesSirasi = sesler.indexOf(hedef).coerceAtLeast(0)
+        sesAyari.edit().putString("ses_adi", hedef).apply()
+        return hedef
     }
 
     private fun baglantiAyarlariniAc() {

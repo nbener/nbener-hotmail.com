@@ -71,6 +71,7 @@ class KomutCalistirici(private val context: Context) {
         is Komut.NavigasyonBaslat -> navigasyonBaslat(komut.hedef)
         is Komut.SistemAyar -> sistemAyarAc(komut.tur)
         is Komut.AcilArama -> acilAra()
+        is Komut.SesSecim -> if (komut.erkek) "Erkek ses seçiyorum." else "Kadın ses seçiyorum." // gerçek işi MainActivity yapar
         is Komut.Bilinmiyor -> "Bunu anlayamadım, tekrar söyler misiniz?"
     }
 

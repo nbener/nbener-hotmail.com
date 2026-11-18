@@ -151,7 +151,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                         check(mesajlar.getJSONObject(2).getString("role") == "assistant")
                         check(!b.instanceFollowRedirects)
                         check(b.getRequestProperty("Authorization") == "Bearer sezai-test-anahtari")
-                        if (saglayici == SohbetSaglayici.GROQ) check(!istek.getBoolean("include_reasoning"))
+                        if (saglayici == SohbetSaglayici.GROQ) check(!istek.optBoolean("include_reasoning", false))
                         if (saglayici == SohbetSaglayici.OPENROUTER) check(istek.getString("model") == "openrouter/free")
                     }
                 }

@@ -133,6 +133,7 @@ class SessizAlici : BroadcastReceiver() {
         }
         when (i.action) {
             BildirimKumanda.SESSIZ_DEGISTIR -> BildirimKumanda.sessizAyarla(c, !BildirimKumanda.sessizMi(c))
+            "com.sezai.assistant.SESSIZ_KAPAT" -> BildirimKumanda.sessizAyarla(c, false)
             BildirimKumanda.GORUNUM_DEGISTIR -> {
                 val g = c.getSharedPreferences("gorunum", Context.MODE_PRIVATE)
                 g.edit().putBoolean("gece", !g.getBoolean("gece", true)).apply()

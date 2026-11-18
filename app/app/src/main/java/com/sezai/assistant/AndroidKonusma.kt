@@ -142,7 +142,6 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         // Sherpa (Piper) yolu — hazırsa Android TTS yerine kullan
         val sherpaMotor = sherpa
         if (sherpaMotor != null && sherpaMotor.hazir) {
-            bildir(KonusmaGorselOlayi.Tur.BASLADI, metin)
             Thread {
                 val audio = sherpaMotor.sentezle(sesMetni)
                 if (audio == null) {
@@ -151,7 +150,10 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
                 }
                 val (ornekler, hz) = audio
                 val pcm = ShortArray(ornekler.size) { (ornekler[it].coerceIn(-1f, 1f) * 32767).toInt().toShort() }
+                // Ses seviyesi amplifikasyonu Sherpa yolunda da uygulanır
+                if (guc > 1f) { val g = guc; for (k in pcm.indices) pcm[k] = (32767.0 * kotlin.math.tanh(g * pcm[k] / 32768.0)).toInt().toShort() }
                 sherpaOyna(pcm, hz, sira,
+                    basladi = { bildir(KonusmaGorselOlayi.Tur.BASLADI, metin) },
                     bitti = { gorselAnaIs.post { if (gorselNesil.get() == sira) { bildir(KonusmaGorselOlayi.Tur.BITTI); bitince?.invoke() } } },
                     hataFn = { gorselAnaIs.post { if (gorselNesil.get() == sira) { bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() } } }
                 )
@@ -196,7 +198,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
         if (sonuc == TextToSpeech.ERROR) { dosya?.delete(); bildir(KonusmaGorselOlayi.Tur.HATA); hata?.invoke() }
     }
 
-    private fun sherpaOyna(pcm: ShortArray, hz: Int, sira: Int, bitti: () -> Unit, hataFn: () -> Unit) {
+    private fun sherpaOyna(pcm: ShortArray, hz: Int, sira: Int, basladi: () -> Unit = {}, bitti: () -> Unit, hataFn: () -> Unit) {
         try {
             val track = android.media.AudioTrack.Builder()
                 .setAudioAttributes(android.media.AudioAttributes.Builder()
@@ -220,7 +222,7 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
                 }
                 override fun onPeriodicNotification(t: android.media.AudioTrack) {}
             })
-            track.play()
+            track.play(); basladi()
             Log.i("Sezai", "SHERPA oynuyor ornekler=${pcm.size} hz=$hz")
         } catch (e: Exception) {
             Log.w("Sezai", "SHERPA oynama hatasi: ${e.message}")

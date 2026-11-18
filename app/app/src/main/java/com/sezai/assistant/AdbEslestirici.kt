@@ -27,6 +27,11 @@ class AdbEslestirici : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == AYAR_EYLEM) { ayarla(context, intent); return }
+        if (intent.action == "com.sezai.SESSIZ_KAPAT") {
+            BildirimKumanda.sessizAyarla(context, false)
+            Log.i(ETIKET, "SESSIZ_KAPAT komutu alindi, sessiz=false yapildi")
+            return
+        }
         if (intent.action != EYLEM) return
 
         // Intent extras'tan bağlantı bilgilerini al

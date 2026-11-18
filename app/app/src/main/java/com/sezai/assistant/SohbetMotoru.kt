@@ -44,8 +44,11 @@ class SohbetMotoru(
         gorev = isci.submit {
             var b: HttpURLConnection? = null
             try {
-                // Groq dışı sağlayıcılarda browser_search yok; aramadan normal devam et
                 val webEtkin = webAramasi && saglayici == SohbetSaglayici.GROQ
+                if (webAramasi && !webEtkin) {
+                    anaIs.post { if (nesil.get() == sira) hata("Bu bağlantıda web araması desteklenmiyor. Web araması için Groq bağlantısını kullanın.") }
+                    return@submit
+                }
                 val anahtar = try { kasa.oku() } catch (_: Exception) {
                     throw SohbetHatasi("Bağlantı anahtarı okunamadı. Sohbet bağlantısından yeniden kaydedin.")
                 }
