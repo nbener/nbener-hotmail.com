@@ -19,13 +19,13 @@ try:
             satirlar = cikti.read_text().splitlines()
             if satirlar and satirlar[0] == 'TEST_ID ' + kimlik:
                 rapor = satirlar[1:]
-                if len(rapor) < 31:
+                if len(rapor) < 32:
                     time.sleep(0.3)
                     continue
                 print('\n'.join(rapor))
-                if len(rapor) != 31 or any(not s.startswith('PASS ') for s in rapor):
+                if len(rapor) != 32 or any(not s.startswith('PASS ') for s in rapor):
                     raise SystemExit(1)
-                print('Sonuç: 31/31 başarılı')
+                print('Sonuç: 32/32 başarılı')
                 break
         time.sleep(0.3)
     else:
