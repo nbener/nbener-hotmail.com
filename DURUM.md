@@ -1196,3 +1196,24 @@ Son güncelleme: 2026-10-29
 - Shizuku çalışmıyor → APK telefonda kurulu DEĞİL, kullanıcı açıkça kurmalı
 - SOZKESME çıkış sebebi: `cikisSebebi` logu eklendi (bir önceki oturumda), cihazda test bekliyor
 - MesajOku: servis kilitliyken kişisel veri okuma politikası — ayrıca gözden geçirilecek
+
+
+## 14.11.2026 — Sherpa-onnx Piper TTS entegrasyonu
+
+### Bu oturumda yapılanlar
+- "Hey" uyandırma kelimesi eklendi (SezaiUyanma + SozKesme)
+- Termux klavye TEK düzeni: ikincil tuşlar altta sabit ikinci satıra taşındı
+- SherpaMotor.kt: vits-piper-tr_TR-dfki-medium modeli, /sdcard/Download tar.bz2'den otomatik kurar
+- AndroidKonusma: sherpa hazırsa Piper sesi kullanır, değilse Android TTS fallback
+- build.gradle: sherpa-onnx v1.13.5 JitPack bağımlılığı
+- settings.gradle: JitPack repository eklendi
+- Model indirildi: /sdcard/Download/vits-piper-tr_TR-dfki-medium.tar.bz2 (65MB)
+- APK derlendi: SHA256 c02dc0665f..., v2 imzalı
+- Commit: 4e48dbb
+
+### Bekleyen
+- [ ] APK kurulum onayı (GUI yükleyici açık)
+- [ ] Sherpa model kurulumu: "SHERPA model kuruluyor" → "SHERPA hazir hz=22050" logunu doğrula
+- [ ] Piper ses kalitesi cihazda kabul testi
+- [ ] Hey uyandırma kelimesi cihazda test
+- [ ] SezaiArkaPlanServisi'nde de SherpaMotor başlatılması (arka planda da Piper sesi kullanılsın)

@@ -43,6 +43,7 @@ class SezaiArkaPlanServisi : Service() {
     private val anaIs = Handler(Looper.getMainLooper())
     private var uyanma: SezaiUyanma? = null
     private var konusma: AndroidKonusma? = null
+    private var sherpa: SherpaMotor? = null
     private var konusmaHazir = false
     private var kapaniyor = false
     private var dinleme: AndroidDinleme? = null
@@ -95,8 +96,15 @@ class SezaiArkaPlanServisi : Service() {
             anaIs.post {
                 if (kapaniyor) return@post
                 konusmaHazir = hazir
-                // Uygulamada seçilen kayıtlı sesi kullan
                 getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("ses_adi", null)?.let { konusma?.sesSec(it) }
+            }
+        }
+        // Piper (Sherpa) hazırsa arka planda da doğal ses kullanılır
+        sherpa = SherpaMotor(this).also { s ->
+            s.hazirla { basarili ->
+                if (basarili) anaIs.post {
+                    if (!kapaniyor) konusma?.sherpa = s
+                }
             }
         }
         konusma?.sozAlindi = { sozKesildi() }
@@ -112,7 +120,7 @@ class SezaiArkaPlanServisi : Service() {
         val ses = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         if (ses.mode != AudioManager.MODE_NORMAL) { yenidenDinle(3000); return }
         val yeni = ++nesil
-        konus("Buyurun efendim.", yeni) { dinleTur(yeni, 0) }
+        konus("Dinliyorum efendim.", yeni) { dinleTur(yeni, 0) }
     }
 
     // Konuşmayı bitirince devam eder; hata veya iptalde uyanma beklemesine döner
@@ -337,6 +345,7 @@ class SezaiArkaPlanServisi : Service() {
         dinleme?.kapat(); dinleme = null
         sohbet?.kapat(); sohbet = null
         uyanma?.durdur(); uyanma = null
+        konusma?.sherpa = null; sherpa = null
         konusma?.kapat(); konusma = null
         calisiyor = false
         try { if (wakeLock?.isHeld == true) wakeLock?.release() } catch (_: Exception) {}

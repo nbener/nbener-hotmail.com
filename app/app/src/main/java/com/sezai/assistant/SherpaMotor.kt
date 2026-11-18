@@ -6,10 +6,13 @@ import com.k2fsa.sherpa.onnx.OfflineTts
 import com.k2fsa.sherpa.onnx.OfflineTtsConfig
 import com.k2fsa.sherpa.onnx.OfflineTtsModelConfig
 import com.k2fsa.sherpa.onnx.OfflineTtsVitsModelConfig
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream
 import java.io.File
+import java.io.InputStream
 
-// Piper TTS (doğal insan sesi) — model filesDir/vits-piper-tr_TR-dfki-medium altında,
-// yoksa /sdcard/Download/vits-piper-tr_TR-dfki-medium.tar.bz2 ile kurulur.
+// Piper TTS (doğal insan sesi) — model filesDir/vits-piper-tr_TR-dfki-medium altında.
+// Kurulum: ACTION_OPEN_DOCUMENT ile kullanıcı tar.bz2 dosyasını seçer, modelKurStream ile yüklenir.
 class SherpaMotor(private val context: Context) {
     private val modelDiz = File(context.filesDir, "vits-piper-tr_TR-dfki-medium")
 
@@ -17,11 +20,18 @@ class SherpaMotor(private val context: Context) {
         private set
     @Volatile private var tts: OfflineTts? = null
 
-    fun hazirla() {
-        if (hazir) return
+    fun modelVarMi() = File(modelDiz, "tr_TR-dfki-medium.onnx").exists()
+
+    // bitince: true = başarılı yüklendi, false = model yok veya hata
+    fun hazirla(bitince: ((Boolean) -> Unit)? = null) {
+        Log.i("Sezai", "SHERPA hazirla cagrildi hazir=$hazir modelDiz=${modelDiz.absolutePath}")
+        if (hazir) { bitince?.invoke(true); return }
         Thread {
+            Log.i("Sezai", "SHERPA thread basladi")
             if (!File(modelDiz, "tr_TR-dfki-medium.onnx").exists()) {
-                if (!modelKur()) return@Thread
+                Log.i("Sezai", "SHERPA model dosyasi yok")
+                bitince?.invoke(false)
+                return@Thread
             }
             try {
                 val config = OfflineTtsConfig(
@@ -39,10 +49,46 @@ class SherpaMotor(private val context: Context) {
                 tts = OfflineTts(assetManager = null, config = config)
                 hazir = true
                 Log.i("Sezai", "SHERPA hazir hz=${tts?.sampleRate()}")
+                bitince?.invoke(true)
             } catch (e: Exception) {
                 Log.w("Sezai", "SHERPA yuklenemedi: ${e.javaClass.simpleName}: ${e.message}")
+                bitince?.invoke(false)
             }
         }.start()
+    }
+
+    // ACTION_OPEN_DOCUMENT'tan gelen InputStream ile model kur; ardından hazirla() çağrılmalı
+    fun modelKurStream(stream: InputStream): Boolean {
+        Log.i("Sezai", "SHERPA modelKurStream basladi")
+        return try {
+            modelDiz.deleteRecursively()
+            modelDiz.mkdirs()
+            var dosyaSayisi = 0
+            stream.use { raw ->
+                BZip2CompressorInputStream(raw).use { bz2 ->
+                    TarArchiveInputStream(bz2).use { tar ->
+                        var girdi = tar.nextEntry
+                        while (girdi != null) {
+                            val hedef = File(context.filesDir, girdi.name)
+                            if (girdi.isDirectory) {
+                                hedef.mkdirs()
+                            } else {
+                                hedef.parentFile?.mkdirs()
+                                hedef.outputStream().use { tar.copyTo(it) }
+                                dosyaSayisi++
+                            }
+                            girdi = tar.nextEntry
+                        }
+                    }
+                }
+            }
+            val tamam = File(modelDiz, "tr_TR-dfki-medium.onnx").exists()
+            Log.i("Sezai", "SHERPA modelKurStream bitti tamam=$tamam dosyaSayisi=$dosyaSayisi")
+            tamam
+        } catch (e: Exception) {
+            Log.w("Sezai", "SHERPA modelKurStream hatasi: ${e.javaClass.simpleName}: ${e.message}")
+            false
+        }
     }
 
     // FloatArray ve sample rate döner; null = hata veya model hazır değil
@@ -61,26 +107,5 @@ class SherpaMotor(private val context: Context) {
         hazir = false
         try { tts?.release() } catch (_: Exception) {}
         tts = null
-    }
-
-    private fun modelKur(): Boolean {
-        val tar = File("/sdcard/Download/vits-piper-tr_TR-dfki-medium.tar.bz2")
-        if (!tar.exists()) {
-            Log.w("Sezai", "SHERPA model tar.bz2 yok: ${tar.absolutePath}")
-            return false
-        }
-        Log.i("Sezai", "SHERPA model kuruluyor: ${tar.absolutePath}")
-        return try {
-            modelDiz.deleteRecursively()
-            val p = ProcessBuilder("tar", "-xjf", tar.absolutePath, "-C", context.filesDir.absolutePath)
-                .redirectErrorStream(true).start()
-            val cikis = p.waitFor()
-            val tamam = File(modelDiz, "tr_TR-dfki-medium.onnx").exists()
-            Log.i("Sezai", "SHERPA model kuruldu cikis=$cikis tamam=$tamam")
-            tamam
-        } catch (e: Exception) {
-            Log.w("Sezai", "SHERPA model kurulum hatasi: ${e.message}")
-            false
-        }
     }
 }

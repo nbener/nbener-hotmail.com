@@ -78,6 +78,7 @@ class SohbetMotoru(
                                 // openai/gpt-oss-120b ve gpt-oss-20b browser_search destekler (Groq built-in).
                                 put("tools", JSONArray().put(JSONObject().put("type", "browser_search")))
                                 put("tool_choice", "required")
+                                put("reasoning_effort", "low")
                             }
                         } else {
                             put("max_tokens", 1024)

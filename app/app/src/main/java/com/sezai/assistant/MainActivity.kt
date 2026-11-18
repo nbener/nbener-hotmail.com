@@ -151,8 +151,12 @@ class MainActivity : Activity() {
                 if (uygulandi) sesSirasi = sira
                 Log.i("Sezai", "SES varsayilan=$kayitli sira=${sira + 1} uygulandi=$uygulandi")
                 if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
-                // Sherpa (Piper) TTS — arka planda model yükle, hazır olunca devreye girer
-                (konusma as? AndroidKonusma)?.sherpa = SherpaMotor(this).also { it.hazirla() }
+                // Sherpa (Piper) TTS — model varsa yükle, yoksa dosya seçici sun
+                (konusma as? AndroidKonusma)?.sherpa = SherpaMotor(this).also { sherpa ->
+                    sherpa.hazirla { basarili ->
+                        if (!basarili && !sherpa.modelVarMi()) runOnUiThread { piperKurDialoguGoster() }
+                    }
+                }
                 if (tamam && intent.getStringExtra("oto") == null) seslendir("Buyurun efendim.")
                 intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
@@ -937,10 +941,52 @@ class MainActivity : Activity() {
         super.onRequestPermissionsResult(kod, i, s)
         if (s.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
             if (kod == 1) dinle() else if (kod == 2) sohbetBaslat() else if (kod == 3) konumGoster(null) else if (kod == 5) kameraBak(false, null)
+            else if (kod == 6) (konusma as? AndroidKonusma)?.sherpa?.hazirla()
         } else if (kod == 3) {
             durumYazisi.text = "Konum izni verilmedi, konumunuzu gösteremem."
         } else if (kod == 1 || kod == 2) {
             durumYazisi.text = "Sesli konuşma için mikrofon izni gerekiyor."
+        }
+    }
+
+    private fun piperKurDialoguGoster() {
+        android.app.AlertDialog.Builder(this)
+            .setTitle("Piper ses modeli")
+            .setMessage("Doğal Türkçe ses için model dosyası gerekiyor.\n\nİndirdiğiniz 'vits-piper-tr_TR-dfki-medium.tar.bz2' dosyasını seçin.")
+            .setPositiveButton("Dosya seç") { _, _ ->
+                val it = android.content.Intent(android.content.Intent.ACTION_OPEN_DOCUMENT).apply {
+                    addCategory(android.content.Intent.CATEGORY_OPENABLE)
+                    type = "*/*"
+                }
+                @Suppress("DEPRECATION")
+                startActivityForResult(it, 7)
+            }
+            .setNegativeButton("Şimdi değil", null)
+            .show()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 7 && resultCode == android.app.Activity.RESULT_OK) {
+            val uri = data?.data ?: return
+            val sherpa = (konusma as? AndroidKonusma)?.sherpa ?: return
+            durumYazisi.text = "Piper ses modeli yükleniyor, lütfen bekleyin…"
+            Thread {
+                val stream = try { contentResolver.openInputStream(uri) } catch (e: Exception) { null }
+                if (stream == null) { runOnUiThread { durumYazisi.text = "Dosya açılamadı." }; return@Thread }
+                val tamam = sherpa.modelKurStream(stream)
+                runOnUiThread {
+                    if (tamam) {
+                        durumYazisi.text = "Piper ses modeli kuruldu, yükleniyor…"
+                        sherpa.hazirla { basarili ->
+                            runOnUiThread { durumYazisi.text = if (basarili) "Piper ses hazır." else "Model yüklenemedi." }
+                        }
+                    } else {
+                        durumYazisi.text = "Model kurulum hatası. Doğru dosyayı seçtiğinizden emin olun."
+                    }
+                }
+            }.start()
         }
     }
 

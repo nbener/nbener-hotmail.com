@@ -169,7 +169,7 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                         diger.sil()
                         check(!diger.varMi() && kasa.varMi())
                         check(kasa.oku() == "sezai-test-anahtari")
-                        check(SohbetSaglayici.entries.map { it.kasaAdi }.distinct().size == 4)
+                        check(SohbetSaglayici.entries.map { it.kasaAdi }.distinct().size == 5)
                         check(SohbetSaglayici.entries.all { URL(it.adres).protocol == "https" })
                     } finally { diger.sil() }
                 }
@@ -220,8 +220,8 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     val motor = SohbetMotoru(kasa, SohbetSaglayici.GROQ) { b }.also { motorlar.add(it) }
                     check(iste(motor, "Kayseri nüfusu", true) == "Deneme yanıtı. https://example.org/kayseri")
                     val istek = JSONObject(b.giden.toString("UTF-8"))
-                    // Web araması llama-3.3-70b-versatile + browser_search ile yapılır.
-                    check(istek.getString("model") == "llama-3.3-70b-versatile")
+                    // Web araması openai/gpt-oss-120b + browser_search ile yapılır.
+                    check(istek.getString("model") == SohbetSaglayici.GROQ.model)
                     check(istek.getString("tool_choice") == "required")
                     check(istek.getJSONArray("tools").getJSONObject(0).getString("type") == "browser_search")
                     check(!istek.has("citation_options"))
@@ -257,8 +257,8 @@ class SohbetTestAlicisi : BroadcastReceiver() {
                     iste(motor, "Kısaltır mısın?")
                     val ilk = JSONObject(baglantilar.first().giden.toString("UTF-8"))
                     val son = JSONObject(baglantilar.last().giden.toString("UTF-8"))
-                    // Web aramasında llama-3.3-70b-versatile + tools, normal mesajda GROQ.model + tools yok.
-                    check(ilk.getString("model") == "llama-3.3-70b-versatile" && ilk.has("tools"))
+                    // Web aramasında gpt-oss-120b + tools, normal mesajda GROQ.model + tools yok.
+                    check(ilk.getString("model") == SohbetSaglayici.GROQ.model && ilk.has("tools"))
                     check(son.getString("model") == SohbetSaglayici.GROQ.model && !son.has("tools"))
                     check(son.getJSONArray("messages").length() == 4)
                     check(son.getJSONArray("messages").getJSONObject(1).getString("content") == "Kayseri nüfusunu webden araştır")

@@ -8,6 +8,8 @@ dependencies {
     implementation("net.java.dev.jna:jna:5.18.1@aar")
     // Piper TTS (doğal insan sesi) — yalnız arm64-v8a
     implementation("com.github.k2-fsa.sherpa-onnx:sherpa-onnx:v1.13.5")
+    // tar.bz2 çıkarma — Java içinde, SELinux subprocess sorununu aşmak için
+    implementation("org.apache.commons:commons-compress:1.27.1")
 }
 android {
     namespace = "com.sezai.assistant"
