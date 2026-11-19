@@ -1217,3 +1217,56 @@ Son güncelleme: 2026-10-29
 - [ ] Piper ses kalitesi cihazda kabul testi
 - [ ] Hey uyandırma kelimesi cihazda test
 - [ ] SezaiArkaPlanServisi'nde de SherpaMotor başlatılması (arka planda da Piper sesi kullanılsın)
+
+
+## 19.11.2026 — Söz kesme iyileştirme, streaming TTS, sessiz mod timeout, komut düzeltmeleri
+
+### Bu oturumda yapılanlar
+
+**Söz kesme (SozKesme.kt)**
+- AudioSource VOICE_COMMUNICATION → VOICE_RECOGNITION (TTS çalarken susturulmaz)
+- AEC devre dışı bırakıldı (TTS sırasında kullanıcı sesini siliyordu)
+- Adaptif enerji eşiği: ilk 300ms TTS ortam sesi ölçer, 2.5x üstü = kullanıcı sesi
+
+**Streaming TTS pipeline (SohbetMotoru + SiraliSeslendirme + MainActivity)**
+- SohbetMotoru: `parca` callback ile streaming SSE desteği — her cümle hazır olunca TTS'e gönderilir
+- SiraliSeslendirme: `ekle()`, `bitince()`, `akisSifirla()` metodları eklendi
+- SiraliSeslendirme.durdur(): akisTamamlandi ve akisNesil de sıfırlanıyor (hata düzeltmesi)
+- MainActivity: sohbet akışında streaming TTS pipeline bağlandı
+
+**Sessiz mod timeout (MainActivity + SezaiArkaPlanServisi)**
+- sessizOnayBekliyor 30 saniyelik timeout ile korunuyor (kullanıcı cevap vermezse otomatik iptal)
+- Yanlış tetiklenme riski önemli ölçüde azaldı
+
+**Komut yorumlama düzeltmeleri (KomutYorumlayici.kt) — 29/29 PASS**
+- YouTubeAra: orijinal büyük/küçük harf korunuyor (Tarkan, Şımarık vb.)
+- MuzikCal: orijinal büyük/küçük harf korunuyor
+- AramaYap: Türkçe iyelik ekli arama hedefleri doğru çözülüyor (annemi→anne, babamı→baba)
+- NavigasyonBaslat: Türkçe hal ekleri temizleniyor (Kadıköy'e→kadıköy)
+
+**Android TTS (Sherpa devre dışı)**
+- SezaiArkaPlanServisi ve MainActivity: Sherpa yerine Android TTS (11 no'lu ses: tr-tr-x-tmc-network)
+- Ses düzeyi varsayılan %200; kotenük ses seçimi iyileştirildi
+
+**AndroidKonusma**: SozKesme durdurma gecikmesi 800ms → 2000ms
+
+### Derleme
+- SHA256: 7ac6169317ebe42924e2103b53c0658a7a0fd1b1ffef2d1d45e965afad6949b3
+- v2 imzalı, Shizuku ile kuruldu (Success)
+
+### Test sonuçları
+| Test | Sonuç |
+|---|---|
+| Dinleme | 9/9 PASS |
+| Görüşme önceliği | 8/8 PASS |
+| Sohbet motoru | 32/32 PASS |
+| Komut yorumlama | 29/29 PASS |
+| Ekran komutları | 11/11 PASS |
+| Toplam | 89/89 PASS |
+
+### Hâlâ açık
+- [ ] Söz kesme (dur/Sezai): TTS sırasında insan sesiyle cihazda kabul testi
+- [ ] Streaming TTS: cihazda kulak testi (cümle bazlı daha hızlı yanıt)
+- [ ] Sessiz mod: cihazda timeout davranışı doğrulaması
+- [ ] STT hata kodu=7 kök nedeni
+- [ ] Gerçek sesli sohbet / canlı API kabul testi

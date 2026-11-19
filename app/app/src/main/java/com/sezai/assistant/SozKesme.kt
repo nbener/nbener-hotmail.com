@@ -125,7 +125,8 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             mikrofon = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(enAz * 2, 6400))
             check(mikrofon.state == AudioRecord.STATE_INITIALIZED) { "MIKROFON" }
-            // AEC devre dışı: TTS çalarken AEC kullanıcı sesini de siliyor
+            // AEC açık: hoparlörden gelen TTS sesini mikrofon girişinden siler
+            if (AcousticEchoCanceler.isAvailable()) aec = AcousticEchoCanceler.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             if (NoiseSuppressor.isAvailable()) gurultu = NoiseSuppressor.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             val ses = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
             if (kapandi || benim != nesil.get() || ses.mode != android.media.AudioManager.MODE_NORMAL) {
@@ -168,7 +169,13 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
                 if (metin.isNotBlank()) { tanimaVar = true; Log.i("Sezai", "SOZKESME tanidi: \"$metin\"") }
                 val kelimeler = metin.split(' ')
-                if ("dur" in kelimeler || "sezai" in kelimeler || "hey" in kelimeler) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi"; break }
+                if ("dur" in kelimeler || "sezai" in kelimeler || "hey" in kelimeler) {
+                    // Sadece TTS baseline'ın 1.8 katı üstündeyse geçerli say; TTS yankısı düşük enerjide kalır
+                    val blokRmsVosk = kotlin.math.sqrt(veri.take(n).sumOf { it.toInt().toLong() * it.toInt() }.toDouble() / n)
+                    val voskEsik = maxOf(ttsBaseline * 1.8, 1200.0)
+                    Log.i("Sezai", "SOZKESME vosk='$metin' rms=${blokRmsVosk.toInt()} esik=${voskEsik.toInt()}")
+                    if (blokRmsVosk > voskEsik) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi(vosk=$metin)"; break }
+                }
             }
             if (cikisSebebi == "bilinmiyor") cikisSebebi = if (kapandi) "kapandi_son" else if (benim != nesil.get()) "nesil_degisti_son" else "dongu_bitti"
         } catch (e: Exception) {
