@@ -68,7 +68,9 @@ class KomutCalistirici(private val context: Context) {
         is Komut.MuzikCal -> muzikAc(komut.sorgu)
         is Komut.FenerAyar -> fenerAyarla(komut.ac)
         is Komut.MesajOku -> mesajlariOku(komut.adet)
+        is Komut.MesajGonder -> mesajGonder(komut.hedef, komut.metin)
         is Komut.NavigasyonBaslat -> navigasyonBaslat(komut.hedef)
+        is Komut.UygulamaAc -> uygulamaAc(komut.isim)
         is Komut.SistemAyar -> sistemAyarAc(komut.tur)
         is Komut.AcilArama -> acilAra()
         is Komut.SesSecim -> if (komut.erkek) "Erkek ses seçiyorum." else "Kadın ses seçiyorum." // gerçek işi MainActivity yapar
@@ -201,5 +203,57 @@ class KomutCalistirici(private val context: Context) {
         val dk = saniye / 60; val sn = saniye % 60
         val metin = if (dk > 0 && sn == 0) "$dk dakika" else if (dk > 0) "$dk dakika $sn saniye" else "$sn saniye"
         return if (ok) "Tamam, $metin için zamanlayıcı kurdum." else "Zamanlayıcıyı kuramadım."
+    }
+
+    private fun mesajGonder(hedef: String, metin: String): String {
+        // Kişi numarasını rehberden bul; bulamazsa kullanıcıdan numarayı girmesi istenecek SMS uygulaması açılır
+        val numara = try {
+            val cur = context.contentResolver.query(
+                android.provider.ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
+                arrayOf(android.provider.ContactsContract.CommonDataKinds.Phone.NUMBER),
+                "LOWER(${android.provider.ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME}) LIKE ?",
+                arrayOf("%${hedef.lowercase()}%"), null)
+            cur?.use { if (it.moveToFirst()) it.getString(0) else null }
+        } catch (e: Exception) { Log.w("Sezai", "MESAJ rehber hata: $e"); null }
+        val uri = if (numara != null) Uri.parse("smsto:$numara") else Uri.parse("smsto:")
+        val ok = baslat(Intent(Intent.ACTION_SENDTO, uri).apply {
+            putExtra("sms_body", metin)
+        })
+        Log.i("Sezai", "MESAJ_GONDER hedef='$hedef' numara=$numara ok=$ok")
+        return if (ok) {
+            if (numara != null) "$hedef'e mesaj uygulaması açıldı. Göndermek için onaylayın."
+            else "Mesaj uygulaması açıldı. Alıcıyı seçip onaylayın."
+        } else "Mesaj uygulaması açılamadı."
+    }
+
+    private fun uygulamaAc(isim: String): String {
+        val paketler = mapOf(
+            "whatsapp" to listOf("com.whatsapp", "com.whatsapp.w4b"),
+            "telegram" to listOf("org.telegram.messenger", "org.telegram.plus"),
+            "instagram" to listOf("com.instagram.android"),
+            "twitter" to listOf("com.twitter.android", "com.X.android"),
+            "spotify" to listOf("com.spotify.music"),
+            "chrome" to listOf("com.android.chrome"),
+            "firefox" to listOf("org.mozilla.firefox"),
+            "tarayıcı" to listOf("com.android.chrome", "org.mozilla.firefox", "com.microsoft.emmx"),
+            "youtube" to listOf("com.google.android.youtube"),
+            "harita" to listOf("com.google.android.apps.maps"),
+            "maps" to listOf("com.google.android.apps.maps"),
+            "galeri" to listOf("com.google.android.apps.photos", "com.samsung.android.gallery3d"),
+            "müzik" to listOf("com.google.android.music", "com.samsung.android.music"),
+            "ayarlar" to listOf("com.android.settings"),
+            "takvim" to listOf("com.google.android.calendar", "com.samsung.android.calendar"),
+            "hesap makinesi" to listOf("com.android.calculator2", "com.samsung.android.calculator"),
+        )
+        val adaylar = paketler[isim] ?: return "Bu uygulamayı tanımıyorum."
+        for (paket in adaylar) {
+            val intent = context.packageManager.getLaunchIntentForPackage(paket)
+            if (intent != null && baslat(intent)) {
+                Log.i("Sezai", "UYGULAMA_AC isim='$isim' paket=$paket")
+                return "$isim açılıyor."
+            }
+        }
+        Log.w("Sezai", "UYGULAMA_AC bulunamadı: $isim")
+        return "$isim uygulaması bulunamadı ya da yüklü değil."
     }
 }

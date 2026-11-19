@@ -21,14 +21,18 @@ RISH = '/data/data/com.termux/files/home/rish/rish'
 def am(komut):
     # Android 12+ arka plan kısıtı: sh ile am start Activity'yi öne getiremiyor; rish gerekli.
     env = dict(os.environ, RISH_APPLICATION_ID='com.termux')
-    return subprocess.run([RISH, '-c', komut], capture_output=True, text=True, timeout=15, env=env)
+    r = subprocess.run([RISH, '-c', komut], capture_output=True, text=True, timeout=15, env=env)
+    if r.returncode != 0:
+        print(f'  [UYARI] am start başarısız (rc={r.returncode}): {r.stderr.strip()[:80]}', flush=True)
+    return r
 
 # Zaman damgası: logcat bu andan itibaren filtrelenecek
 zaman_damgasi = time.strftime('%m-%d %H:%M:%S.000')
 
-for cumle, _ in cumleler:
+for i, (cumle, _) in enumerate(cumleler):
+    print(f'  [{i+1}/{len(cumleler)}] gönderiyor: {cumle[:50]}', flush=True)
     am('am start -n com.sezai.assistant/.MainActivity --es yorumla ' + shlex.quote(cumle))
-    time.sleep(3)
+    time.sleep(2)
 
 # Logcat'ten bu turdan YORUM satırlarını topla
 logcat_sonuc = subprocess.run(

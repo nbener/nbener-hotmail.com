@@ -25,7 +25,9 @@ sealed class Komut {
     data class MuzikCal(val sorgu: String) : Komut()
     data class FenerAyar(val ac: Boolean) : Komut()
     data class MesajOku(val adet: Int = 3) : Komut()
+    data class MesajGonder(val hedef: String, val metin: String) : Komut()
     data class NavigasyonBaslat(val hedef: String) : Komut()
+    data class UygulamaAc(val isim: String) : Komut()
     enum class AyarTuru { WIFI, BLUETOOTH, VERI, PARLAKLIK, SES_AYARLARI }
     data class SistemAyar(val tur: AyarTuru) : Komut()
     object AcilArama : Komut() // 112
@@ -131,8 +133,9 @@ object KomutYorumlayici {
             m.contains("ne görüyorsun") || m.contains("etrafımda ne var") || m.contains("karşımda ne var")) {
             return Komut.Kamera(on = m.contains("ön kamera") || m.contains("selfie"))
         }
-        // YouTube: "YouTube'da ... ara/çal/oynat" — orijinal büyük/küçük harf korunur
-        if (m.contains("youtube") || (m.contains("video") && (m.contains("ara") || m.contains("bul") || m.contains("izle")))) {
+        // YouTube: "YouTube'da ... ara/çal/oynat" — sadece "aç" değil; "YouTube'u aç" → UygulamaAc, orijinal büyük/küçük harf korunur
+        if ((m.contains("youtube") && !(m.endsWith(" aç") || m.contains("youtube aç") || m.contains("youtube'u aç") || m.contains("youtube'ı aç"))) ||
+            (m.contains("video") && (m.contains("ara") || m.contains("bul") || m.contains("izle")))) {
             val sorgu = run {
                 val txt = metin.lowercase(trLocale)
                 val prefix = listOf("youtube'da", "youtube da", "youtubeda", "youtube'de", "youtube de").firstOrNull { txt.contains(it) }
@@ -236,10 +239,34 @@ object KomutYorumlayici {
         }
         // SMS okuma: "son mesajlarımı oku", "mesajlarımı oku"
         val mesajKelimesi = t.any { it.startsWith("mesaj") || it.startsWith("sms") }
-        if (mesajKelimesi && (m.contains("oku") || m.contains("söyle") || m.contains("dinlet") || m.contains("var mı") || m.contains("kaç") || m.contains("ne"))) {
+        if (mesajKelimesi && (m.contains("oku") || m.contains("söyle") || m.contains("dinlet") || m.contains("var mı") || m.contains("kaç") || t.contains("ne"))) {
             val sonIdx = t.indexOf("son")
             val sayi = if (sonIdx >= 0 && sonIdx + 1 < t.size) sayiOku(t, sonIdx + 1)?.first else null
             return Komut.MesajOku(sayi?.coerceIn(1, 10) ?: 3)
+        }
+        // SMS gönderme: "Ahmet'e 'toplantı iptal' mesajı gönder", "anneme şunu yaz: eve geç geleceğim"
+        if (mesajKelimesi && (m.contains("gönder") || m.contains("yaz") || m.contains("at "))) {
+            val icerikRegex = Regex("[\"'\u2018\u2019\u201c\u201d]([^\"'\u2018\u2019\u201c\u201d]+)[\"'\u2018\u2019\u201c\u201d]")
+            val icerik = icerikRegex.find(metin)?.groupValues?.get(1)?.trim()
+                ?: run {
+                    val ikNoktaIdx = metin.indexOf(':')
+                    if (ikNoktaIdx > 0 && ikNoktaIdx < metin.length - 1) metin.substring(ikNoktaIdx + 1).trim() else ""
+                }
+            if (icerik.isNotBlank()) {
+                val mesajIdx = t.indexOfFirst { it.startsWith("mesaj") || it.startsWith("sms") }
+                var hedefRaw = if (mesajIdx > 0) t.take(mesajIdx).joinToString(" ").trim()
+                               else t.take((t.indexOf("yaz").takeIf { it > 0 } ?: t.size)).joinToString(" ").trim()
+                // İçerik tokenları hedef kısmına sızdıysa çıkar (örn. "anneme X mesajı gönder: X")
+                val icerikKucuk = icerik.lowercase(trLocale).trim()
+                if (hedefRaw.endsWith(" $icerikKucuk") || hedefRaw == icerikKucuk)
+                    hedefRaw = hedefRaw.removeSuffix(" $icerikKucuk").removeSuffix(icerikKucuk).trim()
+                val iyelik2 = mapOf("annem" to "anne", "annen" to "anne", "babam" to "baba",
+                    "baban" to "baba", "abim" to "abi", "ablam" to "abla",
+                    "kardeşim" to "kardeş", "eşim" to "eş", "arkadaşım" to "arkadaş")
+                val hedef = hedefRaw.replace(Regex("['\u2019][a-zğüşıöç]+$"), "").trim()
+                    .let { h -> iyelik2[h] ?: iyelik2[h.dropLast(1)] ?: iyelik2[h.dropLast(2)] ?: h }
+                if (hedef.isNotBlank()) return Komut.MesajGonder(hedef, icerik)
+            }
         }
         // Ses seçimi: "erkek ses", "kadın ses", "bayan ses", "dişi ses"
         if (m.contains("erkek ses") || (m.contains("erkek") && m.contains("konuş"))) return Komut.SesSecim(true)
@@ -256,6 +283,14 @@ object KomutYorumlayici {
         if (t.any { it.startsWith("zamanlayıcı") || it.startsWith("sayaç") || it.startsWith("kronometre") || it.startsWith("geri") } &&
             (m.contains("kur") || m.contains("ayarla") || m.contains("başlat") || m.contains("koy")) || m.contains("dakika sonra uyar") || m.contains("saniye sonra uyar")) {
             sureOku(t)?.let { return Komut.ZamanlayiciKur(it) }
+        }
+        // Uygulama açma: "WhatsApp'ı aç", "haritayı aç", "tarayıcıyı aç"
+        if (m.contains("aç") && !m.contains("alarm") && !m.contains("fener") && !m.contains("mikrofon")) {
+            val uygulamalar = listOf("whatsapp", "telegram", "instagram", "twitter", "spotify",
+                "chrome", "firefox", "tarayıcı", "youtube", "harita", "maps",
+                "kamera", "galeri", "ayarlar", "takvim", "hesap makinesi", "müzik")
+            val bulunan = uygulamalar.firstOrNull { m.contains(it) }
+            if (bulunan != null) return Komut.UygulamaAc(bulunan)
         }
         return Komut.Bilinmiyor(metin)
     }
