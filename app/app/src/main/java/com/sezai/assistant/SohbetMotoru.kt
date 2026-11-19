@@ -37,8 +37,10 @@ class SohbetMotoru(
         synchronized(gecmis) { gecmis.add(Pair("user", kullanici)); gecmis.add(Pair("assistant", asistan)) }
     }
 
+    // parca: her cümle hazır olunca çağrılır (streaming TTS pipeline); null ise eski davranış
     fun gonder(metin: String, sonuc: (String) -> Unit, hata: (String) -> Unit,
-        webAramasi: Boolean = WebIstegi.istendiMi(metin)) {
+        webAramasi: Boolean = WebIstegi.istendiMi(metin),
+        parca: ((String) -> Unit)? = null) {
         iptal()
         val sira = nesil.get()
         gorev = isci.submit {
@@ -74,7 +76,8 @@ class SohbetMotoru(
                 } else {
                     val mesajlar = JSONArray().put(JSONObject().put("role", "system").put("content", talimat))
                     for (i in 0 until girdi.length()) mesajlar.put(girdi.getJSONObject(i))
-                    JSONObject().put("model", saglayici.model).put("messages", mesajlar).put("stream", false).apply {
+                    val streaming = parca != null && !webEtkin
+                    JSONObject().put("model", saglayici.model).put("messages", mesajlar).put("stream", streaming).apply {
                         if (saglayici == SohbetSaglayici.GROQ) {
                             put("max_completion_tokens", if (webEtkin) 2048 else 1024)
                             if (webEtkin) {
@@ -128,44 +131,80 @@ class SohbetMotoru(
                     in 500..599 -> throw SohbetHatasi("Yapay zekâ hizmeti şu anda yanıt veremiyor. Biraz sonra tekrar deneyelim.")
                     else -> throw SohbetHatasi("Yapay zekâ bağlantısı kurulamadı. Hata kodu: $kod.")
                 }
-                val yanit = JSONObject(b.inputStream.bufferedReader(Charsets.UTF_8).use { okuyucu ->
-                    val metin = StringBuilder()
-                    val parca = CharArray(4096)
-                    while (true) {
-                        val adet = okuyucu.read(parca)
-                        if (adet < 0) break
-                        if (metin.length + adet > 1_048_576) throw SohbetHatasi("Yanıt işlenemeyecek kadar büyük. Daha dar bir soru deneyin.")
-                        metin.append(parca, 0, adet)
+                val hamCevap: String
+                if (!saglayici.yanitApi && parca != null && !webEtkin) {
+                    // Streaming SSE: her delta chunk gelince cümle tamam olunca TTS'e gönder
+                    val tamMeyin = StringBuilder()
+                    val cumleArabellek = StringBuilder()
+                    b.inputStream.bufferedReader(Charsets.UTF_8).forEachLine { satir ->
+                        if (nesil.get() != sira) return@forEachLine
+                        if (!satir.startsWith("data:")) return@forEachLine
+                        val veri = satir.removePrefix("data:").trim()
+                        if (veri == "[DONE]") return@forEachLine
+                        try {
+                            val delta = JSONObject(veri).optJSONArray("choices")
+                                ?.optJSONObject(0)?.optJSONObject("delta")
+                                ?.optString("content") ?: return@forEachLine
+                            tamMeyin.append(delta)
+                            cumleArabellek.append(delta)
+                            // Cümle sınırı: ., !, ? ardından boşluk veya satır sonu
+                            var son = -1
+                            for (i in cumleArabellek.indices) {
+                                val c = cumleArabellek[i]
+                                if (c in listOf('.', '!', '?') && (i + 1 >= cumleArabellek.length || cumleArabellek[i + 1] == ' ' || cumleArabellek[i + 1] == '\n'))
+                                    son = i
+                            }
+                            if (son >= 0) {
+                                val cumle = cumleArabellek.substring(0, son + 1).trim()
+                                cumleArabellek.delete(0, son + 1)
+                                if (cumle.isNotBlank()) anaIs.post { if (nesil.get() == sira) parca(cumle) }
+                            }
+                        } catch (_: Exception) {}
                     }
-                    metin.toString()
-                })
-                val parcalar = mutableListOf<String>()
-                val cikti = if (saglayici.yanitApi) yanit.optJSONArray("output") ?: JSONArray() else JSONArray()
-                if (!saglayici.yanitApi) {
-                    val mesaj = yanit.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")
-                    val icerik = mesaj?.opt("content")
-                    if (icerik is String) parcalar.add(icerik)
-                    else if (icerik is JSONArray) {
-                        for (i in 0 until icerik.length()) {
-                            val parca = icerik.optJSONObject(i) ?: continue
-                            if (parca.optString("type") == "text") parcalar.add(parca.optString("text"))
+                    // Arabellek artığı (son cümle nokta ile bitmeyebilir)
+                    val artik = cumleArabellek.toString().trim()
+                    if (artik.isNotBlank()) anaIs.post { if (nesil.get() == sira) parca(artik) }
+                    hamCevap = tamMeyin.toString().trim()
+                } else {
+                    val yanit = JSONObject(b.inputStream.bufferedReader(Charsets.UTF_8).use { okuyucu ->
+                        val sb = StringBuilder()
+                        val buf = CharArray(4096)
+                        while (true) {
+                            val adet = okuyucu.read(buf)
+                            if (adet < 0) break
+                            if (sb.length + adet > 1_048_576) throw SohbetHatasi("Yanıt işlenemeyecek kadar büyük. Daha dar bir soru deneyin.")
+                            sb.append(buf, 0, adet)
+                        }
+                        sb.toString()
+                    })
+                    val parcalar = mutableListOf<String>()
+                    val cikti = if (saglayici.yanitApi) yanit.optJSONArray("output") ?: JSONArray() else JSONArray()
+                    if (!saglayici.yanitApi) {
+                        val mesaj = yanit.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")
+                        val icerik = mesaj?.opt("content")
+                        if (icerik is String) parcalar.add(icerik)
+                        else if (icerik is JSONArray) {
+                            for (i in 0 until icerik.length()) {
+                                val p = icerik.optJSONObject(i) ?: continue
+                                if (p.optString("type") == "text") parcalar.add(p.optString("text"))
+                            }
+                        }
+                        if (parcalar.isEmpty() && mesaj?.opt("refusal") is String) parcalar.add(mesaj.optString("refusal"))
+                    }
+                    for (i in 0 until cikti.length()) {
+                        val oge = cikti.optJSONObject(i) ?: continue
+                        if (oge.optString("type") != "message") continue
+                        val icerik = oge.optJSONArray("content") ?: continue
+                        for (j in 0 until icerik.length()) {
+                            val p = icerik.optJSONObject(j) ?: continue
+                            when (p.optString("type")) {
+                                "output_text" -> parcalar.add(p.optString("text"))
+                                "refusal" -> parcalar.add(p.optString("refusal"))
+                            }
                         }
                     }
-                    if (parcalar.isEmpty() && mesaj?.opt("refusal") is String) parcalar.add(mesaj.optString("refusal"))
+                    hamCevap = parcalar.joinToString("\n").trim()
                 }
-                for (i in 0 until cikti.length()) {
-                    val oge = cikti.optJSONObject(i) ?: continue
-                    if (oge.optString("type") != "message") continue
-                    val icerik = oge.optJSONArray("content") ?: continue
-                    for (j in 0 until icerik.length()) {
-                        val parca = icerik.optJSONObject(j) ?: continue
-                        when (parca.optString("type")) {
-                            "output_text" -> parcalar.add(parca.optString("text"))
-                            "refusal" -> parcalar.add(parca.optString("refusal"))
-                        }
-                    }
-                }
-                val hamCevap = parcalar.joinToString("\n").trim()
                 val sinir = if (webEtkin) 7000 else 4000
                 val cevap = if (hamCevap.length <= sinir) hamCevap else
                     hamCevap.take(sinir).substringBeforeLast(" ", hamCevap.take(sinir)) +

@@ -130,10 +130,10 @@ class AndroidKonusma(private val context: Context, motor: String? = null, privat
                         sozKesmeDurGecikmeli?.let { gorselAnaIs.removeCallbacks(it) }; sozKesmeDurGecikmeli = null
                         sozKesme.baslat()
                     } else if (tur != KonusmaGorselOlayi.Tur.BASLADI) {
-                        // TTS bitti/durdu/hata: 800ms gecikmeli durdur (kullanıcı tam bitişte "dur" diyebilir)
+                        // TTS bitti/durdu/hata: 2000ms gecikmeli durdur (kullanıcı "dur" diyebilir)
                         val r = Runnable { sozKesme.durdur(); sozKesmeDurGecikmeli = null }
                         sozKesmeDurGecikmeli = r
-                        gorselAnaIs.postDelayed(r, 800)
+                        gorselAnaIs.postDelayed(r, 2000)
                     }
                     gorselOlayi?.invoke(KonusmaGorselOlayi(tur, yazi))
                 }

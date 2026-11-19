@@ -131,29 +131,41 @@ object KomutYorumlayici {
             m.contains("ne görüyorsun") || m.contains("etrafımda ne var") || m.contains("karşımda ne var")) {
             return Komut.Kamera(on = m.contains("ön kamera") || m.contains("selfie"))
         }
-        // YouTube: "YouTube'da ... ara/çal/oynat", "... şarkısını çal"
+        // YouTube: "YouTube'da ... ara/çal/oynat" — orijinal büyük/küçük harf korunur
         if (m.contains("youtube") || (m.contains("video") && (m.contains("ara") || m.contains("bul") || m.contains("izle")))) {
-            val sorgu = metin.lowercase(trLocale).let { txt ->
+            val sorgu = run {
+                val txt = metin.lowercase(trLocale)
                 val prefix = listOf("youtube'da", "youtube da", "youtubeda", "youtube'de", "youtube de").firstOrNull { txt.contains(it) }
-                val after = if (prefix != null) txt.substringAfter(prefix).trim() else txt
-                listOf(" ara", " bul", " izle", " çal", " oyna", " açıp", " aç").fold(after) { s, suf ->
-                    if (s.endsWith(suf)) s.dropLast(suf.length).trim() else s
+                val startIdx = if (prefix != null) txt.indexOf(prefix) + prefix.length else 0
+                var result = metin.substring(startIdx).trim()
+                for (suf in listOf(" ara", " bul", " izle", " çal", " oyna", " açıp", " aç")) {
+                    if (result.lowercase(trLocale).endsWith(suf)) result = result.dropLast(suf.length).trim()
                 }
-            }.trim()
+                result
+            }
             if (sorgu.isNotBlank()) return Komut.YouTubeAra(sorgu)
         }
-        // Müzik: "... çal/oynat/aç" (YouTube değil, müzik çalar)
+        // Müzik: "... çal/oynat/aç" — orijinal büyük/küçük harf korunur
         val muzikFilteri = listOf("kamera", "alarm", "zamanlayıcı", "youtube", "harita", "navigasyon")
         if (muzikFilteri.none { m.contains(it) }) {
             val calKelimesi = t.any { it.startsWith("çal") || it.startsWith("oyna") }
             if (calKelimesi || (m.contains("müzik") && (m.contains("aç") || m.contains("başlat")))) {
-                val sorgu = metin.lowercase(trLocale).let { txt ->
-                    listOf("çal ", "oynat ", "müzik aç").firstOrNull { txt.contains(it) }?.let { pref ->
-                        txt.substringAfter(pref).trim().trimEnd('.')
-                    } ?: if (calKelimesi) {
-                        val idx2 = t.indexOfFirst { it.startsWith("çal") || it.startsWith("oyna") }
-                        t.take(idx2).joinToString(" ").trim()
-                    } else ""
+                val sorgu = run {
+                    val txt = metin.lowercase(trLocale)
+                    val lastCal = txt.lastIndexOf(" çal")
+                    val lastOynat = txt.lastIndexOf(" oynat")
+                    when {
+                        lastCal >= 0 -> metin.substring(0, lastCal).trim()
+                        lastOynat >= 0 -> metin.substring(0, lastOynat).trim()
+                        txt.contains("çal ") -> metin.substring(txt.indexOf("çal ") + 4).trim().trimEnd('.')
+                        txt.contains("oynat ") -> metin.substring(txt.indexOf("oynat ") + 6).trim().trimEnd('.')
+                        txt.contains("müzik aç") -> metin.substring(0, txt.indexOf("müzik aç")).trim()
+                        calKelimesi -> {
+                            val idx2 = t.indexOfFirst { it.startsWith("çal") || it.startsWith("oyna") }
+                            t.take(idx2).joinToString(" ").trim()
+                        }
+                        else -> ""
+                    }
                 }
                 if (sorgu.isNotBlank()) return Komut.MuzikCal(sorgu)
             }
@@ -163,14 +175,24 @@ object KomutYorumlayici {
         if (araIslemi) {
             val stopKelimeler = setOf("alarm", "arka", "plan", "sesle", "internette", "webde", "yardım", "müzik", "youtube")
             if (stopKelimeler.none { m.contains(it) }) {
-                // "... ara" veya "... yı/yi ara" kalıbı: hedef aranan kişi/numara
+                val iyelik = mapOf(
+                    "annem" to "anne", "annen" to "anne", "abim" to "abi", "abin" to "abi",
+                    "ablam" to "abla", "ablan" to "abla", "babam" to "baba", "baban" to "baba",
+                    "kardeşim" to "kardeş", "kardeşin" to "kardeş", "amcam" to "amca", "amcan" to "amca",
+                    "teyzem" to "teyze", "teyzen" to "teyze", "ninem" to "nine", "dedem" to "dede",
+                    "eşim" to "eş", "arkadaşım" to "arkadaş",
+                )
+                fun aramaHedefi(raw: String): String {
+                    val sonSoz = raw.substringAfterLast(" ", raw)
+                    return if (iyelik.containsKey(sonSoz)) raw.substringBeforeLast(" ", "").let { if (it.isEmpty()) iyelik[sonSoz]!! else "$it ${iyelik[sonSoz]!!}" }
+                    else raw
+                }
                 val idx = t.indexOfFirst { it.startsWith("ara") && it.length <= 6 }
                 val hedef = if (idx > 0) {
-                    t.take(idx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e')
+                    aramaHedefi(t.take(idx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e'))
                 } else {
-                    // "telefon aç/et" ile tetiklendi; "telefon" öncesindeki sözcükler hedef
                     val telIdx = t.indexOf("telefon")
-                    if (telIdx > 0) t.take(telIdx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e') else ""
+                    if (telIdx > 0) aramaHedefi(t.take(telIdx).joinToString(" ").trim().trimEnd('\'', 'y', '\u0131', 'i', 'u', '\u00fc', 'a', 'e')) else ""
                 }
                 if (hedef.isNotBlank()) return Komut.AramaYap(hedef)
             }
@@ -184,7 +206,9 @@ object KomutYorumlayici {
                 listOf("navigasyonu başlat", "navigasyona gir", "haritalar", "yol tarifi ver", "yol bul",
                     "git", "için navigasyon", "için yol tarifi", "rota", "yol").fold(txt) { s, k ->
                     s.replace(k, " ")
-                }.trim().trimEnd(',', '.', '\'', '\u2019')
+                }.trim()
+                    .replace(Regex("['\u2019][a-zğüşıöç]*$"), "")  // 'e, 'ya, 'de, 'den gibi hal ekleri
+                    .trimEnd(',', '.', '\'', '\u2019').trim()
             }
             val hedef = hedefTemizle(metin.lowercase(Locale("tr", "TR"))).trim()
             if (hedef.isNotBlank() && hedef.length > 2) return Komut.NavigasyonBaslat(hedef)

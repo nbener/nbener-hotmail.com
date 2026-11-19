@@ -112,6 +112,7 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
         var sure = 0L
         var ornek = 0L
         var enerji = 0.0
+        var ttsBaseline = 0.0  // ilk bloklardaki TTS ortam sesi
         var tepe = 0
         var tanimaVar = false
         var susturuldu = false
@@ -120,10 +121,11 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
             tanici = Recognizer(m, 16000f)
             val enAz = AudioRecord.getMinBufferSize(16000, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)
             check(enAz > 0) { "TAMPON" }
-            mikrofon = AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION, 16000,
+            // VOICE_RECOGNITION: TTS çalarken susturulmaz; hotword tespiti için daha uygun
+            mikrofon = AudioRecord(MediaRecorder.AudioSource.VOICE_RECOGNITION, 16000,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, maxOf(enAz * 2, 6400))
             check(mikrofon.state == AudioRecord.STATE_INITIALIZED) { "MIKROFON" }
-            if (AcousticEchoCanceler.isAvailable()) aec = AcousticEchoCanceler.create(mikrofon.audioSessionId)?.also { it.enabled = true }
+            // AEC devre dışı: TTS çalarken AEC kullanıcı sesini de siliyor
             if (NoiseSuppressor.isAvailable()) gurultu = NoiseSuppressor.create(mikrofon.audioSessionId)?.also { it.enabled = true }
             val ses = context.getSystemService(Context.AUDIO_SERVICE) as android.media.AudioManager
             if (kapandi || benim != nesil.get() || ses.mode != android.media.AudioManager.MODE_NORMAL) {
@@ -149,6 +151,19 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 29 && mikrofon.activeRecordingConfiguration?.isClientSilenced == true) susturuldu = true
                 if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) { cikisSebebi = "mod_normal_degil_dongude(${ses.mode})"; break }
+                // Adaptif enerji: ilk 20 blok (yaklaşık 200ms) TTS ortam sesini ölçer, sonra 3x üstü = kullanıcı sesi
+                val blokRms = kotlin.math.sqrt(veri.take(n).sumOf { it.toInt().toLong() * it.toInt() }.toDouble() / n)
+                if (tur <= 3) {
+                    ttsBaseline = ttsBaseline * 0.6 + blokRms * 0.4  // ilk 300ms: TTS ortam sesi ölç
+                } else {
+                    val esik = maxOf(ttsBaseline * 2.5, 2000.0)
+                    if (blokRms > esik) {
+                        duyuldu = true; sure = (System.nanoTime() - bas) / 1000000
+                        cikisSebebi = "enerji_esigi(rms=${blokRms.toInt()} esik=${esik.toInt()})"
+                        Log.i("Sezai", "SOZKESME enerji tetigi rms=${blokRms.toInt()} esik=${esik.toInt()}")
+                        break
+                    }
+                }
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
                 if (metin.isNotBlank()) { tanimaVar = true; Log.i("Sezai", "SOZKESME tanidi: \"$metin\"") }

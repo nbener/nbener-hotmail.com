@@ -139,25 +139,25 @@ class MainActivity : Activity() {
         konusma = AndroidKonusma(this, intent.getStringExtra("motor") ?: "com.google.android.tts") { tamam ->
             runOnUiThread {
                 sesler = konusma.sesListesi()
-                sesAyari.getInt("tts_seviye", 100).coerceIn(10, 250).let { y -> (konusma as? AndroidKonusma)?.yuzdeAyarla(y) }
-                // Kayıtlı ses yoksa varsayılan: 2 numaralı ses (ama-local); kullanıcı sonra değiştirebilir
+                // Ses düzeyi: en az %200
+                val kayitliYuzde = sesAyari.getInt("tts_seviye", 200).coerceIn(10, 250).let { y -> if (y < 200) 200 else y }
+                sesAyari.edit().putInt("tts_seviye", kayitliYuzde).apply()
+                (konusma as? AndroidKonusma)?.yuzdeAyarla(kayitliYuzde)
+                // Ses: tr-TR-language veya kötü varsayılan seçilmişse iyi sese geç
                 val kayitliHam = sesAyari.getString("ses_adi", VARSAYILAN_SES) ?: VARSAYILAN_SES
-                // Network ses her zaman yerel karşılığına düş (güvenilir offline çalışma)
-                val kayitli = if (kayitliHam.endsWith("-network"))
-                    kayitliHam.replace("-network", "-local").also { Log.i("Sezai", "SES network->local: $it") }
-                    else kayitliHam
-                val sira = sesler.indexOf(kayitli).let { if (it < 0) sesler.indexOf(VARSAYILAN_SES) else it }
+                val kotuses = kayitliHam == "tr-TR-language" || kayitliHam == VARSAYILAN_SES
+                val tercihSes = if (kotuses) "tr-tr-x-tmc-network" else kayitliHam
+                val sira = sesler.indexOf(tercihSes).let { if (it < 0) sesler.indexOf("tr-tr-x-tmc-local") else it }.let { if (it < 0) 0 else it }
                 val uygulandi = sira >= 0 && konusma.sesSec(sesler[sira])
-                if (uygulandi) sesSirasi = sira
-                Log.i("Sezai", "SES varsayilan=$kayitli sira=${sira + 1} uygulandi=$uygulandi")
-                if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
-                // Sherpa (Piper) TTS — model varsa yükle, yoksa dosya seçici sun
-                (konusma as? AndroidKonusma)?.sherpa = SherpaMotor(this).also { sherpa ->
-                    sherpa.hazirla { basarili ->
-                        if (!basarili && !sherpa.modelVarMi()) runOnUiThread { piperKurDialoguGoster() }
-                    }
+                if (uygulandi) {
+                    sesSirasi = sira
+                    if (kotuses) sesAyari.edit().putString("ses_adi", sesler[sira]).apply()
                 }
-                if (tamam && intent.getStringExtra("oto") == null) seslendir("Buyurun efendim.")
+                Log.i("Sezai", "SES tercih=$tercihSes sira=${sira + 1} uygulandi=$uygulandi")
+                if (!tamam) durumYazisi.text = "Türkçe ses hazır değil"
+                // Sherpa (Piper) TTS devre dışı — Android TTS (11 numaralı ses) kullanılıyor
+                if (tamam && intent.getStringExtra("oto") == null)
+                    seslendir("Buyurun efendim.", bitince = { anaIs.post { sohbetBaslat() } })
                 intent.getStringExtra("oto")?.let { seslendir(it) }
                 // test için: yalnızca yorumla (komutu çalıştırma) ya da çalıştır
                 intent.getStringExtra("komut")?.let { komutVer(it) }
@@ -539,12 +539,14 @@ class MainActivity : Activity() {
         startActivity(android.content.Intent(this, EkranIncelemeActivity::class.java))
     }
 
-    private var sessizOnayBekliyor = false // sessiz moda geçmeden önce onay
+    private var sessizOnayBekliyor = false
+    private val sessizOnayTimeout = Runnable { if (sessizOnayBekliyor) { sessizOnayBekliyor = false; Log.i("Sezai", "KOMUT sessiz onay zamanaşımı — iptal") } }
 
     private fun komutVer(metin: String) {
         sohbetDuraklat()
         if (sessizOnayBekliyor) {
             sessizOnayBekliyor = false
+            anaIs.removeCallbacks(sessizOnayTimeout)
             if (SessizOnayi.evetMi(metin) || SessizOnayi.hayirMi(metin)) {
                 val cevap = if (SessizOnayi.evetMi(metin)) calistirici.calistir(Komut.Sessiz(true)) else "Tamam, sessiz moda geçmedim."
                 Log.i("Sezai", "KOMUT sessiz mod onay yaniti -> '$cevap'")
@@ -566,6 +568,7 @@ class MainActivity : Activity() {
         }
         if (komut is Komut.Sessiz && komut.ac) {
             sessizOnayBekliyor = true
+            anaIs.removeCallbacks(sessizOnayTimeout); anaIs.postDelayed(sessizOnayTimeout, 30_000)
             Log.i("Sezai", "KOMUT sessiz mod onay istendi")
             sohbetDokumu.ekle(metin, SessizOnayi.SORU); sohbetYazisiniGoster(); seslendir(SessizOnayi.SORU)
             return
@@ -588,8 +591,10 @@ class MainActivity : Activity() {
             val k = ad.lowercase()
             return k.contains("female") || k.contains("woman") || k.contains("-f") || k.contains("smtf") || k.contains("kadın") || k.contains("kadin")
         }
-        val hedef = if (erkek) sesler.firstOrNull { erkekMi(it) } ?: sesler.firstOrNull { !kadinMi(it) }
-                    else sesler.firstOrNull { kadinMi(it) } ?: sesler.firstOrNull { !erkekMi(it) }
+        // Ağ sesi önce (kaliteli), sonra yerel; cinsiyet filtresi
+        val sirali = sesler.sortedByDescending { it.contains("network") }
+        val hedef = if (erkek) sirali.firstOrNull { erkekMi(it) } ?: sirali.firstOrNull { !kadinMi(it) }
+                    else sirali.firstOrNull { kadinMi(it) } ?: sirali.firstOrNull { !erkekMi(it) }
         hedef ?: return null
         konusma.sesSec(hedef)
         sesSirasi = sesler.indexOf(hedef).coerceAtLeast(0)
@@ -733,7 +738,7 @@ class MainActivity : Activity() {
                     }
                     val sozAlma = SohbetKomutlari.sozAlmaMetni(metin)
                     if (sozAlma != null) {
-                        sohbetSirali.durdur(); konusma.durdur(); sohbet?.iptal()
+                        sohbetSirali.durdur(); sohbetSirali.akisSifirla(); konusma.durdur(); sohbet?.iptal()
                         if (sozAlma.isBlank()) {
                             sohbetYazisiniGoster("Seni dinliyorum. Konuşmanın konusu korunuyor.")
                             anaIs.postDelayed({ sohbetDinle(nesil) }, 200)
@@ -749,19 +754,16 @@ class MainActivity : Activity() {
                     sohbetYazisiniGoster("Siz: $istekMetni\n\nSezai düşünüyor...")
                     val webAc = WebIstegi.istendiMi(istekMetni) || WebIstegi.gercekZamanliMi(istekMetni)
                     sohbet?.gonder(istekMetni,
+                        parca = { cumle ->
+                            // Streaming: her cümle hazır olunca sıralı TTS'e ekle
+                            if (sohbetAcik && nesil == sohbetNesli) sohbetSirali.ekle(cumle)
+                        },
                         sonuc = { cevap ->
                             if (sohbetAcik && nesil == sohbetNesli) {
                                 sohbetDokumu.ekle(istekMetni, cevap)
                                 sohbetYazisiniGoster()
-                                val sesliCevap = if (cevap.length > 3000) cevap.take(2800) + "… Devamını ekrandan okuyabilirsiniz." else cevap
-                                seslendir(sesliCevap,
-                                    bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) },
-                                    hata = { runOnUiThread {
-                                        if (sohbetAcik && nesil == sohbetNesli) {
-                                            sohbetDuraklat()
-                                            durumYazisi.append("\n\nSes okunamadı. Yanıtı ekrandan okuyabilirsiniz.")
-                                        }
-                                    } })
+                                // Streaming modda TTS zaten başladı; son cümle bitince dinlemeye geç
+                                sohbetSirali.bitince { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) }
                             }
                         },
                         hata = { mesaj ->
@@ -789,7 +791,7 @@ class MainActivity : Activity() {
         sohbetAcik = false; yaziliSohbetAcik = false; sohbetNesli++
         anaIs.removeCallbacksAndMessages(null)
         sesOnceligi.durdur()
-        sohbetSirali.durdur(); sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
+        sohbetSirali.durdur(); sohbetSirali.akisSifirla(); sohbet?.iptal(); dinleme.kapat(); konusma.durdur()
         karakterDurumu(SezaiKarakterView.Durum.BEKLEME)
         if (::sohbetDugmesi.isInitialized) sohbetDugmesi.text = "Sesli sohbet et"
         if (::gonderDugmesi.isInitialized) { gonderDugmesi.isEnabled = true; gonderDugmesi.text = "Gönder" }

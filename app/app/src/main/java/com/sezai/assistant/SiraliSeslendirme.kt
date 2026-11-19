@@ -7,7 +7,40 @@ import android.os.Looper
 internal class SiraliSeslendirme(private val oku: (String, () -> Unit, () -> Unit) -> Unit) {
     private var nesil = 0
     private val is_ = Handler(Looper.getMainLooper())
-    fun durdur() { nesil++ }
+    fun durdur() { nesil++; akisKuyruk.clear(); akisBitinceCallback = null; akisCalisiyor = false; akisTamamlandi = false; akisNesil++ }
+
+    // Streaming: cümleler API akışından tek tek gelir
+    private val akisKuyruk = ArrayDeque<String>()
+    private var akisCalisiyor = false
+    private var akisTamamlandi = false
+    private var akisBitinceCallback: (() -> Unit)? = null
+    private var akisNesil = 0
+
+    fun ekle(cumle: String) {
+        if (cumle.isBlank()) return
+        akisKuyruk.addLast(cumle)
+        if (!akisCalisiyor) akisIlerle(akisNesil)
+    }
+
+    fun bitince(callback: () -> Unit) {
+        akisBitinceCallback = callback
+        akisTamamlandi = true
+        if (!akisCalisiyor && akisKuyruk.isEmpty()) { akisNesil++; callback() }
+    }
+
+    private fun akisIlerle(kimlik: Int) {
+        if (kimlik != akisNesil) return
+        val cumle = akisKuyruk.removeFirstOrNull()
+        if (cumle == null) {
+            akisCalisiyor = false
+            if (akisTamamlandi) { val cb = akisBitinceCallback; akisBitinceCallback = null; akisNesil++; cb?.invoke() }
+            return
+        }
+        akisCalisiyor = true
+        oku(cumle, { is_.post { akisIlerle(kimlik) } }, { akisCalisiyor = false })
+    }
+
+    fun akisSifirla() { akisNesil++; akisKuyruk.clear(); akisCalisiyor = false; akisTamamlandi = false; akisBitinceCallback = null }
 
     fun baslat(parcalar: List<String>, araMs: Long = 0, bitince: () -> Unit, hata: () -> Unit) {
         val kimlik = ++nesil

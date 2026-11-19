@@ -51,7 +51,8 @@ class SezaiArkaPlanServisi : Service() {
     private val sirali = SiraliSeslendirme { m, b, h -> konusma?.konus(m, b, h) }
     private var sohbet: SohbetMotoru? = null
     private var sohbetSaglayicisi: SohbetSaglayici? = null
-    private var sessizOnayBekliyor = false // sessiz moda geçmeden önce sözlü onay
+    private var sessizOnayBekliyor = false
+    private val sessizOnayTimeout = Runnable { if (sessizOnayBekliyor) { sessizOnayBekliyor = false; Log.i("Sezai", "ARKAPLAN sessiz onay zamanaşımı — iptal") } }
     private var nesil = 0 // eski geri çağrıların yeni turu bozmasını önler
     private val enFazlaTakip = 4
     private var wakeLock: android.os.PowerManager.WakeLock? = null
@@ -99,14 +100,7 @@ class SezaiArkaPlanServisi : Service() {
                 getSharedPreferences("ses_ayari", MODE_PRIVATE).getString("ses_adi", null)?.let { konusma?.sesSec(it) }
             }
         }
-        // Piper (Sherpa) hazırsa arka planda da doğal ses kullanılır
-        sherpa = SherpaMotor(this).also { s ->
-            s.hazirla { basarili ->
-                if (basarili) anaIs.post {
-                    if (!kapaniyor) konusma?.sherpa = s
-                }
-            }
-        }
+        // Sherpa (Piper) devre dışı — Android TTS kullanılıyor
         konusma?.sozAlindi = { sozKesildi() }
         uyanma = SezaiUyanma(this) { sezaiDendi() }
         uyanma?.baslat()
@@ -246,6 +240,7 @@ class SezaiArkaPlanServisi : Service() {
     private fun yanitla(metin: String, benim: Int, takip: Int) {
         if (sessizOnayBekliyor) {
             sessizOnayBekliyor = false
+            anaIs.removeCallbacks(sessizOnayTimeout)
             val devamEt = { if (takip < enFazlaTakip) dinleTur(benim, takip + 1) else uyanmayaDon(benim, 1500) }
             if (SessizOnayi.evetMi(metin)) {
                 val cevap = KomutCalistirici(this).calistir(Komut.Sessiz(true))
@@ -290,6 +285,7 @@ class SezaiArkaPlanServisi : Service() {
             } else if (komut is Komut.Sessiz && komut.ac) {
                 if (takip >= enFazlaTakip) { konus("Sessiz moda geçmedim.", benim) { uyanmayaDon(benim, 1500) }; return }
                 sessizOnayBekliyor = true
+                anaIs.removeCallbacks(sessizOnayTimeout); anaIs.postDelayed(sessizOnayTimeout, 30_000)
                 Log.i("Sezai", "ARKAPLAN sessiz mod onay istendi metin='${metin.take(40)}'")
                 konus(SessizOnayi.SORU, benim) { dinleTur(benim, takip + 1) }
             } else {
