@@ -288,6 +288,12 @@ object KomutYorumlayici {
         if (m.contains("erkek ses") || (m.contains("erkek") && m.contains("konuş"))) return Komut.SesSecim(true)
         if (m.contains("kadın ses") || m.contains("bayan ses") || m.contains("dişi ses") || (m.contains("kadın") && m.contains("konuş"))) return Komut.SesSecim(false)
 
+        // Namaz vakitleri: SaatSor'dan ÖNCE kontrol edilmeli ("yatsı namazı saat kaçta" gibi çakışmalar için)
+        val namazVar = m.contains("namaz") || m.contains("ezan") || m.contains("imsak") ||
+            m.contains("öğle saati") || (m.contains("akşam") && m.contains("vakti")) ||
+            m.contains("yatsı") || m.contains("sabah namazı")
+        if (namazVar) return Komut.NamazVakti
+
         if (m.contains("saat kaç") || m.contains("saati söyle")) return Komut.SaatSor
         if (m.contains("tarih") || m.contains("bugün günlerden") || m.contains("hangi gün") || m.contains("bugün ayın")) return Komut.TarihSor
 
@@ -300,11 +306,6 @@ object KomutYorumlayici {
             (m.contains("kur") || m.contains("ayarla") || m.contains("başlat") || m.contains("koy")) || m.contains("dakika sonra uyar") || m.contains("saniye sonra uyar")) {
             sureOku(t)?.let { return Komut.ZamanlayiciKur(it) }
         }
-        // Namaz vakitleri: "namaz vakitleri", "namaz saatleri", "ezan ne zaman", "bir sonraki namaz"
-        val namazVar = m.contains("namaz") || m.contains("ezan") || m.contains("imsak") ||
-            m.contains("öğle saati") || (m.contains("akşam") && m.contains("vakti")) ||
-            m.contains("yatsı") || m.contains("sabah namazı")
-        if (namazVar) return Komut.NamazVakti
         // Uygulama açma: "WhatsApp'ı aç", "haritayı aç", "tarayıcıyı aç"
         if (m.contains("aç") && !m.contains("alarm") && !m.contains("fener") && !m.contains("mikrofon")) {
             val uygulamalar = listOf("whatsapp", "telegram", "instagram", "twitter", "spotify",

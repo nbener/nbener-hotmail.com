@@ -42,6 +42,11 @@ public class YorumlaTest {
             {"yarın hava nasıl", "HavaDurumu(yer=, yarinMi=true)"},
             {"İstanbul'da hava nasıl", "HavaDurumu"},
             {"yağmur yağacak mı", "HavaDurumu"},
+            {"namaz vakitleri", "NamazVakti"},
+            {"ezan ne zaman", "NamazVakti"},
+            {"bir sonraki namaz", "NamazVakti"},
+            {"yatsı namazı saat kaçta", "NamazVakti"},
+            {"imsak vakti kaçta", "NamazVakti"},
         };
 
         int hata = 0;
