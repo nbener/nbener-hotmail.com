@@ -152,28 +152,23 @@ internal class SozKesme(private val context: Context, private val tetik: () -> U
                 }
                 if (android.os.Build.VERSION.SDK_INT >= 29 && mikrofon.activeRecordingConfiguration?.isClientSilenced == true) susturuldu = true
                 if (++tur % 10 == 0 && ses.mode != android.media.AudioManager.MODE_NORMAL) { cikisSebebi = "mod_normal_degil_dongude(${ses.mode})"; break }
-                // Adaptif enerji: ilk 20 blok (yaklaşık 200ms) TTS ortam sesini ölçer, sonra 3x üstü = kullanıcı sesi
+                // Baseline: ilk 20 blok (2 saniye) TTS ortam sesini sürekli izle; maksimum değer alınır
                 val blokRms = kotlin.math.sqrt(veri.take(n).sumOf { it.toInt().toLong() * it.toInt() }.toDouble() / n)
-                if (tur <= 3) {
-                    ttsBaseline = ttsBaseline * 0.6 + blokRms * 0.4  // ilk 300ms: TTS ortam sesi ölç
-                } else {
-                    val esik = maxOf(ttsBaseline * 2.5, 2000.0)
-                    if (blokRms > esik) {
-                        duyuldu = true; sure = (System.nanoTime() - bas) / 1000000
-                        cikisSebebi = "enerji_esigi(rms=${blokRms.toInt()} esik=${esik.toInt()})"
-                        Log.i("Sezai", "SOZKESME enerji tetigi rms=${blokRms.toInt()} esik=${esik.toInt()}")
-                        break
-                    }
+                if (tur <= 20) {
+                    // Maksimum tabanlı baseline: TTS'in en yüksek anı esas alınır
+                    if (blokRms > ttsBaseline) ttsBaseline = blokRms
                 }
+                // Saf enerji tetikleyicisi KALDIRILDI: TTS'in kendi sesi yanlış tetikliyordu.
+                // Yalnızca Vosk anahtar kelime + enerji kapısı kombinasyonu geçerli.
                 val tam = tanici.acceptWaveForm(veri, n)
                 val metin = JSONObject(if (tam) tanici.result else tanici.partialResult).optString(if (tam) "text" else "partial")
                 if (metin.isNotBlank()) { tanimaVar = true; Log.i("Sezai", "SOZKESME tanidi: \"$metin\"") }
                 val kelimeler = metin.split(' ')
                 if ("dur" in kelimeler || "sezai" in kelimeler || "hey" in kelimeler) {
-                    // Sadece TTS baseline'ın 1.8 katı üstündeyse geçerli say; TTS yankısı düşük enerjide kalır
+                    // Vosk eşiği: TTS baseline'ın 3.5 katı ve min 3000; TTS yankısı bu eşiği geçemez
                     val blokRmsVosk = kotlin.math.sqrt(veri.take(n).sumOf { it.toInt().toLong() * it.toInt() }.toDouble() / n)
-                    val voskEsik = maxOf(ttsBaseline * 1.8, 1200.0)
-                    Log.i("Sezai", "SOZKESME vosk='$metin' rms=${blokRmsVosk.toInt()} esik=${voskEsik.toInt()}")
+                    val voskEsik = maxOf(ttsBaseline * 3.5, 3000.0)
+                    Log.i("Sezai", "SOZKESME vosk='$metin' rms=${blokRmsVosk.toInt()} esik=${voskEsik.toInt()} baseline=${ttsBaseline.toInt()}")
                     if (blokRmsVosk > voskEsik) { duyuldu = true; sure = (System.nanoTime() - bas) / 1000000; cikisSebebi = "soz_alindi(vosk=$metin)"; break }
                 }
             }

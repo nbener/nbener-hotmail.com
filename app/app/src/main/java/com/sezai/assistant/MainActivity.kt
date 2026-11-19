@@ -78,6 +78,11 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Uygulama açılışında sessiz mod her zaman temizlenir; yanlış tetiklenme geçmişte tekrarlı sorun oldu.
+        if (BildirimKumanda.sessizMi(this)) {
+            BildirimKumanda.sessizAyarla(this, false)
+            Log.i("Sezai", "BAŞLANGIÇ sessiz=true temizlendi")
+        }
         (lastNonConfigurationInstance as? SohbetDevri)?.let {
             sohbet = it.motor; sohbetSaglayicisi = it.saglayici
             sohbetDokumu = it.dokum
