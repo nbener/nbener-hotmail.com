@@ -460,6 +460,19 @@ class MainActivity : Activity() {
         }
     }
 
+    private val hava by lazy { HavaYardimcisi(this) }
+
+    private fun havaDurumu(yer: String, yarinMi: Boolean, nesil: Int?) {
+        durumYazisi.text = "Hava durumuna bakıyorum..."
+        hava.al(yer, yarinMi) { soz ->
+            durumYazisi.text = soz
+            Log.i("Sezai", "HAVA sonuc: $soz")
+            if (nesil == null) seslendir(soz)
+            else if (sohbetAcik && nesil == sohbetNesli)
+                seslendir(soz, bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) })
+        }
+    }
+
     // Tek kare çekip sağlayıcıya yorumlatır ve sesle anlatır; sohbet açıksa (nesil) dinlemeye döner
     private fun kameraBak(on: Boolean, nesil: Int?) {
         if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
@@ -558,6 +571,7 @@ class MainActivity : Activity() {
         if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
+        if (komut is Komut.HavaDurumu) { havaDurumu(komut.yer, komut.yarinMi, null); return }
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
         if (komut is Komut.AramaYap) { aramaYap(komut.hedef); return }
         if (komut is Komut.SesSecim) {
@@ -749,6 +763,7 @@ class MainActivity : Activity() {
                     if (SohbetKomutlari.ekranInceleMi(istekMetni)) { ekraniIncele(); return@runOnUiThread }
                     if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
+                    (KomutYorumlayici.yorumla(istekMetni) as? Komut.HavaDurumu)?.let { havaDurumu(it.yer, it.yarinMi, nesil); return@runOnUiThread }
                     (KomutYorumlayici.yorumla(istekMetni) as? Komut.Kamera)?.let { kameraBak(it.on, nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)
                     sohbetYazisiniGoster("Siz: $istekMetni\n\nSezai düşünüyor...")

@@ -28,6 +28,7 @@ sealed class Komut {
     data class MesajGonder(val hedef: String, val metin: String) : Komut()
     data class NavigasyonBaslat(val hedef: String) : Komut()
     data class UygulamaAc(val isim: String) : Komut()
+    data class HavaDurumu(val yer: String = "", val yarinMi: Boolean = false) : Komut()
     enum class AyarTuru { WIFI, BLUETOOTH, VERI, PARLAKLIK, SES_AYARLARI }
     data class SistemAyar(val tur: AyarTuru) : Komut()
     object AcilArama : Komut() // 112
@@ -125,6 +126,20 @@ object KomutYorumlayici {
         if (m.contains("neler yapabilirsin") || m.contains("ne yapabilirsin") || m.contains("ne işe yararsın") ||
             m.contains("sana neler söyleyebilirim") || m.contains("hangi komutları")) return Komut.Yardim
 
+        // Hava durumu: "hava nasıl", "yarın yağmur var mı", "İstanbul'da hava"
+        val havaVar = m.contains("hava") && (m.contains("nasıl") || m.contains("durumu") || m.contains("kaç derece") ||
+            m.contains("sıcaklık") || m.contains("bugün") || m.contains("yarın"))
+            || m.contains("yağmur") && (m.contains("yağacak") || m.contains("var mı") || m.contains("olacak"))
+            || m.contains("kar yağacak") || m.contains("fırtına")
+        if (havaVar) {
+            val yarinMi = m.contains("yarın") || m.contains("yarin")
+            // "İstanbul'da hava" → yer = "istanbul"; koşullar soyulur
+            val yerSoz = listOf("hava nasıl", "hava durumu", "kaç derece", "sıcaklık", "yağmur", "kar yağacak",
+                "yağacak mı", "var mı", "olacak mı", "bugün", "yarın", "hava").fold(m) { s, k -> s.replace(k, " ") }
+                .replace(Regex("[^a-zçğıöşü\\s]"), " ").trim().replace(Regex("\\s+"), " ")
+            val yer = yerSoz.split(" ").filter { it.length > 2 && it !in setOf("için", "nasıl", "durumu", "kadar", "gibi") }.joinToString(" ").trim()
+            return Komut.HavaDurumu(yer, yarinMi)
+        }
         if (t.any { it.startsWith("konumum") } || m.contains("neredeyim") || m.contains("bulunduğum yer")) return Komut.KonumGoster
         // Kamera: "kamerayı aç ve resim çek", "ne görüyorsun"; ön/arka belirtilmezse arka kamera
         val kameraKelimesi = t.any { it.startsWith("kamera") }

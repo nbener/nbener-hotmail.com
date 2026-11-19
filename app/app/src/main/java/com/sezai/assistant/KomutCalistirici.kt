@@ -61,6 +61,7 @@ class KomutCalistirici(private val context: Context) {
             "Konuşma sesi yüzde $yeni."
         }
         is Komut.KonumGoster -> "Konumunuzu alıyorum." // gerçek işi MainActivity yapar (izin ve eşzamansız sonuç)
+        is Komut.HavaDurumu -> "Hava durumuna bakıyorum." // gerçek işi MainActivity / SezaiArkaPlanServisi yapar
         is Komut.Kamera -> "Kamerayı açıyorum." // gerçek işi çağıran (uygulama/servis) yapar: çekim, izin ve eşzamansız yorum
         is Komut.ZamanlayiciKur -> zamanlayiciKur(komut.saniye)
         is Komut.AramaYap -> "Arıyorum." // gerçek işi komutVer yapar: kişi arama ve arama başlatma

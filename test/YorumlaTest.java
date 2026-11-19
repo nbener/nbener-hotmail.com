@@ -38,6 +38,10 @@ public class YorumlaTest {
             {"bir buçukluk saat zamanlayıcı kur", "Bilinmiyor"},
             {"bir buçuğxyz saat zamanlayıcı kur", "Bilinmiyor"},
             {"bir buçuk dakika zamanlayıcı kur", "ZamanlayiciKur(saniye=90)"},
+            {"hava nasıl", "HavaDurumu"},
+            {"yarın hava nasıl", "HavaDurumu(yer=, yarinMi=true)"},
+            {"İstanbul'da hava nasıl", "HavaDurumu"},
+            {"yağmur yağacak mı", "HavaDurumu"},
         };
 
         int hata = 0;
