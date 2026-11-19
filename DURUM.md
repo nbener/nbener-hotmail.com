@@ -1308,7 +1308,24 @@ Son güncelleme: 2026-10-29
 | Önceki testler (son commit) | 89/89 PASS |
 
 ### Hâlâ açık
-- [ ] APK kurulumu (Shizuku servisi başlatılmalı; APK /sdcard/Download/Sezai-debug.apk'da)
+- [x] APK kurulumu: Shizuku ile kuruldu (Success, SHA256: 8a4e9afa...)
+- [ ] MesajGonder ve UygulamaAc cihazda kabul testi
+- [ ] Söz kesme (dur/Sezai) TTS sırasında cihazda kabul testi
+
+## 2026-11-19 — Namaz vakti özelliği
+
+### Bu oturumda yapılanlar
+- NamazVaktiYardimcisi.kt: Aladhan.com ücretsiz API, Diyanet İşleri Başkanlığı metodu (method=13)
+- KomutYorumlayici: `NamazVakti` komutu + "namaz", "ezan", "imsak", "yatsı" vb. kalıplar
+- KomutCalistirici: yönlendirme eklendi
+- MainActivity + SezaiArkaPlanServisi: asıl çağrı, HavaDurumu ile aynı desen
+- GPS konumu kullanır; internet gerektirir
+- Çıktı: tüm 6 vaktin saati + bir sonraki vaktin adı ve kaç dakika kaldığı
+- Derleme: SHA256 8a4e9afa..., v2 imzalı, Shizuku ile kuruldu (Success)
+- Commit: 4953188
+
+### Hâlâ açık
+- [ ] Namaz vakti cihazda kabul testi (sesle "namaz vakitleri" deyince çalışıyor mu)
 - [ ] MesajGonder ve UygulamaAc cihazda kabul testi
 - [ ] Söz kesme (dur/Sezai) TTS sırasında cihazda kabul testi
 - [ ] Streaming TTS kulak testi

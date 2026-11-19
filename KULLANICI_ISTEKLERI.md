@@ -27,6 +27,7 @@ Durum: [x] cihazda doğrulandı · [~] kodlandı/kurulu, kullanıcı veya cihaz 
 - [ ] Telefon numarası/kişi bilgisi sorguları ("kimi aradım", "numaram ne").
 - [ ] Alarm/zamanlayıcı (kodlu, arka plandan Intent denenmedi), hatırlatıcı, takvim.
 - [ ] Müzik, internet radyosu, YouTube arama (hepsi sesle).
+- [~] Namaz vakitleri: "namaz vakitleri", "ezan ne zaman", "bir sonraki namaz" (kodlandı/kuruldu; cihazda test bekliyor).
 - [ ] Hava durumu, güncel haber/manşet, güvenilir web araştırması, din ve dini rüya bilgisi.
 - [ ] Ekran analizi ve telefonu sesle yönetme (uygulama aç, ses/parlaklık ayarı); erişilebilirlik izni kullanıcıda.
 - [ ] Wi-Fi/Bluetooth/fener/rahatsız etme gibi sistem ayarlarını sesle yönet.
