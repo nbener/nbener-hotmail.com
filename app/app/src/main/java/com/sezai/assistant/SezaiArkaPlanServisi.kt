@@ -175,11 +175,11 @@ class SezaiArkaPlanServisi : Service() {
         if (!d.kullanilabilirMi()) { uyanmayaDon(benim, 3000); return@postDelayed }
         d.dinle(
             sonuc = { metin -> anaIs.post { if (benim == nesil && !kapaniyor) yanitla(metin, benim, takip) } },
-            // Ses duyulmadı/anlaşılmadı: ilk istekte kısa bilgi, takipte sessizce uyanma beklemesine dön
+            // Ses duyulmadı/anlaşılmadı: ilk hatada sessizce bir kez daha dene; ikincisinde uyanmaya dön
             hata = { _ -> anaIs.post {
                 if (benim != nesil || kapaniyor) return@post
-                if (takip == 0) konus("Sizi duyamadım. İsterseniz tekrar Sezai deyin.", benim) { uyanmayaDon(benim, 1500) }
-                else uyanmayaDon(benim, 1500)
+                if (takip == 0) dinleTur(benim, 1)  // sessizce yeniden dene
+                else konus("Sizi duyamadım, tekrar Sezai diyebilirsiniz.", benim) { uyanmayaDon(benim, 1500) }
             } })
         }, 300L)
     }

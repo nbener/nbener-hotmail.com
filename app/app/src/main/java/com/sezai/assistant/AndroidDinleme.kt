@@ -84,6 +84,10 @@ class AndroidDinleme internal constructor(
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
                 putExtra(RecognizerIntent.EXTRA_LANGUAGE, "tr-TR")
                 putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, false)
+                putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 5)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 1500L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 1000L)
+                putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 500L)
             })
         } catch (_: SecurityException) {
             if (tanici === r) { kapat(); hata("Mikrofon izni yok") } else sesiGeriAcGecikmeli(0)
