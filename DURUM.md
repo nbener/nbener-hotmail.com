@@ -1270,3 +1270,45 @@ Son güncelleme: 2026-10-29
 - [ ] Sessiz mod: cihazda timeout davranışı doğrulaması
 - [ ] STT hata kodu=7 kök nedeni
 - [ ] Gerçek sesli sohbet / canlı API kabul testi
+
+## 2026-11-19 — SMS gönderme, uygulama açma, test altyapısı
+
+### Bu oturumda yapılanlar
+
+**Yeni komutlar (KomutYorumlayici.kt + KomutCalistirici.kt)**
+- MesajGonder: "anneme mesaj gönder: ...", alıntı veya iki nokta ile içerik tespiti; rehberden numara araması; SMS uygulaması açılır
+- UygulamaAc: "WhatsApp aç", "haritayı aç" vb.; paket adı haritasıyla LaunchIntent; kurulu değilse kullanıcıya bildirim
+
+**KomutYorumlayici hata düzeltmeleri**
+- YouTube "aç" vs "ara" ayrımı: "YouTube'u aç" → UygulamaAc, "YouTube'da X ara" → YouTubeAra
+- SMS okuma "ne" eşleşmesi: `m.contains("ne")` → `t.contains("ne")` (anneme yanlış eşleşmesi)
+- Mesaj hedef soyma: içerik tokenları hedeften temizleniyor (anneme X mesajı gönder: X → hedef=anne)
+- İyelik + datif zincirleme: `iyelik2[h] ?: iyelik2[h.dropLast(1)] ?: iyelik2[h.dropLast(2)]` (anneme→annem→anne)
+
+**SozKesme (kendi sesine susmazdı)**
+- AEC yeniden etkinleştirildi: hoparlör sesi mikrofona sızmasın
+- Vosk eşleşmesine enerji kapısı: `ttsBaseline * 1.8` minimum → TTS yankısı tetiklemesin
+
+**Sessiz mod düzeltmesi**
+- Oturum açılışında `sessiz=true` yakalanan sorun: broadcast `com.sezai.assistant.SESSIZ_KAPAT` ile çözüldü
+- Yöntem: `/system/bin/am broadcast --user 0` (rish/root gerektirmez)
+
+**JVM tabanlı test altyapısı**
+- test/YorumlaTest.java: Shizuku bağımsız, android.jar + kotlin-stdlib + derlenmiş .class ile çalışır
+- 34 test senaryosu; Shizuku olmadan tam KomutYorumlayici doğrulaması mümkün
+
+### Derleme
+- SHA256: 35df6a7a876149bfb3765acdade26dbcbed70e95cbfd7d5ff8df5f81d95f738f
+- v2 imzalı; Shizuku çalışmadığından GUI yükleyici açıldı (kullanıcı yerine APK /sdcard/Download'da)
+
+### Test sonuçları
+| Test | Sonuç |
+|---|---|
+| Komut yorumlama (JVM) | 34/34 PASS |
+| Önceki testler (son commit) | 89/89 PASS |
+
+### Hâlâ açık
+- [ ] APK kurulumu (Shizuku servisi başlatılmalı; APK /sdcard/Download/Sezai-debug.apk'da)
+- [ ] MesajGonder ve UygulamaAc cihazda kabul testi
+- [ ] Söz kesme (dur/Sezai) TTS sırasında cihazda kabul testi
+- [ ] Streaming TTS kulak testi

@@ -728,3 +728,9 @@ Cihazda kurulum yapılmadığından bu oturumun hiçbir özelliği cihazda doğr
 | 4 | TTS açık, insan var | dur 0/5, Sezai 0/5 ✗ |
 
 Kök neden doğrulandı: Tur 4 tepe=22936 (Tur 3 ile aynı), AEC referans yolu TTS sinyal yolunu yakalamıyor (toplam_enerji_farki_db ~0.25 dB). Sessizde model mükemmel; sorun yalnız TTS eşzamanlılığında. Sonraki: Seçenek B (cümle arası dinleme) onay bekliyor.
+
+## 2026-11-19 — Komut yorumlama genişletildi (34/34)
+
+| Alan | Sonuç | Kapsam |
+|---|---|---|
+| Komut yorumlama JVM (YorumlaTest.java) | 34/34 PASS | Shizuku bağımsız; android.jar + kotlin-stdlib + .class. MesajGonder, UygulamaAc, YouTube/aç ayrımı, SMS okuma "ne" düzeltmesi dahil. Cihaz kurulumu bekliyor. |
