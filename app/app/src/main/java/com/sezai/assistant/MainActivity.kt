@@ -461,6 +461,18 @@ class MainActivity : Activity() {
     }
 
     private val hava by lazy { HavaYardimcisi(this) }
+    private val namaz by lazy { NamazVaktiYardimcisi(this) }
+
+    private fun namazVaktiGoster(nesil: Int?) {
+        durumYazisi.text = "Namaz vakitlerine bakıyorum..."
+        namaz.al { soz ->
+            durumYazisi.text = soz
+            Log.i("Sezai", "NAMAZ sonuc: ${soz.take(80)}")
+            if (nesil == null) seslendir(soz)
+            else if (sohbetAcik && nesil == sohbetNesli)
+                seslendir(soz, bitince = { anaIs.postDelayed({ sohbetDinle(nesil) }, 350) })
+        }
+    }
 
     private fun havaDurumu(yer: String, yarinMi: Boolean, nesil: Int?) {
         durumYazisi.text = "Hava durumuna bakıyorum..."
@@ -571,6 +583,7 @@ class MainActivity : Activity() {
         if (SohbetKomutlari.gecmisOkuMu(metin)) { gecmisiSesliOku(null); return }
         val komut = KomutYorumlayici.yorumla(metin)
         if (komut is Komut.KonumGoster) { konumGoster(null); return }
+        if (komut is Komut.NamazVakti) { namazVaktiGoster(null); return }
         if (komut is Komut.HavaDurumu) { havaDurumu(komut.yer, komut.yarinMi, null); return }
         if (komut is Komut.Kamera) { kameraBak(komut.on, null); return }
         if (komut is Komut.AramaYap) { aramaYap(komut.hedef); return }
@@ -763,6 +776,7 @@ class MainActivity : Activity() {
                     if (SohbetKomutlari.ekranInceleMi(istekMetni)) { ekraniIncele(); return@runOnUiThread }
                     if (SohbetKomutlari.gecmisOkuMu(istekMetni)) { gecmisiSesliOku(nesil); return@runOnUiThread }
                     if (KomutYorumlayici.yorumla(istekMetni) is Komut.KonumGoster) { konumGoster(nesil); return@runOnUiThread }
+                    if (KomutYorumlayici.yorumla(istekMetni) is Komut.NamazVakti) { namazVaktiGoster(nesil); return@runOnUiThread }
                     (KomutYorumlayici.yorumla(istekMetni) as? Komut.HavaDurumu)?.let { havaDurumu(it.yer, it.yarinMi, nesil); return@runOnUiThread }
                     (KomutYorumlayici.yorumla(istekMetni) as? Komut.Kamera)?.let { kameraBak(it.on, nesil); return@runOnUiThread }
                     karakterDurumu(SezaiKarakterView.Durum.DUSUNUYOR)

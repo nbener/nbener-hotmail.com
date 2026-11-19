@@ -282,6 +282,10 @@ class SezaiArkaPlanServisi : Service() {
                 val konum = KonumYardimcisi(this)
                 if (!konum.izinVarMi()) { konus("Konum izni verilmemiş. Uygulamadan izin verebilirsiniz.", benim) { uyanmayaDon(benim, 1500) }; return }
                 konum.al { _, soz -> if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() } }
+            } else if (komut is Komut.NamazVakti) {
+                NamazVaktiYardimcisi(this).al { soz ->
+                    if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() }
+                }
             } else if (komut is Komut.HavaDurumu) {
                 HavaYardimcisi(this).al(komut.yer, komut.yarinMi) { soz ->
                     if (benim == nesil && !kapaniyor) konus(soz, benim) { devam() }

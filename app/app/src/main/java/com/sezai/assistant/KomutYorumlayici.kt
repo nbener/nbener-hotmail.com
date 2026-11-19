@@ -18,6 +18,7 @@ sealed class Komut {
     data class NotKaydet(val metin: String) : Komut()
     data class NotOku(val adet: Int) : Komut()
     object KonumGoster : Komut()
+    object NamazVakti : Komut()
     data class Kamera(val on: Boolean) : Komut()
     data class ZamanlayiciKur(val saniye: Int) : Komut()
     data class AramaYap(val hedef: String) : Komut() // isim veya numara
@@ -299,6 +300,11 @@ object KomutYorumlayici {
             (m.contains("kur") || m.contains("ayarla") || m.contains("başlat") || m.contains("koy")) || m.contains("dakika sonra uyar") || m.contains("saniye sonra uyar")) {
             sureOku(t)?.let { return Komut.ZamanlayiciKur(it) }
         }
+        // Namaz vakitleri: "namaz vakitleri", "namaz saatleri", "ezan ne zaman", "bir sonraki namaz"
+        val namazVar = m.contains("namaz") || m.contains("ezan") || m.contains("imsak") ||
+            m.contains("öğle saati") || (m.contains("akşam") && m.contains("vakti")) ||
+            m.contains("yatsı") || m.contains("sabah namazı")
+        if (namazVar) return Komut.NamazVakti
         // Uygulama açma: "WhatsApp'ı aç", "haritayı aç", "tarayıcıyı aç"
         if (m.contains("aç") && !m.contains("alarm") && !m.contains("fener") && !m.contains("mikrofon")) {
             val uygulamalar = listOf("whatsapp", "telegram", "instagram", "twitter", "spotify",
